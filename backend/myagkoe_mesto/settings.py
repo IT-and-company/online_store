@@ -4,9 +4,9 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 SECRET_KEY = os.getenv('SECRET_KEY', default='p&l%385148kslhtyn^##a1)ilz@4zqj=rq&agdol^##zgl9(vs')
 
-DEBUG = os.getenv("DEBUG", "false").lower() == "true"
+DEBUG = os.getenv('DEBUG', True)
 
-ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', default='*')
+ALLOWED_HOSTS = []
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -16,10 +16,13 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django_filters',
-    'rest_framework'
+    'rest_framework',
+    'phonenumbers',
+    'djoser',
 
     'api',
-    'products'
+    'products',
+    'user'
 ]
 
 MIDDLEWARE = [
@@ -50,7 +53,7 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'foodgram.wsgi.application'
+WSGI_APPLICATION = 'myagkoe_mesto.wsgi.application'
 
 
 if os.getenv("USE_SQLITE", "True") == "True":
@@ -114,7 +117,7 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'backend_media/')
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-AUTH_USER_MODEL = 'users.User'
+AUTH_USER_MODEL = 'user.User'
 
 REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': [
