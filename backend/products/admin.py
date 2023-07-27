@@ -10,6 +10,7 @@ class CategoryAdmin(admin.ModelAdmin):
         'name',
         'slug'
     )
+    prepopulated_fields = {'slug': ('name',)}
 
 
 @admin.register(Type)
@@ -19,3 +20,4 @@ class TypeAdmin(admin.ModelAdmin):
         'name',
         'slug'
     )
+    prepopulated_fields = {'slug': ('name',)}
