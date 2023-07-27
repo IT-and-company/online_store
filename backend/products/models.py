@@ -7,7 +7,7 @@ class Category(models.Model):
     """Категории товаров
 
     Товары делятся на категории: «Мягкая мебель», «Кухни», «Спальни», "Гостиные",
-    "Прихожие", "Детская мебель".
+    "Прихожие", "Детская мебель".so
     Список категорий может быть расширен администратором.
     """
     name = models.CharField(
@@ -83,6 +83,25 @@ class Tag(models.Model):
         return super().save(*args, **kwargs)
 
 
+class Size(models.Model):
+    length = models.PositiveSmallIntegerField(
+        'длина',
+    )
+    width = models.PositiveSmallIntegerField(
+        'ширина',
+    )
+    height = models.PositiveSmallIntegerField(
+        'ширина',
+    )
+
+    class Meta:
+        verbose_name = 'Размер'
+        verbose_name_plural = 'размеры'
+
+    def __str__(self):
+        return f'{self.length} х {self.width} х {self.height} см'
+
+
 class Product(models.Model):
     name = models.CharField(
         'Название товара',
@@ -116,16 +135,19 @@ class Product(models.Model):
     )
     category = models.ManyToManyField(
         Category,
-        blank=True,
         related_name='category',
-        verbose_name='Жанр произведения'
+        verbose_name='Категория товара'
     )
     type = models.ForeignKey(
         Type,
         on_delete=models.SET_NULL,
         null=True,
-        blank=True,
-        verbose_name='Категория произведения'
+        verbose_name='Тип товара'
+    )
+    size = models.ManyToManyField(
+        Size,
+        related_name='size',
+        verbose_name='Размер товара'
     )
 
     class Meta:
