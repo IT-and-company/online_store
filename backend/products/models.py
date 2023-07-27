@@ -1,15 +1,13 @@
+from django.contrib.auth import get_user_model
 from django.db import models
 from django.conf import settings
+from django.core.validators import MinValueValidator
 from django.template.defaultfilters import slugify
 
+User = get_user_model()
 
-class Category(models.Model):
-    """Категории товаров
 
-    Товары делятся на категории: «Мягкая мебель», «Кухни», «Спальни», "Гостиные",
-    "Прихожие", "Детская мебель".so
-    Список категорий может быть расширен администратором.
-    """
+class CategoryType(models.Model):
     name = models.CharField(
         'Название категории',
         max_length=settings.MAX_LENGTH_1
@@ -20,35 +18,35 @@ class Category(models.Model):
     )
 
     class Meta:
+        abstract = True
+
+    def __str__(self):
+        return self.name[:settings.MAX_LENGTH_3]
+
+
+class Category(CategoryType):
+    """Категории товаров
+
+    Товары делятся на категории: «Мягкая мебель», «Кухни», «Спальни», "Гостиные",
+    "Прихожие", "Детская мебель".so
+    Список категорий может быть расширен администратором.
+    """
+
+    class Meta:
         ordering = ('name',)
         verbose_name = 'Категория'
         verbose_name_plural = 'Категории'
 
-    def __str__(self):
-        return self.name[:settings.MAX_LENGTH_3]
 
-
-class Type(models.Model):
+class Type(CategoryType):
     """Тип товара
 
     Товары делятся на типы: "Диваны", "Кресла" и т.д
     """
-    name = models.CharField(
-        'Название жанра',
-        max_length=settings.MAX_LENGTH_1
-    )
-    slug = models.SlugField(
-        'Слаг жанра',
-        unique=True
-    )
-
     class Meta:
         ordering = ('name',)
         verbose_name = 'Жанр'
         verbose_name_plural = 'Жанры'
-
-    def __str__(self):
-        return self.name[:settings.MAX_LENGTH_3]
 
 
 class Tag(models.Model):
@@ -108,6 +106,69 @@ class Product(models.Model):
         max_length=settings.MAX_LENGTH_1,
         help_text='Введите название товара'
     )
+    text = models.TextField(
+        'Описание товара',
+        help_text='Напишите описание товара'
+    )
+    category = models.ManyToManyField(
+        Category,
+        related_name='category',
+        verbose_name='Категория товара'
+    )
+    type = models.ForeignKey(
+        Type,
+        on_delete=models.SET_NULL,
+        null=True,
+        verbose_name='Тип товара'
+    )
+
+    class Meta:
+        constraints = [models.UniqueConstraint(
+            fields=['product', 'type', ],
+            name='unique_type')
+        ]
+
+    def __str__(self):
+        return self.name
+
+
+class Specification(models.Model):
+    article_number = models.CharField(
+        'Артикул товара',
+        max_length=settings.MAX_LENGTH_1,
+        help_text='Введите артикул товара'
+    )
+    size = models.ManyToManyField(
+        Size,
+        related_name='size_in_specific',
+        verbose_name='Размер товара'
+    )
+    materials = models.CharField(
+        'Материлы',
+        max_length=settings.MAX_LENGTH_1,
+        help_text='Введите материлы товара'
+    )
+    manufacturer = models.CharField(
+        'Производитель',
+        max_length=settings.MAX_LENGTH_1,
+        help_text='Введите материлы товара'
+    )
+
+    class Meta:
+        class Meta:
+            constraints = [models.UniqueConstraint(
+                fields=['product', 'type', ],
+                name='unique_type')
+            ]
+
+
+class VariationProduct(models.Model):
+    product = models.ForeignKey(
+        Product,
+        on_delete=models.CASCADE,
+        related_name='product_variation',
+        verbose_name='Товары'
+    )
     image = models.ImageField(
         'Фото товара',
         upload_to='product/',
@@ -123,9 +184,10 @@ class Product(models.Model):
         blank=True,
         default=0
     )
-    text = models.TextField(
-        'Описание товара',
-        help_text='Напишите описание товара'
+    size = models.ManyToManyField(
+        Size,
+        related_name='size',
+        verbose_name='Размер товара'
     )
     tags = models.ManyToManyField(
         Tag,
@@ -133,27 +195,59 @@ class Product(models.Model):
         verbose_name='Тег товара',
         related_name='colour'
     )
-    category = models.ManyToManyField(
-        Category,
-        related_name='category',
-        verbose_name='Категория товара'
-    )
-    type = models.ForeignKey(
-        Type,
+    specification = models.ForeignKey(
+        Specification,
         on_delete=models.SET_NULL,
-        null=True,
-        verbose_name='Тип товара'
-    )
-    size = models.ManyToManyField(
-        Size,
-        related_name='size',
-        verbose_name='Размер товара'
+        related_name='specification'
     )
 
     class Meta:
-        ordering = ('name',)
-        verbose_name = 'Товар'
-        verbose_name_plural = 'Товары'
+        verbose_name = 'Статья'
+        verbose_name_plural = 'Статьи'
 
     def __str__(self):
-        return self.name
+        return (f'{self.product.name}: '
+                f'{self.price} - '
+                f'{self.size} '
+                f'{self.specification}')
+
+
+class FavoriteBasket(models.Model):
+    user = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        verbose_name='Пользователь'
+    )
+    product = models.ForeignKey(
+        VariationProduct,
+        on_delete=models.CASCADE,
+        verbose_name='Рецепт'
+    )
+
+    class Meta:
+        abstract = True
+
+    def __str__(self):
+        return f'{self.product.name}'
+
+
+class Favorite(FavoriteBasket):
+    class Meta:
+        constraints = [models.UniqueConstraint(
+            fields=['user', 'product'],
+            name='unique_favorite')
+        ]
+        default_related_name = 'favorite'
+        verbose_name = 'Избранное'
+        verbose_name_plural = 'Избранное'
+
+
+class Basket(FavoriteBasket):
+    class Meta:
+        constraints = [models.UniqueConstraint(
+            fields=['user', 'product'],
+            name='unique_shopping')
+        ]
+        default_related_name = 'basket'
+        verbose_name = 'Корзина'
+        verbose_name_plural = 'Корзина'

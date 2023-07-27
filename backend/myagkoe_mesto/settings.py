@@ -140,3 +140,4 @@ EMAIL_FILE_PATH = os.path.join(BASE_DIR, 'sent_emails')
 MAX_LENGTH_1 = 200
 MAX_LENGTH_2 = 7
 MAX_LENGTH_3 = 20
+MIN_VALUE = 1
