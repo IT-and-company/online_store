@@ -45,8 +45,8 @@ class Type(CategoryType):
     """
     class Meta:
         ordering = ('name',)
-        verbose_name = 'Жанр'
-        verbose_name_plural = 'Жанры'
+        verbose_name = 'Тип'
+        verbose_name_plural = 'Типы'
 
 
 class Tag(models.Model):
@@ -108,6 +108,7 @@ class Product(models.Model):
     )
     text = models.TextField(
         'Описание товара',
+        blank=True,
         help_text='Напишите описание товара'
     )
     category = models.ManyToManyField(
@@ -124,7 +125,7 @@ class Product(models.Model):
 
     class Meta:
         constraints = [models.UniqueConstraint(
-            fields=['product', 'type', ],
+            fields=['name', 'type', ],
             name='unique_type')
         ]
 
@@ -155,11 +156,31 @@ class Specification(models.Model):
     )
 
     class Meta:
-        class Meta:
-            constraints = [models.UniqueConstraint(
-                fields=['product', 'type', ],
-                name='unique_type')
-            ]
+        verbose_name = 'Характеристика'
+        verbose_name_plural = 'Характеристики'
+
+    def __str__(self):
+        return (f'{self.article_number}: '
+                f'{self.size} '
+                f'{self.materials} '
+                f'{self.manufacturer}')
+
+
+class Image(models.Model):
+    image = models.ImageField(
+        'Фото товара',
+        upload_to='product/%Y/%m/%d',
+        blank=True,
+        null=True,
+        help_text='Загрузите фото товара'
+    )
+
+    class Meta:
+        verbose_name = 'Изображение'
+        verbose_name_plural = 'Изображения'
+
+    def __str__(self):
+        return f'{self.image.name.split("/")[-1]}'
 
 
 class VariationProduct(models.Model):
@@ -169,10 +190,12 @@ class VariationProduct(models.Model):
         related_name='product_variation',
         verbose_name='Товары'
     )
-    image = models.ImageField(
-        'Фото товара',
-        upload_to='product/',
-        help_text='Загрузите фото товара'
+    image = models.ForeignKey(
+        Image,
+        on_delete=models.SET_NULL,
+        null=True,
+        related_name='pictures',
+        verbose_name='Фотографии'
     )
     price = models.DecimalField(
         max_digits=10,
@@ -197,6 +220,7 @@ class VariationProduct(models.Model):
     )
     specification = models.ForeignKey(
         Specification,
+        null=True,
         on_delete=models.SET_NULL,
         related_name='specification'
     )
@@ -207,7 +231,7 @@ class VariationProduct(models.Model):
 
     def __str__(self):
         return (f'{self.product.name}: '
-                f'{self.price} - '
+                f'{self.price} '
                 f'{self.size} '
                 f'{self.specification}')
 
@@ -221,14 +245,14 @@ class FavoriteBasket(models.Model):
     product = models.ForeignKey(
         VariationProduct,
         on_delete=models.CASCADE,
-        verbose_name='Рецепт'
+        verbose_name='Товар'
     )
 
     class Meta:
         abstract = True
 
     def __str__(self):
-        return f'{self.product.name}'
+        return f'{self.product}'
 
 
 class Favorite(FavoriteBasket):
@@ -243,11 +267,10 @@ class Favorite(FavoriteBasket):
 
 
 class Basket(FavoriteBasket):
+    quantity = models.PositiveIntegerField(default=1)
+
     class Meta:
-        constraints = [models.UniqueConstraint(
-            fields=['user', 'product'],
-            name='unique_shopping')
-        ]
         default_related_name = 'basket'
         verbose_name = 'Корзина'
         verbose_name_plural = 'Корзина'
+
