@@ -190,10 +190,8 @@ class VariationProduct(models.Model):
         related_name='product_variation',
         verbose_name='Товары'
     )
-    image = models.ForeignKey(
+    image = models.ManyToManyField(
         Image,
-        on_delete=models.SET_NULL,
-        null=True,
         related_name='pictures',
         verbose_name='Фотографии'
     )
