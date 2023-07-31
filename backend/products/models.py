@@ -120,7 +120,7 @@ class Product(models.Model):
         Type,
         on_delete=models.SET_NULL,
         null=True,
-        verbose_name='Тип товара'
+        verbose_name='Тип товара' """Например угловой"""
     )
 
     class Meta:

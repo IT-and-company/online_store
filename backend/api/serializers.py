@@ -119,7 +119,7 @@ class VariationProductSerializer(serializers.ModelSerializer):
 
     @staticmethod
     def get_is_discount(obj):
-        return obj.price * obj.sale / 100
+        return obj.price - (obj.price * obj.sale / 100)
 
     def get_request(self, obj, model):
         return (self.context.get('request')
