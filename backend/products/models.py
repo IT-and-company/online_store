@@ -144,6 +144,11 @@ class Specification(models.Model):
         related_name='size_in_specific',
         verbose_name='Размер товара'
     )
+    type = models.CharField(
+        'Тип механизмов',
+        max_length=settings.MAX_LENGTH_1,
+        help_text='Введите тип механизма товара'
+    )
     materials = models.CharField(
         'Материлы',
         max_length=settings.MAX_LENGTH_1,
@@ -152,7 +157,7 @@ class Specification(models.Model):
     manufacturer = models.CharField(
         'Производитель',
         max_length=settings.MAX_LENGTH_1,
-        help_text='Введите материлы товара'
+        help_text='Введите Производителя'
     )
 
     class Meta:
@@ -160,8 +165,9 @@ class Specification(models.Model):
         verbose_name_plural = 'Характеристики'
 
     def __str__(self):
-        return (f'{self.article_number}: '
+        return (f'{self.article_number} '
                 f'{self.size} '
+                f'{self.type} '
                 f'{self.materials} '
                 f'{self.manufacturer}')
 
@@ -195,10 +201,10 @@ class VariationProduct(models.Model):
         related_name='pictures',
         verbose_name='Фотографии'
     )
-    price = models.DecimalField(
-        max_digits=10,
-        decimal_places=2,
-        verbose_name='Цена'
+    price = models.IntegerField(
+        'Цена',
+        blank=True,
+        default=0
     )
     sale = models.IntegerField(
         'Скидка в процентах',
@@ -213,7 +219,7 @@ class VariationProduct(models.Model):
     tags = models.ManyToManyField(
         Tag,
         db_index=True,
-        verbose_name='Тег товара',
+        verbose_name='Цвет товара',
         related_name='colour'
     )
     specification = models.ForeignKey(

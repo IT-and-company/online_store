@@ -40,7 +40,7 @@ class SizeAdmin(admin.ModelAdmin):
 @admin.register(Specification)
 class SpecificationAdmin(admin.ModelAdmin):
     list_display = ('article_number',
-                    'materials', 'manufacturer')
+                    'materials', 'type', 'manufacturer')
     search_fields = ('article_number', 'manufacturer')
 
 
