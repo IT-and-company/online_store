@@ -120,7 +120,7 @@ class Product(models.Model):
         Type,
         on_delete=models.SET_NULL,
         null=True,
-        verbose_name='Тип товара' """Например угловой"""
+        verbose_name='Тип товара'
     )
 
     class Meta:
@@ -147,7 +147,7 @@ class Specification(models.Model):
     type = models.CharField(
         'Тип механизмов',
         max_length=settings.MAX_LENGTH_1,
-        help_text='Введите тип механизма товара'
+        help_text='Введите тип товара'  """Например угловой"""
     )
     materials = models.CharField(
         'Материлы',
