@@ -136,6 +136,7 @@ class Product(models.Model):
 class Specification(models.Model):
     article_number = models.CharField(
         'Артикул товара',
+        blank=True,
         max_length=settings.MAX_LENGTH_1,
         help_text='Введите артикул товара'
     )
@@ -165,10 +166,10 @@ class Specification(models.Model):
         verbose_name_plural = 'Характеристики'
 
     def __str__(self):
-        return (f'{self.article_number} '
-                f'{self.size} '
-                f'{self.type} '
-                f'{self.materials} '
+        return (f'{self.article_number}, '
+                f'{self.size}, '
+                f'{self.type}, '
+                f'{self.materials}, '
                 f'{self.manufacturer}')
 
 
@@ -213,6 +214,7 @@ class VariationProduct(models.Model):
     )
     size = models.ManyToManyField(
         Size,
+        blank=True,
         related_name='size',
         verbose_name='Размер товара'
     )

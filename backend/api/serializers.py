@@ -76,25 +76,9 @@ class ProductSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
-class ProductShortSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = VariationProduct
-        fields = (
-            'id',
-            'product',
-            'image',
-            'price',
-            'sale',
-            'size',
-            'tags'
-        )
-
-
-class VariationProductSerializer(serializers.ModelSerializer):
-    product = ProductSerializer(source='product', read_only=True)
+class ProductBaseSerializer(serializers.ModelSerializer):
     tags = TagSerializer(many=True, read_only=True)
     image = ImageSerializer(many=True, read_only=True)
-    specification = SpecificationSerializer(read_only=True)
     price = serializers.IntegerField()
     sale = serializers.IntegerField()
     is_discount = serializers.SerializerMethodField(
@@ -107,18 +91,17 @@ class VariationProductSerializer(serializers.ModelSerializer):
     class Meta:
         model = VariationProduct
         fields = (
-            'id',
-            'product',
             'image',
             'price',
             'sale',
             'size',
             'tags',
-            'specification'
+            'is_discount',
+            'is_favorited',
+            'is_in_basket'
         )
 
-    @staticmethod
-    def get_is_discount(obj):
+    def get_is_discount(self, obj):
         return obj.price - (obj.price * obj.sale / 100)
 
     def get_request(self, obj, model):
@@ -130,3 +113,18 @@ class VariationProductSerializer(serializers.ModelSerializer):
 
     def get_is_favorited(self, obj):
         return self.get_request(obj, Favorite)
+
+
+class ProductShortSerializer(ProductBaseSerializer):
+    product = ProductSerializer(source='product.name', read_only=True)
+
+    class Meta(ProductBaseSerializer.Meta):
+        fields = ProductBaseSerializer.Meta.fields + ('product',)
+
+
+class VariationProductSerializer(serializers.ModelSerializer):
+    product = ProductSerializer(read_only=True)
+    specification = SpecificationSerializer(read_only=True)
+
+    class Meta(ProductBaseSerializer.Meta):
+        fields = ProductBaseSerializer.Meta.fields + ('product', 'specification')
