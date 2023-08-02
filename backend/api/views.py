@@ -1,5 +1,5 @@
 from django.shortcuts import get_object_or_404
-from django_filters.rest_framework import DjangoFilterBackend
+# from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
 from rest_framework.permissions import AllowAny
@@ -39,8 +39,8 @@ class VariationProductViewSet(viewsets.ModelViewSet):
     queryset = VariationProduct.objects.all()
     permission_classes = [IsAdminOrReadOnly]
     pagination_class = CustomPagination
-    filter_backends = [DjangoFilterBackend]
-    # filterset_class = здесь должен быть фильтр
+    # filter_backends = [DjangoFilterBackend]
+    # # filterset_class = здесь должен быть фильтр
 
     @staticmethod
     def create_obj(request, pk, model, serializer):
