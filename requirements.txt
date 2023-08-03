@@ -26,5 +26,5 @@ uritemplate~=4.1.1
 coreschema~=0.0.4
 requests~=2.31.0
 Markdown~=3.4.3
-django-filter~=22.1
+django-filter==23.2
 users~=1.0.dev0
