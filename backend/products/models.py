@@ -1,7 +1,6 @@
 from django.contrib.auth import get_user_model
 from django.db import models
 from django.conf import settings
-from django.core.validators import MinValueValidator
 from django.template.defaultfilters import slugify
 
 User = get_user_model()
@@ -148,7 +147,7 @@ class Specification(models.Model):
     type = models.CharField(
         'Тип механизмов',
         max_length=settings.MAX_LENGTH_1,
-        help_text='Введите тип товара'  """Например угловой"""
+        help_text='Введите тип товара'  #Например угловой, модульный и т.д.
     )
     materials = models.CharField(
         'Материлы',
@@ -194,12 +193,11 @@ class VariationProduct(models.Model):
     product = models.ForeignKey(
         Product,
         on_delete=models.CASCADE,
-        related_name='product_variation',
+        related_name='product',
         verbose_name='Товары'
     )
     image = models.ManyToManyField(
         Image,
-        related_name='pictures',
         verbose_name='Фотографии'
     )
     price = models.IntegerField(
@@ -279,4 +277,3 @@ class Basket(FavoriteBasket):
         default_related_name = 'basket'
         verbose_name = 'Корзина'
         verbose_name_plural = 'Корзина'
-

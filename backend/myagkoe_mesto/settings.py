@@ -18,6 +18,7 @@ INSTALLED_APPS = [
     'django_filters',
     'rest_framework',
     'phonenumbers',
+    'psycopg2',
     'djoser',
 
     'api',

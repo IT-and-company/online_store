@@ -11,7 +11,7 @@ router.register('categories', CategoryViewSet)
 router.register('type', TypeViewSet)
 router.register('tags', TagViewSet)
 router.register('size', SizeViewSet)
-router.register('recipes', VariationProductViewSet)
+router.register('product', VariationProductViewSet)
 
 urlpatterns = [
     path('', include(router.urls)),

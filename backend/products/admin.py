@@ -59,7 +59,7 @@ class VariationProductInline(admin.TabularInline):
 @admin.register(Product)
 class ProductAdmin(admin.ModelAdmin):
     inlines = (VariationProductInline,)
-    list_display = ('name', 'text')
+    list_display = ('name', 'text', 'is_favorited')
     fields = ('name', 'text', 'category', 'type')
     search_fields = ('name',)
     list_filter = ('name',)

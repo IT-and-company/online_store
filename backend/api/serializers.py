@@ -6,7 +6,7 @@ from phonenumber_field.serializerfields import PhoneNumberField
 
 from products.models import (Category, Tag, Type, Size, Specification, Product, VariationProduct, Favorite, Basket, Image)
 
-from users.models import User
+from user.models import User
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -52,13 +52,17 @@ class TagSerializer(serializers.ModelSerializer):
 
 
 class SizeSerializer(serializers.ModelSerializer):
+
     class Meta:
         model = Size
-        fields = '__all__'
+        fields = ('length',
+                  'width',
+                  'height')
 
 
 class SpecificationSerializer(serializers.ModelSerializer):
     class Meta:
+        model = Specification
         fields = '__all__'
 
 
@@ -82,11 +86,11 @@ class ProductBaseSerializer(serializers.ModelSerializer):
     price = serializers.IntegerField()
     sale = serializers.IntegerField()
     is_discount = serializers.SerializerMethodField(
-        method_name='get_is_discount')
+        method_name='get_is_discount', read_only=True)
     is_favorited = serializers.SerializerMethodField(
-        method_name='get_is_favorited')
+        method_name='get_is_favorited', read_only=True)
     is_in_basket = serializers.SerializerMethodField(
-        method_name='get_is_in_basket')
+        method_name='get_is_in_basket', read_only=True)
 
     class Meta:
         model = VariationProduct
@@ -101,18 +105,19 @@ class ProductBaseSerializer(serializers.ModelSerializer):
             'is_in_basket'
         )
 
-    def get_is_discount(self, obj):
-        return obj.price - (obj.price * obj.sale / 100)
-
     def get_request(self, obj, model):
-        return (self.context.get('request')
-                and model.objects.filter(product=obj).exists())
+        request = self.context.get('request')
+        return (request and model.objects.filter(user=request.user,
+                                                 recipe=obj).exists())
 
     def get_is_in_basket(self, obj):
         return self.get_request(obj, Basket)
 
     def get_is_favorited(self, obj):
         return self.get_request(obj, Favorite)
+
+    def get_is_discount(self, obj):
+        return obj.price - (obj.price * obj.sale / 100)
 
 
 class ProductShortSerializer(ProductBaseSerializer):
@@ -122,7 +127,7 @@ class ProductShortSerializer(ProductBaseSerializer):
         fields = ProductBaseSerializer.Meta.fields + ('product',)
 
 
-class VariationProductSerializer(serializers.ModelSerializer):
+class VariationProductSerializer(ProductBaseSerializer):
     product = ProductSerializer(read_only=True)
     specification = SpecificationSerializer(read_only=True)
 

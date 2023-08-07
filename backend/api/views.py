@@ -7,7 +7,8 @@ from rest_framework.response import Response
 
 from .pagination import CustomPagination
 from .permissions import IsAdminOrReadOnly
-from .serializers import CategorySerializer, TypeSerializer, TagSerializer, SizeSerializer, ProductShortSerializer,
+from .serializers import (CategorySerializer, TypeSerializer,
+                          TagSerializer, SizeSerializer, ProductShortSerializer, VariationProductSerializer)
 from products.models import (Category, Tag, Type, VariationProduct, Size, Favorite, Basket)
 
 
@@ -37,6 +38,7 @@ class SizeViewSet(viewsets.ReadOnlyModelViewSet):
 
 class VariationProductViewSet(viewsets.ModelViewSet):
     queryset = VariationProduct.objects.all()
+    serializer_class = VariationProductSerializer
     permission_classes = [IsAdminOrReadOnly]
     pagination_class = CustomPagination
     # filter_backends = [DjangoFilterBackend]
@@ -56,6 +58,7 @@ class VariationProductViewSet(viewsets.ModelViewSet):
     def delete_obj(request, pk, model):
         get_object_or_404(model, product=pk, user=request.user).delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
+
     @action(detail=True, methods=['post'],
             permission_classes=[AllowAny])
     def favorite(self, request, pk):
@@ -68,10 +71,10 @@ class VariationProductViewSet(viewsets.ModelViewSet):
 
     @action(detail=True, methods=['post'],
             permission_classes=[AllowAny])
-    def shopping_cart(self, request, pk):
+    def basket(self, request, pk):
         return VariationProductViewSet.create_obj(
             request, pk, Basket, ProductShortSerializer)
 
-    @shopping_cart.mapping.delete
-    def delete_shopping_cart(self, request, pk):
+    @basket.mapping.delete
+    def delete_basket(self, request, pk):
         return VariationProductViewSet.delete_obj(request, pk, Basket)
