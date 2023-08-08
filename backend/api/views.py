@@ -15,6 +15,7 @@ from products.models import (Category, Tag, Type, VariationProduct, Size, Favori
 class CategoryViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
+    permission_classes = [AllowAny]
 
 
 class TypeViewSet(viewsets.ReadOnlyModelViewSet):

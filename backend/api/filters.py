@@ -1,6 +1,6 @@
 from django_filters.rest_framework import FilterSet, filters
 
-from products.models import Ingredient, Recipe, Tag, Size
+from products.models import Ingredient, Tag, Size
 
 
 class VariationProductFilter(FilterSet):

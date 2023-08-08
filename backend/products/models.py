@@ -88,7 +88,7 @@ class Size(models.Model):
         'ширина',
     )
     height = models.PositiveSmallIntegerField(
-        'ширина',
+        'высота',
     )
 
     class Meta:
