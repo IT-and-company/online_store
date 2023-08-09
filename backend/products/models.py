@@ -144,7 +144,7 @@ class Specification(models.Model):
         related_name='size_in_specific',
         verbose_name='Размер товара'
     )
-    type = models.CharField(
+    model = models.CharField(
         'Тип механизмов',
         max_length=settings.MAX_LENGTH_1,
         help_text='Введите тип товара'  #Например угловой, модульный и т.д.
@@ -167,7 +167,7 @@ class Specification(models.Model):
     def __str__(self):
         return (f'{self.article_number}, '
                 f'{self.size}, '
-                f'{self.type}, '
+                f'{self.model}, '
                 f'{self.materials}, '
                 f'{self.manufacturer}')
 

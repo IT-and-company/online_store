@@ -1,10 +1,12 @@
 from django.shortcuts import get_object_or_404
-# from django_filters.rest_framework import DjangoFilterBackend
+from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 
+
+from .filters import VariationProductFilter
 from .pagination import CustomPagination
 from .permissions import IsAdminOrReadOnly
 from .serializers import (CategorySerializer, TypeSerializer,
@@ -16,11 +18,13 @@ class CategoryViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
     permission_classes = [AllowAny]
+    pagination_class = None
 
 
 class TypeViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Type.objects.all()
     serializer_class = TypeSerializer
+    pagination_class = None
 
 
 class TagViewSet(viewsets.ReadOnlyModelViewSet):
@@ -42,8 +46,8 @@ class VariationProductViewSet(viewsets.ModelViewSet):
     serializer_class = VariationProductSerializer
     permission_classes = [IsAdminOrReadOnly]
     pagination_class = CustomPagination
-    # filter_backends = [DjangoFilterBackend]
-    # # filterset_class = здесь должен быть фильтр
+    filter_backends = [DjangoFilterBackend]
+    filterset_class = VariationProductFilter
 
     @staticmethod
     def create_obj(request, pk, model, serializer):
