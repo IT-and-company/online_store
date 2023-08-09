@@ -5,7 +5,7 @@ info:
 paths:
   /api/categories/:
     get:
-      operationId: Список категорий
+      operationId: listCategorys
       description: ''
       parameters: []
       responses:
@@ -21,13 +21,14 @@ paths:
       - api
   /api/categories/{id}/:
     get:
-      operationId: получение категории
+      operationId: retrieveCategory
       description: ''
       parameters:
       - name: id
         in: path
         required: true
-        description: Уникальный идентификатор категории
+        description: "A unique integer value identifying this \u041A\u0430\u0442\u0435\
+          \u0433\u043E\u0440\u0438\u044F."
         schema:
           type: string
       responses:
@@ -41,7 +42,7 @@ paths:
       - api
   /api/type/:
     get:
-      operationId: Список Типов товаров
+      operationId: listTypes
       description: ''
       parameters: []
       responses:
@@ -57,13 +58,13 @@ paths:
       - api
   /api/type/{id}/:
     get:
-      operationId: получение типа
+      operationId: retrieveType
       description: ''
       parameters:
       - name: id
         in: path
         required: true
-        description: Уникальный идентификатор типа
+        description: "A unique integer value identifying this \u0422\u0438\u043F."
         schema:
           type: string
       responses:
@@ -77,7 +78,7 @@ paths:
       - api
   /api/tags/:
     get:
-      operationId: Cписок тегов(цветов)
+      operationId: listTags
       description: ''
       parameters: []
       responses:
@@ -90,18 +91,18 @@ paths:
                   $ref: '#/components/schemas/Tag'
           description: ''
       tags:
-        - Теги
+      - api
   /api/tags/{id}/:
     get:
-      operationId: Получение тега
+      operationId: retrieveTag
       description: ''
       parameters:
-        - name: id
-          in: path
-          required: true
-          description: "Уникальный идентификатор этого Тега."
-          schema:
-            type: string
+      - name: id
+        in: path
+        required: true
+        description: "A unique integer value identifying this \u0422\u0435\u0433."
+        schema:
+          type: string
       responses:
         '200':
           content:
@@ -109,13 +110,11 @@ paths:
               schema:
                 $ref: '#/components/schemas/Tag'
           description: ''
-        '404':
-          $ref: '#/components/responses/NotFound'
       tags:
-        - Теги
+      - api
   /api/size/:
     get:
-      operationId: список размеров
+      operationId: listSizes
       description: ''
       parameters: []
       responses:
@@ -131,13 +130,14 @@ paths:
       - api
   /api/size/{id}/:
     get:
-      operationId: получение размера
+      operationId: retrieveSize
       description: ''
       parameters:
       - name: id
         in: path
         required: true
-        description: уникальный идентификатор размера
+        description: "A unique integer value identifying this \u0420\u0430\u0437\u043C\
+          \u0435\u0440."
         schema:
           type: string
       responses:
@@ -151,54 +151,51 @@ paths:
       - api
   /api/product/:
     get:
-      operationId: Список продуктов
-      description: 'Страница доступна всем пользователям. Доступна фильтрация по цене, тегу(цвету),
-      механизму, типу, добавлению в избраное, добавлению в корзину'
+      operationId: listVariationProducts
+      description: ''
       parameters:
       - name: page
         required: false
         in: query
-        description: номер страницы
+        description: A page number within the paginated result set.
         schema:
           type: integer
       - name: limit
         required: false
         in: query
-        description: Количество объектов на странице
+        description: Number of results to return per page.
         schema:
           type: integer
-      - name: is_favorited
-        required: false
-        in: query
-        description: Показывать только продукты, находящиеся в списке избранного.
-        schema:
-          type: integer
-          enum: [ 0, 1 ]
-      - name: is_in_basket
-        required: false
-        in: query
-        description: Показывать только продукты, находящиеся в списке покупок.
-        schema:
-          type: integer
-          enum: [ 0, 1 ]
-      - name: type
-        required: false
-        in: query
-        description: фильтрует продукты по указанным типам (по slug)
       - name: tags
         required: false
         in: query
-        description: фильтрует продукты с указанными тегами (по slug)
+        description: tags
+        schema:
+          type: string
+      - name: size
+        required: false
+        in: query
+        description: size
+        schema:
+          type: string
+      - name: model
+        required: false
+        in: query
+        description: model
+        schema:
+          type: string
       - name: min_price
         required: false
         in: query
-        description: фильтрует минимальную цену
+        description: min_price
         schema:
           type: string
       - name: max_price
         required: false
         in: query
-        description: фильтрует максимальную цену
+        description: max_price
+        schema:
+          type: string
       responses:
         '200':
           content:
@@ -262,6 +259,36 @@ paths:
           \u044C\u044F."
         schema:
           type: string
+      - name: tags
+        required: false
+        in: query
+        description: tags
+        schema:
+          type: string
+      - name: size
+        required: false
+        in: query
+        description: size
+        schema:
+          type: string
+      - name: model
+        required: false
+        in: query
+        description: model
+        schema:
+          type: string
+      - name: min_price
+        required: false
+        in: query
+        description: min_price
+        schema:
+          type: string
+      - name: max_price
+        required: false
+        in: query
+        description: max_price
+        schema:
+          type: string
       responses:
         '200':
           content:
@@ -280,6 +307,36 @@ paths:
         required: true
         description: "A unique integer value identifying this \u0421\u0442\u0430\u0442\
           \u044C\u044F."
+        schema:
+          type: string
+      - name: tags
+        required: false
+        in: query
+        description: tags
+        schema:
+          type: string
+      - name: size
+        required: false
+        in: query
+        description: size
+        schema:
+          type: string
+      - name: model
+        required: false
+        in: query
+        description: model
+        schema:
+          type: string
+      - name: min_price
+        required: false
+        in: query
+        description: min_price
+        schema:
+          type: string
+      - name: max_price
+        required: false
+        in: query
+        description: max_price
         schema:
           type: string
       requestBody:
@@ -313,6 +370,36 @@ paths:
           \u044C\u044F."
         schema:
           type: string
+      - name: tags
+        required: false
+        in: query
+        description: tags
+        schema:
+          type: string
+      - name: size
+        required: false
+        in: query
+        description: size
+        schema:
+          type: string
+      - name: model
+        required: false
+        in: query
+        description: model
+        schema:
+          type: string
+      - name: min_price
+        required: false
+        in: query
+        description: min_price
+        schema:
+          type: string
+      - name: max_price
+        required: false
+        in: query
+        description: max_price
+        schema:
+          type: string
       requestBody:
         content:
           application/json:
@@ -342,6 +429,36 @@ paths:
         required: true
         description: "A unique integer value identifying this \u0421\u0442\u0430\u0442\
           \u044C\u044F."
+        schema:
+          type: string
+      - name: tags
+        required: false
+        in: query
+        description: tags
+        schema:
+          type: string
+      - name: size
+        required: false
+        in: query
+        description: size
+        schema:
+          type: string
+      - name: model
+        required: false
+        in: query
+        description: model
+        schema:
+          type: string
+      - name: min_price
+        required: false
+        in: query
+        description: min_price
+        schema:
+          type: string
+      - name: max_price
+        required: false
+        in: query
+        description: max_price
         schema:
           type: string
       responses:
@@ -615,7 +732,7 @@ components:
               description: "\u0412\u0432\u0435\u0434\u0438\u0442\u0435 \u0430\u0440\
                 \u0442\u0438\u043A\u0443\u043B \u0442\u043E\u0432\u0430\u0440\u0430"
               maxLength: 200
-            mechanism:
+            model:
               type: string
               description: "\u0412\u0432\u0435\u0434\u0438\u0442\u0435 \u0442\u0438\
                 \u043F \u0442\u043E\u0432\u0430\u0440\u0430"
@@ -636,7 +753,7 @@ components:
               items:
                 type: integer
           required:
-          - mechanism
+          - model
           - materials
           - manufacturer
           - size
