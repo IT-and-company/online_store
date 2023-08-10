@@ -107,8 +107,8 @@ class ProductBaseSerializer(serializers.ModelSerializer):
 
     def get_request(self, obj, model):
         request = self.context.get('request')
-        return (request and model.objects.filter(user=request.user,
-                                                 recipe=obj).exists())
+        return (request and model.objects.filter(user=request.user.id,
+                                                 product=obj).exists())
 
     def get_is_in_basket(self, obj):
         return self.get_request(obj, Basket)
