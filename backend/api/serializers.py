@@ -109,7 +109,8 @@ class ProductBaseSerializer(serializers.ModelSerializer):
         request = self.context.get('request')
 
         if request and request.user.is_authenticated:
-            return model.objects.filter(user=request.user, product=obj).exists()
+            return model.objects.filter(user=request.user,
+                                        product=obj).exists()
 
         return False
 
