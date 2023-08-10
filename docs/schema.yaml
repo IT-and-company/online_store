@@ -17,6 +17,8 @@ paths:
                 items:
                   $ref: '#/components/schemas/Category'
           description: ''
+        '404':
+          $ref: '#/components/responses/NotFound'
       tags:
       - api
   /api/categories/{id}/:
@@ -37,6 +39,8 @@ paths:
               schema:
                 $ref: '#/components/schemas/Category'
           description: ''
+        '404':
+          $ref: '#/components/responses/NotFound'
       tags:
       - api
   /api/type/:
@@ -53,6 +57,8 @@ paths:
                 items:
                   $ref: '#/components/schemas/Type'
           description: ''
+        '404':
+          $ref: '#/components/responses/NotFound'
       tags:
       - api
   /api/type/{id}/:
@@ -73,6 +79,8 @@ paths:
               schema:
                 $ref: '#/components/schemas/Type'
           description: ''
+        '404':
+          $ref: '#/components/responses/NotFound'
       tags:
       - api
   /api/tags/:
@@ -127,6 +135,8 @@ paths:
                 items:
                   $ref: '#/components/schemas/Size'
           description: ''
+        '404':
+          $ref: '#/components/responses/NotFound'
       tags:
       - api
   /api/size/{id}/:
@@ -147,12 +157,15 @@ paths:
               schema:
                 $ref: '#/components/schemas/Size'
           description: ''
+        '404':
+          $ref: '#/components/responses/NotFound'
       tags:
       - api
   /api/product/:
     get:
       operationId: Список продуктов
-      description: 'Страница доступна всем пользователям. Доступна фильтрация по цене, тегу(цвету), типу модели'
+      description: 'Страница доступна всем пользователям. Доступна фильтрация по цене, тегу(цвету),
+      типу модели, добавлению в избраное, добавлению в корзину'
       parameters:
       - name: page
         required: false
@@ -166,6 +179,20 @@ paths:
         description: Количество объектов на странице
         schema:
           type: integer
+      - name: is_favorited
+        required: false
+        in: query
+        description: Показывать только продукты, находящиеся в списке избранного.
+        schema:
+          type: integer
+          enum: [ 0, 1 ]
+      - name: is_in_basket
+        required: false
+        in: query
+        description: Показывать только продукты, находящиеся в списке покупок.
+        schema:
+          type: integer
+          enum: [ 0, 1 ]
       - name: tags
         required: false
         in: query

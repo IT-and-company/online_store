@@ -1,5 +1,5 @@
-from django.db.models import F, Sum
-from django.http import HttpResponse
+# from django.db.models import F, Sum
+# from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import status, viewsets
@@ -54,6 +54,8 @@ class VariationProductViewSet(viewsets.ModelViewSet):
     @staticmethod
     def create_obj(request, pk, model, serializer):
         product = get_object_or_404(VariationProduct, pk=pk)
+
+        # Это какая-то нереальная хтонь, но оно работает.
 
         if request.user.is_authenticated:
             user = request.user

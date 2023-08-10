@@ -20,14 +20,14 @@ class VariationProductFilter(FilterSet):
         model = VariationProduct
         fields = ['tags', 'is_favorited', 'is_in_basket', 'size', 'model', 'min_price', 'max_price']
 
-    def get_favorited(self, request, queryset, view):
-        user = request.user
-        if request.query_params.get('favorited', None) and user.is_authenticated:
+    def get_favorited(self, queryset, name, value):
+        user = self.request.user
+        if value and user.is_authenticated:
             return queryset.filter(favorite__user=user)
         return queryset
 
-    def get_is_in_basket(self, request, queryset, view):
-        user = request.user
-        if request.query_params.get('get_is_in_basket', None) and user:
+    def get_is_in_basket(self, queryset, name, value):
+        user = self.request.user
+        if value and user.is_authenticated:
             return queryset.filter(basket__user=user)
         return queryset
