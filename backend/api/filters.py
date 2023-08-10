@@ -11,9 +11,23 @@ class VariationProductFilter(FilterSet):
     model = filters.CharFilter(field_name='specification__model', lookup_expr='exact')
     min_price = filters.NumberFilter(field_name="price", lookup_expr='gte')
     max_price = filters.NumberFilter(field_name="price", lookup_expr='lte')
+    is_favorited = filters.BooleanFilter(
+        method='get_favorited')
+    is_in_basket = filters.BooleanFilter(
+        method='get_is_in_backet')
 
     class Meta:
         model = VariationProduct
-        fields = ['tags', 'size', 'model', 'min_price', 'max_price']
+        fields = ['tags', 'is_favorited', 'is_in_basket', 'size', 'model', 'min_price', 'max_price']
 
+    def get_favorited(self, request, queryset, view):
+        user = request.user
+        if request.query_params.get('favorited', None) and user.is_authenticated:
+            return queryset.filter(favorite__user=user)
+        return queryset
 
+    def get_is_in_basket(self, request, queryset, view):
+        user = request.user
+        if request.query_params.get('get_is_in_basket', None) and user:
+            return queryset.filter(basket__user=user)
+        return queryset

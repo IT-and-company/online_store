@@ -54,16 +54,30 @@ class VariationProductViewSet(viewsets.ModelViewSet):
     @staticmethod
     def create_obj(request, pk, model, serializer):
         product = get_object_or_404(VariationProduct, pk=pk)
-        if model.objects.filter(product=product, user=request.user).exists():
+
+        if request.user.is_authenticated:
+            user = request.user
+        else:
+            user = None
+
+        if user and model.objects.filter(product=product, user=user).exists():
             return Response(status.HTTP_400_BAD_REQUEST)
-        model(product=product, user=request.user).save()
+
+        model(product=product, user=user).save()
         serializer = serializer(get_object_or_404(VariationProduct, id=pk),
                                 context={'request': request})
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
     @staticmethod
     def delete_obj(request, pk, model):
-        get_object_or_404(model, product=pk, user=request.user).delete()
+        product = get_object_or_404(VariationProduct, pk=pk)
+
+        if request.user.is_authenticated:
+            user = request.user
+        else:
+            user = None
+        model.objects.filter(product=product, user=user).delete()
+
         return Response(status=status.HTTP_204_NO_CONTENT)
 
     @action(detail=True, methods=['post'],
@@ -86,21 +100,21 @@ class VariationProductViewSet(viewsets.ModelViewSet):
     def delete_basket(self, request, pk):
         return VariationProductViewSet.delete_obj(request, pk, Basket)
 
-    @action(methods=('get',), detail=False, )
-    def download_basket(self, request):
-        content = "Your shopping list: \n\n"
-        products = VariationProduct.objects.filter(
-            products__basket__user=request.user).values(
-            'product', 'ingredient__measurement_unit').annotate(
-            amount=Sum('amount'))
-        content += '\n'.join([
-            f'{count + 1}) {ingredient["ingredient__name"]} '
-            f'- {ingredient["amount"]}'
-            f'{ingredient["ingredient__measurement_unit"]}'
-            for count, ingredient in enumerate(ingredients)
-        ])
-        file = 'shopping_list'
-        response = HttpResponse(content, 'Content-Type: application/pdf')
-        response['Content-Disposition'] = f'attachment; filename="{file}.pdf"'
-        return response
+    # @action(methods=('get',), detail=False, )
+    # def download_basket(self, request):
+    #     content = "Your shopping list: \n\n"
+    #     products = VariationProduct.objects.filter(
+    #         products__basket__user=request.user).values(
+    #         'product', 'ingredient__measurement_unit').annotate(
+    #         amount=Sum('amount'))
+    #     content += '\n'.join([
+    #         f'{count + 1}) {ingredient["ingredient__name"]} '
+    #         f'- {ingredient["amount"]}'
+    #         f'{ingredient["ingredient__measurement_unit"]}'
+    #         for count, ingredient in enumerate(ingredients)
+    #     ])
+    #     file = 'shopping_list'
+    #     response = HttpResponse(content, 'Content-Type: application/pdf')
+    #     response['Content-Disposition'] = f'attachment; filename="{file}.pdf"'
+    #     return response
 

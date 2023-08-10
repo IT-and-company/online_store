@@ -243,6 +243,7 @@ class VariationProduct(models.Model):
 class FavoriteBasket(models.Model):
     user = models.ForeignKey(
         User,
+        null=True,
         on_delete=models.CASCADE,
         verbose_name='Пользователь'
     )

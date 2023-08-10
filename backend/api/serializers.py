@@ -107,8 +107,11 @@ class ProductBaseSerializer(serializers.ModelSerializer):
 
     def get_request(self, obj, model):
         request = self.context.get('request')
-        return (request and model.objects.filter(user=request.user.id,
-                                                 product=obj).exists())
+
+        if request and request.user.is_authenticated:
+            return model.objects.filter(user=request.user, product=obj).exists()
+
+        return False
 
     def get_is_in_basket(self, obj):
         return self.get_request(obj, Basket)
@@ -121,7 +124,7 @@ class ProductBaseSerializer(serializers.ModelSerializer):
 
 
 class ProductShortSerializer(ProductBaseSerializer):
-    product = ProductSerializer(source='product.name', read_only=True)
+    product = serializers.CharField(source='product.name', read_only=True)
 
     class Meta(ProductBaseSerializer.Meta):
         fields = ProductBaseSerializer.Meta.fields + ('product',)
