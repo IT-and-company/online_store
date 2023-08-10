@@ -5,7 +5,7 @@ info:
 paths:
   /api/categories/:
     get:
-      operationId: listCategorys
+      operationId: Список категорий
       description: ''
       parameters: []
       responses:
@@ -21,14 +21,13 @@ paths:
       - api
   /api/categories/{id}/:
     get:
-      operationId: retrieveCategory
+      operationId: получение категории
       description: ''
       parameters:
       - name: id
         in: path
         required: true
-        description: "A unique integer value identifying this \u041A\u0430\u0442\u0435\
-          \u0433\u043E\u0440\u0438\u044F."
+        description: Уникальный идентификатор категории
         schema:
           type: string
       responses:
@@ -42,7 +41,7 @@ paths:
       - api
   /api/type/:
     get:
-      operationId: listTypes
+      operationId: Список Типов товаров
       description: ''
       parameters: []
       responses:
@@ -58,13 +57,13 @@ paths:
       - api
   /api/type/{id}/:
     get:
-      operationId: retrieveType
+      operationId: получение типа
       description: ''
       parameters:
       - name: id
         in: path
         required: true
-        description: "A unique integer value identifying this \u0422\u0438\u043F."
+        description: Уникальный идентификатор типа
         schema:
           type: string
       responses:
@@ -78,7 +77,7 @@ paths:
       - api
   /api/tags/:
     get:
-      operationId: listTags
+      operationId: Cписок тегов(цветов)
       description: ''
       parameters: []
       responses:
@@ -91,18 +90,18 @@ paths:
                   $ref: '#/components/schemas/Tag'
           description: ''
       tags:
-      - api
+        - Теги
   /api/tags/{id}/:
     get:
-      operationId: retrieveTag
+      operationId: Получение тега
       description: ''
       parameters:
-      - name: id
-        in: path
-        required: true
-        description: "A unique integer value identifying this \u0422\u0435\u0433."
-        schema:
-          type: string
+        - name: id
+          in: path
+          required: true
+          description: "Уникальный идентификатор этого Тега."
+          schema:
+            type: string
       responses:
         '200':
           content:
@@ -110,11 +109,13 @@ paths:
               schema:
                 $ref: '#/components/schemas/Tag'
           description: ''
+        '404':
+          $ref: '#/components/responses/NotFound'
       tags:
-      - api
+        - Теги
   /api/size/:
     get:
-      operationId: listSizes
+      operationId: список размеров
       description: ''
       parameters: []
       responses:
@@ -130,14 +131,13 @@ paths:
       - api
   /api/size/{id}/:
     get:
-      operationId: retrieveSize
+      operationId: получение размера
       description: ''
       parameters:
       - name: id
         in: path
         required: true
-        description: "A unique integer value identifying this \u0420\u0430\u0437\u043C\
-          \u0435\u0440."
+        description: уникальный идентификатор размера
         schema:
           type: string
       responses:
@@ -151,51 +151,35 @@ paths:
       - api
   /api/product/:
     get:
-      operationId: listVariationProducts
-      description: ''
+      operationId: Список продуктов
+      description: 'Страница доступна всем пользователям. Доступна фильтрация по цене, тегу(цвету), типу модели'
       parameters:
       - name: page
         required: false
         in: query
-        description: A page number within the paginated result set.
+        description: номер страницы
         schema:
           type: integer
       - name: limit
         required: false
         in: query
-        description: Number of results to return per page.
+        description: Количество объектов на странице
         schema:
           type: integer
       - name: tags
         required: false
         in: query
-        description: tags
-        schema:
-          type: string
-      - name: size
-        required: false
-        in: query
-        description: size
-        schema:
-          type: string
-      - name: model
-        required: false
-        in: query
-        description: model
-        schema:
-          type: string
+        description: фильтрует продукты с указанными тегами (по slug)
       - name: min_price
         required: false
         in: query
-        description: min_price
+        description: фильтрует минимальную цену
         schema:
           type: string
       - name: max_price
         required: false
         in: query
-        description: max_price
-        schema:
-          type: string
+        description: фильтрует максимальную цену
       responses:
         '200':
           content:
@@ -225,7 +209,7 @@ paths:
       - api
     post:
       operationId: createVariationProduct
-      description: ''
+      description: 'Доступно из админки'
       parameters: []
       requestBody:
         content:
@@ -250,43 +234,13 @@ paths:
   /api/product/{id}/:
     get:
       operationId: retrieveVariationProduct
-      description: ''
+      description: 'Доступно из админки'
       parameters:
       - name: id
         in: path
         required: true
         description: "A unique integer value identifying this \u0421\u0442\u0430\u0442\
           \u044C\u044F."
-        schema:
-          type: string
-      - name: tags
-        required: false
-        in: query
-        description: tags
-        schema:
-          type: string
-      - name: size
-        required: false
-        in: query
-        description: size
-        schema:
-          type: string
-      - name: model
-        required: false
-        in: query
-        description: model
-        schema:
-          type: string
-      - name: min_price
-        required: false
-        in: query
-        description: min_price
-        schema:
-          type: string
-      - name: max_price
-        required: false
-        in: query
-        description: max_price
         schema:
           type: string
       responses:
@@ -300,43 +254,13 @@ paths:
       - api
     put:
       operationId: updateVariationProduct
-      description: ''
+      description: 'Доступно из админки'
       parameters:
       - name: id
         in: path
         required: true
         description: "A unique integer value identifying this \u0421\u0442\u0430\u0442\
           \u044C\u044F."
-        schema:
-          type: string
-      - name: tags
-        required: false
-        in: query
-        description: tags
-        schema:
-          type: string
-      - name: size
-        required: false
-        in: query
-        description: size
-        schema:
-          type: string
-      - name: model
-        required: false
-        in: query
-        description: model
-        schema:
-          type: string
-      - name: min_price
-        required: false
-        in: query
-        description: min_price
-        schema:
-          type: string
-      - name: max_price
-        required: false
-        in: query
-        description: max_price
         schema:
           type: string
       requestBody:
@@ -361,43 +285,13 @@ paths:
       - api
     patch:
       operationId: partialUpdateVariationProduct
-      description: ''
+      description: 'доступно из Админки'
       parameters:
       - name: id
         in: path
         required: true
         description: "A unique integer value identifying this \u0421\u0442\u0430\u0442\
           \u044C\u044F."
-        schema:
-          type: string
-      - name: tags
-        required: false
-        in: query
-        description: tags
-        schema:
-          type: string
-      - name: size
-        required: false
-        in: query
-        description: size
-        schema:
-          type: string
-      - name: model
-        required: false
-        in: query
-        description: model
-        schema:
-          type: string
-      - name: min_price
-        required: false
-        in: query
-        description: min_price
-        schema:
-          type: string
-      - name: max_price
-        required: false
-        in: query
-        description: max_price
         schema:
           type: string
       requestBody:
@@ -422,43 +316,13 @@ paths:
       - api
     delete:
       operationId: destroyVariationProduct
-      description: ''
+      description: 'Доступно из админки'
       parameters:
       - name: id
         in: path
         required: true
         description: "A unique integer value identifying this \u0421\u0442\u0430\u0442\
           \u044C\u044F."
-        schema:
-          type: string
-      - name: tags
-        required: false
-        in: query
-        description: tags
-        schema:
-          type: string
-      - name: size
-        required: false
-        in: query
-        description: size
-        schema:
-          type: string
-      - name: model
-        required: false
-        in: query
-        description: model
-        schema:
-          type: string
-      - name: min_price
-        required: false
-        in: query
-        description: min_price
-        schema:
-          type: string
-      - name: max_price
-        required: false
-        in: query
-        description: max_price
         schema:
           type: string
       responses:
@@ -468,8 +332,8 @@ paths:
       - api
   /api/product/{id}/basket/:
     post:
-      operationId: basketVariationProduct
-      description: ''
+      operationId: Добавить товар в список покупок
+      description: 'Доступно всем пользователям'
       parameters:
       - name: id
         in: path
@@ -499,8 +363,8 @@ paths:
       tags:
       - api
     delete:
-      operationId: deleteBasketVariationProduct
-      description: ''
+      operationId: Удалить товар из списка покупок
+      description: 'Доступно всем пользователям'
       parameters:
       - name: id
         in: path
@@ -516,8 +380,8 @@ paths:
       - api
   /api/product/{id}/favorite/:
     post:
-      operationId: favoriteVariationProduct
-      description: ''
+      operationId: Добавить товар в список избранного
+      description: 'Доступно всем пользователям'
       parameters:
       - name: id
         in: path
@@ -547,8 +411,8 @@ paths:
       tags:
       - api
     delete:
-      operationId: deleteFavoriteVariationProduct
-      description: ''
+      operationId: Удалить товар в список избранного
+      description: 'Доступно всем пользователям'
       parameters:
       - name: id
         in: path
@@ -732,7 +596,7 @@ components:
               description: "\u0412\u0432\u0435\u0434\u0438\u0442\u0435 \u0430\u0440\
                 \u0442\u0438\u043A\u0443\u043B \u0442\u043E\u0432\u0430\u0440\u0430"
               maxLength: 200
-            model:
+            mechanism:
               type: string
               description: "\u0412\u0432\u0435\u0434\u0438\u0442\u0435 \u0442\u0438\
                 \u043F \u0442\u043E\u0432\u0430\u0440\u0430"
@@ -753,7 +617,7 @@ components:
               items:
                 type: integer
           required:
-          - model
+          - mechanism
           - materials
           - manufacturer
           - size

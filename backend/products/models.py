@@ -145,7 +145,7 @@ class Specification(models.Model):
         verbose_name='Размер товара'
     )
     model = models.CharField(
-        'Тип механизмов',
+        'Тип модели',
         max_length=settings.MAX_LENGTH_1,
         help_text='Введите тип товара'  #Например угловой, модульный и т.д.
     )

@@ -8,9 +8,7 @@ class VariationProductFilter(FilterSet):
                                              queryset=Tag.objects.all())
     size = filters.ModelMultipleChoiceFilter(field_name='size',
                                              queryset=Size.objects.all())
-    model = filters.ModelMultipleChoiceFilter(
-        field_name='model',
-        queryset=Specification.objects.all())
+    model = filters.CharFilter(field_name='specification__model', lookup_expr='exact')
     min_price = filters.NumberFilter(field_name="price", lookup_expr='gte')
     max_price = filters.NumberFilter(field_name="price", lookup_expr='lte')
 
