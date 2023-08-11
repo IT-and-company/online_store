@@ -86,11 +86,11 @@ class ProductBaseSerializer(serializers.ModelSerializer):
     price = serializers.IntegerField()
     sale = serializers.IntegerField()
     is_discount = serializers.SerializerMethodField(
-        method_name='get_is_discount', read_only=True)
+        method_name='get_is_discount')
     is_favorited = serializers.SerializerMethodField(
-        method_name='get_is_favorited', read_only=True)
+        method_name='get_is_favorited')
     is_in_basket = serializers.SerializerMethodField(
-        method_name='get_is_in_basket', read_only=True)
+        method_name='get_is_in_basket')
 
     class Meta:
         model = VariationProduct

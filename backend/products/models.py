@@ -228,6 +228,10 @@ class VariationProduct(models.Model):
         on_delete=models.SET_NULL,
         related_name='specification'
     )
+    pub_date = models.DateTimeField(
+        'Дата публикации',
+        auto_now_add=True
+    )
 
     class Meta:
         verbose_name = 'Статья'

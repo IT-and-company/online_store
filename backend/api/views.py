@@ -1,4 +1,5 @@
-# from django.db.models import F, Sum
+from django.db import models
+from django.db.models import F, Sum
 # from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
@@ -102,21 +103,18 @@ class VariationProductViewSet(viewsets.ModelViewSet):
     def delete_basket(self, request, pk):
         return VariationProductViewSet.delete_obj(request, pk, Basket)
 
-    # @action(methods=('get',), detail=False, )
-    # def download_basket(self, request):
-    #     content = "Your shopping list: \n\n"
-    #     products = VariationProduct.objects.filter(
-    #         products__basket__user=request.user).values(
-    #         'product', 'ingredient__measurement_unit').annotate(
-    #         amount=Sum('amount'))
-    #     content += '\n'.join([
-    #         f'{count + 1}) {ingredient["ingredient__name"]} '
-    #         f'- {ingredient["amount"]}'
-    #         f'{ingredient["ingredient__measurement_unit"]}'
-    #         for count, ingredient in enumerate(ingredients)
-    #     ])
-    #     file = 'shopping_list'
-    #     response = HttpResponse(content, 'Content-Type: application/pdf')
-    #     response['Content-Disposition'] = f'attachment; filename="{file}.pdf"'
-    #     return response
-
+    # @action(methods=['get'], detail=False,
+    #         permission_classes=[AllowAny])
+    # def count_basket(self, request):
+    #     if request.user.is_authenticated:
+    #         user = request.user
+    #     else:
+    #         user = None
+    #
+    #     count_sum = VariationProduct.objects.filter(
+    #         product__basket__user=user).anotate(
+    #         discounted_price=F('price') - F('price') * F('sale') / 100).agregate(
+    #         'discounted_price', output_field=models.FloatField())
+    #     return Response({
+    #         'count_sum': count_sum['count_sum'] or 0
+    #     })
