@@ -110,7 +110,9 @@ class VariationProductViewSet(viewsets.ModelViewSet):
     #         user = request.user
     #     else:
     #         user = None
-    #
+
+    # нехватает колличества продуктов
+
     #     count_sum = VariationProduct.objects.filter(
     #         product__basket__user=user).anotate(
     #         discounted_price=F('price') - F('price') * F('sale') / 100).agregate(

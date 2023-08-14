@@ -83,7 +83,7 @@ class FavoriteAdmin(admin.ModelAdmin):
 
 @admin.register(Basket)
 class BasketAdmin(admin.ModelAdmin):
-    list_display = ('pk', 'user', 'product')
+    list_display = ('pk', 'user', 'product', 'quantity')
     search_fields = (
         'user__username',
         'user__phone',
