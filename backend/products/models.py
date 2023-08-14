@@ -230,7 +230,7 @@ class VariationProduct(models.Model):
     )
     pub_date = models.DateTimeField(
         'Дата публикации',
-        auto_now_add=True
+        auto_now=True
     )
 
     class Meta:

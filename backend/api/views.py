@@ -120,3 +120,22 @@ class VariationProductViewSet(viewsets.ModelViewSet):
     #     return Response({
     #         'count_sum': count_sum['count_sum'] or 0
     #     })
+
+
+# class PurchaseView(APIView):
+#     def post(self, request, *args, **kwargs):
+#         product_id = request.data.get('product_id')
+#
+#         try:
+#             product = VariationProduct.objects.get(pk=product_id)
+#         except VariationProduct.DoesNotExist:
+#             return Response({'error': 'Product not found'}, status=status.HTTP_404_NOT_FOUND)
+#
+#         with transaction.atomic():
+#             # Создаем запись о покупке
+#
+#             # Увеличиваем количество покупок товара
+#             product.purchases_count += 1
+#             product.save()
+#
+#         return Response({'message': 'Purchase successful'}, status=status.HTTP_201_CREATED)
