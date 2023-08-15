@@ -5,7 +5,7 @@ import os
 from django.conf import settings
 from django.core.management.base import BaseCommand, CommandError
 
-from product.models import Tag
+from products.models import Tag
 
 logging.basicConfig(
     level=logging.INFO,
