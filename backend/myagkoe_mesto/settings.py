@@ -4,9 +4,9 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 SECRET_KEY = os.getenv('SECRET_KEY', default='p&l%385148kslhtyn^##a1)ilz@4zqj=rq&agdol^##zgl9(vs')
 
-DEBUG = True
+DEBUG = int(os.getenv("DEBUG", default=0))
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = os.getenv("DJANGO_ALLOWED_HOSTS").split(" ")
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -29,6 +29,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -108,13 +109,10 @@ USE_L10N = True
 
 USE_TZ = True
 
-
-STATIC_URL = '/backend_static/'
-
+STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'backend_static/')
 
-MEDIA_URL = '/backend_media/'
-
+MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'backend_media/')
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
@@ -143,3 +141,12 @@ MAX_LENGTH_1 = 250
 MAX_LENGTH_2 = 7
 MAX_LENGTH_3 = 15
 MIN_VALUE = 1
+
+CSRF_TRUSTED_ORIGINS = [
+    "https://*localhost:1337",
+    "http://*localhost:1337",
+    "https://*127.0.0.1:1337",
+    "http://*127.0.0.1:1337",
+    f"http://*{os.getenv('DOMAIN_URL')}",
+    f"https://*{os.getenv('DOMAIN_URL')}",
+    ]
