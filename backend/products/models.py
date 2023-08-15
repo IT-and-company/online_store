@@ -279,6 +279,10 @@ class Basket(FavoriteBasket):
     quantity = models.PositiveIntegerField(default=1)
 
     class Meta:
+        constraints = [models.UniqueConstraint(
+            fields=['user', 'product'],
+            name='unique_basket')
+        ]
         default_related_name = 'basket'
         verbose_name = 'Корзина'
         verbose_name_plural = 'Корзина'

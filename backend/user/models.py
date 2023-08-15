@@ -4,7 +4,7 @@ from phonenumber_field.modelfields import PhoneNumberField
 
 class User(AbstractUser):
     USERNAME_FIELD = 'phone'
-    REQUIRED_FIELDS = ['username']
+    REQUIRED_FIELDS = ['name', 'email', 'address']
 
     phone = PhoneNumberField(
         'phone',
@@ -15,10 +15,10 @@ class User(AbstractUser):
     )
 
     class Meta:
-        ordering = ('username',)
+        ordering = ('phone',)
         verbose_name = 'Пользователь'
         verbose_name_plural = 'Пользователи'
 
     def __str__(self):
-        return self.username
+        return self.phone
 

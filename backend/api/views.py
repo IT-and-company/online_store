@@ -1,6 +1,7 @@
-from django.db import models
-from django.db.models import F, Sum
-# from django.http import HttpResponse
+# from django.db import models
+# from django.db.models import F, Sum
+# # from django.http import HttpResponse
+from django.core.mail import send_mail
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import status, viewsets
@@ -8,13 +9,33 @@ from rest_framework.decorators import action
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 
-
 from .filters import VariationProductFilter
 from .pagination import CustomPagination
 from .permissions import IsAdminOrReadOnly
 from .serializers import (CategorySerializer, TypeSerializer,
-                          TagSerializer, SizeSerializer, ProductShortSerializer, VariationProductSerializer)
+                          TagSerializer, SizeSerializer, OrderSerializer, ProductShortSerializer, VariationProductSerializer)
 from products.models import (Category, Tag, Type, VariationProduct, Size, Favorite, Basket)
+
+
+class OrderViewSet(viewsets.ViewSet):
+    serializer_class = OrderSerializer
+    permission_classes = [AllowAny]
+    pagination_class = None
+
+    # def send_email(self, request):
+    #     serializer = self.serializer_class(data=request.data)
+    #     if serializer.is_valid():
+    #         data = serializer.validated_data
+    #         # Отправляем форму на почту
+    #         send_mail(
+    #             'Sent email from {}'.format(data.get('name')),
+    #             'Here is the message. {}'.format(data.get('text')),
+    #             data.get('email'),
+    #             ['to@example.com'],
+    #             fail_silently=False,
+    #         )
+    #         return Response(data=serializer.data, status=status.HTTP_201_CREATED)
+    #     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 class CategoryViewSet(viewsets.ReadOnlyModelViewSet):
@@ -115,12 +136,12 @@ class VariationProductViewSet(viewsets.ModelViewSet):
 
     #     count_sum = VariationProduct.objects.filter(
     #         product__basket__user=user).anotate(
-    #         discounted_price=F('price') - F('price') * F('sale') / 100).agregate(
+    #         discounted_price=(F('price') - F('price') * F('sale') / 100) * F('quantity')).agregate(
     #         'discounted_price', output_field=models.FloatField())
     #     return Response({
     #         'count_sum': count_sum['count_sum'] or 0
     #     })
-
+    # Product.objects.filter(featured=True).annotate(offer=((F('totalprice') - F('saleprice')) / F('totalprice')) * 100)
 
 # class PurchaseView(APIView):
 #     def post(self, request, *args, **kwargs):

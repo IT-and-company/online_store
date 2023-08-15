@@ -4,22 +4,22 @@ from rest_framework import serializers
 
 from phonenumber_field.serializerfields import PhoneNumberField
 
+from client.models import BackCall, Order
 from products.models import (Category, Tag, Type, Size, Specification, Product, VariationProduct, Favorite, Basket, Image)
 
 from user.models import User
 
 
 class UserSerializer(serializers.ModelSerializer):
-    username = serializers.CharField(max_length=150, required=True)
+    name = serializers.CharField(max_length=150, required=True)
     phone = PhoneNumberField()
 
     class Meta:
-        fields = (
-            'username', 'phone')
+        fields = ('name', 'phone',)
         model = User
 
     def validate(self, data):
-        if data.get('username') == 'me':
+        if data.get('name') == 'me':
             raise serializers.ValidationError(
                 'Пользователь не может иметь такое имя')
 
@@ -27,10 +27,38 @@ class UserSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError(
                 'Пользователь с таким телефоном уже существует')
 
-        if User.objects.filter(username=data.get('username')).exists():
-            raise serializers.ValidationError(
-                'Пользователь с таким именем уже существует')
         return data
+
+
+class AuthSerializer(serializers.Serializer):
+    phone = serializers.CharField(max_length=15)
+    verification_code = serializers.CharField(max_length=4)
+
+    def validate(self, data):
+        phone = data.get('phone')
+        verification_code = data.get('verification_code')
+
+        # Здесь должна быть логика отправки кода и проверки его правильности
+        # Пропустим это для примера
+        # ...
+
+        user = authenticate(request=self.context.get('request'), phone_number=phone)
+
+        if not user:
+            raise serializers.ValidationError('Неверные учетные данные')
+
+        data['user'] = user
+        return data
+
+
+class OrderSerializer(serializers.ModelSerializer):
+    model = Order
+    fields = '__all__'
+
+
+class BackCallSerializer(serializers.ModelSerializer):
+    model = BackCall
+    fields = '__all__'
 
 
 class CategorySerializer(serializers.ModelSerializer):
