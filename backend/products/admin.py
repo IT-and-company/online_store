@@ -1,18 +1,8 @@
 from django.contrib import admin
 from django.contrib.auth.models import Group
 
-from .models import (
-    Category,
-    Tag,
-    Type,
-    Size,
-    Specification,
-    Product,
-    VariationProduct,
-    Favorite,
-    Basket,
-    Image
-)
+from .models import (Basket, Category, Favorite, Image, Product, Size,
+                     Specification, Tag, Type, VariationProduct)
 
 
 @admin.register(Category)

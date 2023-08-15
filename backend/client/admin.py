@@ -1,5 +1,6 @@
 from django.contrib import admin
-from .models import Order, BackCall
+
+from .models import BackCall, Order
 
 
 @admin.register(Order)

@@ -1,13 +1,9 @@
-from django.shortcuts import get_object_or_404
-from django.contrib.auth import authenticate
-from drf_extra_fields.fields import Base64ImageField
-from rest_framework import serializers
-
-from phonenumber_field.serializerfields import PhoneNumberField
-
 from client.models import BackCall, Order
-from products.models import (Category, Tag, Type, Size, Specification, Product, VariationProduct, Favorite, Basket, Image)
-
+from drf_extra_fields.fields import Base64ImageField
+from phonenumber_field.serializerfields import PhoneNumberField
+from products.models import (Basket, Category, Favorite, Image, Product, Size,
+                             Specification, Tag, Type, VariationProduct)
+from rest_framework import serializers
 from user.models import User
 
 
@@ -31,25 +27,26 @@ class UserSerializer(serializers.ModelSerializer):
         return data
 
 
-class AuthSerializer(serializers.Serializer):
-    phone = serializers.CharField(max_length=15)
-    verification_code = serializers.CharField(max_length=4)
-
-    def validate(self, data):
-        phone = data.get('phone')
-        verification_code = data.get('verification_code')
-
-        # Здесь должна быть логика отправки кода и проверки его правильности
-        # Пропустим это для примера
-        # ...
-
-        user = authenticate(request=self.context.get('request'), phone_number=phone)
-
-        if not user:
-            raise serializers.ValidationError('Неверные учетные данные')
-
-        data['user'] = user
-        return data
+# class AuthSerializer(serializers.Serializer):
+#     phone = serializers.CharField(max_length=15)
+#     verification_code = serializers.CharField(max_length=4)
+#
+#     def validate(self, data):
+#         phone = data.get('phone')
+#         # verification_code = data.get('verification_code')
+#
+#         # Здесь должна быть логика отправки кода и проверки его правильности
+#         # Пропустим это для примера
+#         # ...
+#
+#         user = authenticate(request=self.context.get('request'),
+#         phone_number=phone)
+#
+#         if not user:
+#             raise serializers.ValidationError('Неверные учетные данные')
+#
+#         data['user'] = user
+#         return data
 
 
 class OrderSerializer(serializers.ModelSerializer):
@@ -165,4 +162,5 @@ class VariationProductSerializer(ProductBaseSerializer):
     specification = SpecificationSerializer(read_only=True)
 
     class Meta(ProductBaseSerializer.Meta):
-        fields = ProductBaseSerializer.Meta.fields + ('product', 'specification')
+        fields = ProductBaseSerializer.Meta.fields + (
+            'product', 'specification')

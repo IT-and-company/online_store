@@ -1,6 +1,7 @@
 import os
-import environ
 from pathlib import Path
+
+import environ
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -163,4 +164,4 @@ CSRF_TRUSTED_ORIGINS = [
     "http://*127.0.0.1:1337",
     f"http://*{env('DOMAIN_URL')}",
     f"https://*{env('DOMAIN_URL')}",
-    ]
+]
