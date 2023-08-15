@@ -140,3 +140,12 @@ MAX_LENGTH_1 = 200
 MAX_LENGTH_2 = 7
 MAX_LENGTH_3 = 20
 MIN_VALUE = 1
+
+CSRF_TRUSTED_ORIGINS = [
+    "https://*localhost:1337",
+    "http://*localhost:1337",
+    "https://*127.0.0.1:1337",
+    "http://*127.0.0.1:1337",
+    f"http://*{os.getenv('DOMAIN_URL')}",
+    f"https://*{os.getenv('DOMAIN_URL')}",
+    ]
