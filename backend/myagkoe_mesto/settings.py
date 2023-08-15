@@ -1,12 +1,17 @@
 import os
+import environ
+from pathlib import Path
 
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+BASE_DIR = Path(__file__).resolve().parent.parent
 
-SECRET_KEY = os.getenv('SECRET_KEY', default='p&l%385148kslhtyn^##a1)ilz@4zqj=rq&agdol^##zgl9(vs')
+env = environ.Env()
+env.read_env(os.path.join(BASE_DIR.parent, '.env'))
 
-DEBUG = int(os.getenv("DEBUG", default=0))
+SECRET_KEY = env('SECRET_KEY', default='p&l%385148kslhtyn^##a1)ilz@4zqj=rq&agdol^##zgl9(vs')
 
-ALLOWED_HOSTS = os.getenv("DJANGO_ALLOWED_HOSTS").split(" ")
+DEBUG = int(env("DEBUG", default=0))
+
+ALLOWED_HOSTS = os.environ.get("DJANGO_ALLOWED_HOSTS").split(" ")
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -59,22 +64,22 @@ TEMPLATES = [
 WSGI_APPLICATION = 'myagkoe_mesto.wsgi.application'
 
 
-if os.getenv("USE_SQLITE", "True") == "True":
+if env("USE_SQLITE", default="True") == "True":
     DATABASES = {
         "default": {
             "ENGINE": "django.db.backends.sqlite3",
-            "NAME": os.getenv('BASE_DIR', 'db.sqlite3')
+            "NAME": env("BASE_DIR", default='db.sqlite3')
         },
     }
 else:
     DATABASES = {
         "default": {
-            "ENGINE": os.getenv("DB_ENGINE", "django.db.backends.postgresql"),
-            "NAME": os.getenv("DB_NAME", "postgres"),
-            "USER": os.getenv("POSTGRES_USER", "postgres"),
-            "PASSWORD": os.getenv("POSTGRES_PASSWORD", "postgres"),
-            "HOST": os.getenv("DB_HOST", "db"),
-            "PORT": os.getenv("DB_PORT", "5432"),
+            "ENGINE": env("DB_ENGINE", default="django.db.backends.postgresql"),
+            "NAME": env("DB_NAME", default="postgres"),
+            "USER": env("POSTGRES_USER", default="postgres"),
+            "PASSWORD": env("POSTGRES_PASSWORD", default="postgres"),
+            "HOST": env("DB_HOST", default="db"),
+            "PORT": env("DB_PORT", default="5432"),
         },
     }
 
@@ -147,6 +152,6 @@ CSRF_TRUSTED_ORIGINS = [
     "http://*localhost:1337",
     "https://*127.0.0.1:1337",
     "http://*127.0.0.1:1337",
-    f"http://*{os.getenv('DOMAIN_URL')}",
-    f"https://*{os.getenv('DOMAIN_URL')}",
+    f"http://*{env('DOMAIN_URL')}",
+    f"https://*{env('DOMAIN_URL')}",
     ]
