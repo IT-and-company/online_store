@@ -5,9 +5,9 @@ services:
     build: .
     command: gunicorn myagkoe_mesto.wsgi:application --bind 0.0.0.0:8000
     volumes:
-      - ./backend:/usr/src/backend
-      - backend_static:/usr/src/backend/backend_static
-      - backend_media:/usr/src/backend/backend_media
+      - ./backend/:/home/online_store/backend/
+      - static_volume:/home/online_store/backend/backend_static
+      - media_volume:/home/online_store/backend/backend_media
     expose:
       - 8000
     ports:
@@ -27,8 +27,8 @@ services:
   nginx:
     build: ./nginx
     volumes:
-      - backend_static:/usr/src/backend/backend_static
-      - backend_media:/usr/src/backend/backend_media
+      - static_volume:/home/online_store/backend/backend_static
+      - media_volume:/home/online_store/backend/backend_media
     ports:
       - 1337:80
     depends_on:
@@ -36,5 +36,5 @@ services:
 
 volumes:
   postgres_data:
-  backend_static:
-  backend_media:
+  static_volume:
+  media_volume:
