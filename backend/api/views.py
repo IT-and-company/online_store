@@ -12,9 +12,11 @@ from rest_framework.response import Response
 from .filters import VariationProductFilter
 from .pagination import CustomPagination
 from .permissions import IsAdminOrReadOnly
-from .serializers import (CategorySerializer, TypeSerializer,
-                          TagSerializer, SizeSerializer, OrderSerializer, ProductShortSerializer, VariationProductSerializer)
-from products.models import (Category, Tag, Type, VariationProduct, Size, Favorite, Basket)
+from .serializers import (BackCallSerializer, CategorySerializer,
+                          TagSerializer, TypeSerializer,
+                          OrderSerializer, ProductShortSerializer,
+                          SizeSerializer, VariationProductSerializer)
+from products.models import (Basket, Category, Favorite, Tag, Type, Size, VariationProduct)
 
 
 class OrderViewSet(viewsets.ViewSet):
@@ -36,6 +38,14 @@ class OrderViewSet(viewsets.ViewSet):
     #         )
     #         return Response(data=serializer.data, status=status.HTTP_201_CREATED)
     #     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class BackCallViewSet(viewsets.ViewSet):
+    serializer_class = BackCallSerializer
+    permission_classes = [AllowAny]
+    pagination_class = None
+
+#     Реализация отправки на почту
 
 
 class CategoryViewSet(viewsets.ReadOnlyModelViewSet):
