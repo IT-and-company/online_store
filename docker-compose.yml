@@ -5,7 +5,6 @@ services:
     build: .
     command: gunicorn myagkoe_mesto.wsgi:application --bind 0.0.0.0:8000
     volumes:
-      - ./backend/:/home/online_store/backend/
       - static_volume:/home/online_store/backend/backend_static
       - media_volume:/home/online_store/backend/backend_media
     expose:
