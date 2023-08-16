@@ -4,7 +4,7 @@ from phonenumber_field.modelfields import PhoneNumberField
 
 class User(AbstractUser):
     USERNAME_FIELD = 'phone'
-    REQUIRED_FIELDS = ['name', 'email', 'address']
+    REQUIRED_FIELDS = ['username', 'email']
 
     phone = PhoneNumberField(
         'phone',

@@ -1,5 +1,5 @@
 from django_filters.rest_framework import FilterSet, filters
-from products.models import Size, Tag, VariationProduct
+from products.models import Size, Tag, VariationProduct, ProductModel
 
 
 class VariationProductFilter(FilterSet):
@@ -8,8 +8,8 @@ class VariationProductFilter(FilterSet):
                                              queryset=Tag.objects.all())
     size = filters.ModelMultipleChoiceFilter(field_name='size',
                                              queryset=Size.objects.all())
-    model = filters.CharFilter(
-        field_name='specification__model', lookup_expr='exact')
+    model = filters.ModelMultipleChoiceFilter(
+        field_name='model', queryset=ProductModel.objects.all())
     min_price = filters.NumberFilter(field_name="price", lookup_expr='gte')
     max_price = filters.NumberFilter(field_name="price", lookup_expr='lte')
     is_favorited = filters.BooleanFilter(

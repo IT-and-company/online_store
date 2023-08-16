@@ -8,11 +8,11 @@ User = get_user_model()
 
 class CategoryType(models.Model):
     name = models.CharField(
-        'Название категории',
+        'Название',
         max_length=settings.MAX_LENGTH_1
     )
     slug = models.SlugField(
-        'Слаг категории',
+        'Слаг',
         unique=True
     )
 
@@ -47,6 +47,22 @@ class Type(CategoryType):
         verbose_name = 'Тип'
         verbose_name_plural = 'Типы'
 
+
+class ProductModel(CategoryType):
+    """
+    Модель товара
+    """
+    type = models.ForeignKey(
+        Type,
+        on_delete=models.SET_NULL,
+        null=True,
+        verbose_name='Тип товара'
+    )
+
+    class Meta:
+        ordering = ('name',)
+        verbose_name = 'Модель'
+        verbose_name_plural = 'Модели'
 
 class Tag(models.Model):
     name = models.CharField(
@@ -121,7 +137,11 @@ class Product(models.Model):
         null=True,
         verbose_name='Тип товара'
     )
-
+    model = models.ManyToManyField(
+        ProductModel,
+        related_name='model',
+        verbose_name='Модель товара'
+    )
     class Meta:
         constraints = [models.UniqueConstraint(
             fields=['name', 'type', ],
