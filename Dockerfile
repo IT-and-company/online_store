@@ -22,4 +22,3 @@ RUN chmod +x /home/online_store/backend/entrypoint.sh
 COPY . .
 RUN mkdir -p /home/online_store/backend/backend_static
 RUN mkdir -p /home/online_store/backend/backend_media
-CMD ["gunicorn","backend.myagkoe_mesto.wsgi:application","--bind","0:8000"]
