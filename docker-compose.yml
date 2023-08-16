@@ -2,7 +2,7 @@ version: "3.8"
 
 services:
   web:
-    build: .
+    image: softplacemm/online_store:latest
     command: gunicorn myagkoe_mesto.wsgi:application --bind 0.0.0.0:8000
     volumes:
       - static_volume:/home/online_store/backend/backend_static
@@ -24,7 +24,7 @@ services:
       - ./.env
 
   nginx:
-    build: ./nginx
+    build: nginx:latest
     volumes:
       - static_volume:/home/online_store/backend/backend_static
       - media_volume:/home/online_store/backend/backend_media
