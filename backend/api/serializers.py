@@ -40,7 +40,7 @@ class UserSerializer(serializers.ModelSerializer):
 #         # ...
 #
 #         user = authenticate(request=self.context.get('request'),
-#         phone_number=phone)
+#         phone=phone)
 #
 #         if not user:
 #             raise serializers.ValidationError('Неверные учетные данные')
