@@ -1,5 +1,5 @@
 from django_filters.rest_framework import FilterSet, filters
-from products.models import Size, Tag, VariationProduct, ProductModel
+from products.models import ProductModel, Size, Tag, VariationProduct
 
 
 class VariationProductFilter(FilterSet):

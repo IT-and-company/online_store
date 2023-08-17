@@ -1,11 +1,11 @@
-import json
+# import json
 
+from django import forms
 from django.contrib import admin
 from django.contrib.auth.models import Group
-from django import forms
 
 from .models import (Basket, Category, Favorite, Image, Product, ProductModel,
-                      Size, Specification, Tag, Type, VariationProduct)
+                     Size, Specification, Tag, Type, VariationProduct)
 
 
 @admin.register(Category)
@@ -27,6 +27,7 @@ class TypeAdmin(admin.ModelAdmin):
     )
     prepopulated_fields = {'slug': ('name',)}
 
+
 @admin.register(ProductModel)
 class ProductModelAdmin(admin.ModelAdmin):
     list_display = (
@@ -36,6 +37,7 @@ class ProductModelAdmin(admin.ModelAdmin):
         'type',
     )
     prepopulated_fields = {'slug': ('name',)}
+
 
 @admin.register(Tag)
 class TagAdmin(admin.ModelAdmin):
@@ -81,23 +83,29 @@ class ProductAdminForm(forms.ModelForm):
     #     }
     # data = json.dumps(data)
     type = forms.ModelChoiceField(
-        queryset=Type.objects.all(), 
+        queryset=Type.objects.all(),
         # widget=forms.Select(
         #     attrs={
-        #         'onchange': f'model_type = this.options[this.selectedIndex].value; var data = {data};'
-        #         '(function(){ var select = document.getElementById("id_model");'
-        #         ' select.options.length=0; select.options[select.options.length] = new Option("----","");'
-        #         ' for(let [key, value] of Object.entries(data[model_type.toString()]))'
-        #         ' { select.options[select.options.length] = new Option(value.name,value.id);} })()'
+        #         'onchange': f'model_type = this.options[this.selectedIndex]'
+        #         '.value; var data = {data};'
+        #         '(function(){ var select = document.getElementById'
+        #         '("id_model");'
+        #         ' select.options.length=0; select.options'
+        #         '[select.options.length] = new Option("----","");'
+        #         ' for(let [key, value] of Object.entries'
+        #         '(data[model_type.toString()]))'
+        #         ' { select.options[select.options.length]'
+        #         ' = new Option(value.name,value.id);} })()'
         #         }
         # )
     )
     model = forms.ModelChoiceField(
         queryset=ProductModel.objects.all()
     )
+
     class Meta:
         model = Product
-        fields='__all__'
+        fields = '__all__'
 
 
 @admin.register(Product)
