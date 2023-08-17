@@ -79,4 +79,5 @@ jobs:
             echo DB_HOST=${{ secrets.DB_HOST }} >> .env
             echo DB_PORT=${{ secrets.DB_PORT }} >> .env
             echo DOMAIN_URL=${{ secrets.DOMAIN_URL }} >> .env
+            echo USE_SQLITE=${{ secrets.USE_SQLITE }} >> .env
             sudo docker-compose up -d --build
