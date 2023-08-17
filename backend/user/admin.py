@@ -6,7 +6,7 @@ from .models import User
 @admin.register(User)
 class UserAdmin(admin.ModelAdmin):
     list_display = (
-        'username', 'pk', 'phone')
-    list_filter = ('username', 'phone')
-    search_fields = ('username', 'phone')
+        'email', 'pk', 'phone')
+    list_filter = ('email', 'phone')
+    search_fields = ('email', 'phone')
     empty_value_display = '-пусто-'
