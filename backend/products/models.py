@@ -64,6 +64,7 @@ class ProductModel(CategoryType):
         verbose_name = 'Модель'
         verbose_name_plural = 'Модели'
 
+
 class Tag(models.Model):
     name = models.CharField(
         'Название тега',
@@ -142,6 +143,7 @@ class Product(models.Model):
         related_name='model',
         verbose_name='Модель товара'
     )
+
     class Meta:
         constraints = [models.UniqueConstraint(
             fields=['name', 'type', ],

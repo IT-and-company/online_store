@@ -1,8 +1,8 @@
 from django import forms
-from .models import User
 from django.contrib.auth.forms import ReadOnlyPasswordHashField
 from phonenumber_field.modelfields import PhoneNumberField
-from phonenumber_field.widgets import PhoneNumberPrefixWidget
+
+from .models import User
 
 
 class UserCreationForm(forms.ModelForm):
