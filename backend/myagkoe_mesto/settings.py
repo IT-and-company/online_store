@@ -29,6 +29,7 @@ INSTALLED_APPS = [
     'phonenumbers',
     'psycopg2',
     'djoser',
+    'smart_selects',
 
     'api',
     'client',

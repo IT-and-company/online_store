@@ -1,6 +1,3 @@
-# import json
-
-from django import forms
 from django.contrib import admin
 from django.contrib.auth.models import Group
 
@@ -71,43 +68,6 @@ class VariationProductInline(admin.TabularInline):
     min_num = 1
 
 
-class ProductAdminForm(forms.ModelForm):
-    # data = {}
-    # for item in Type.objects.all():
-    #     data[str(item.id)]={}
-    # for model in ProductModel.objects.all():
-    #     data[str(model.type.id)][str(model.id)] = {
-    #             'id': str(model.id),
-    #             'type_id': str(model.type.id),
-    #             'name': str(model.name)
-    #     }
-    # data = json.dumps(data)
-    type = forms.ModelChoiceField(
-        queryset=Type.objects.all(),
-        # widget=forms.Select(
-        #     attrs={
-        #         'onchange': f'model_type = this.options[this.selectedIndex]'
-        #         '.value; var data = {data};'
-        #         '(function(){ var select = document.getElementById'
-        #         '("id_model");'
-        #         ' select.options.length=0; select.options'
-        #         '[select.options.length] = new Option("----","");'
-        #         ' for(let [key, value] of Object.entries'
-        #         '(data[model_type.toString()]))'
-        #         ' { select.options[select.options.length]'
-        #         ' = new Option(value.name,value.id);} })()'
-        #         }
-        # )
-    )
-    model = forms.ModelChoiceField(
-        queryset=ProductModel.objects.all()
-    )
-
-    class Meta:
-        model = Product
-        fields = '__all__'
-
-
 @admin.register(Product)
 class ProductAdmin(admin.ModelAdmin):
 
@@ -118,7 +78,7 @@ class ProductAdmin(admin.ModelAdmin):
     list_filter = ('name',)
     empty_value_display = '-пусто-'
     readonly_fields = ('is_favorited',)
-    form = ProductAdminForm
+    # form = ProductAdminForm
 
     @admin.display(description='Количество избраного')
     def is_favorited(self, obj):

@@ -2,6 +2,7 @@ from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.db import models
 from django.template.defaultfilters import slugify
+from smart_selects.db_fields import ChainedForeignKey
 
 User = get_user_model()
 
@@ -138,10 +139,16 @@ class Product(models.Model):
         null=True,
         verbose_name='Тип товара'
     )
-    model = models.ManyToManyField(
+    model = ChainedForeignKey(
         ProductModel,
         related_name='model',
-        verbose_name='Модель товара'
+        verbose_name='Модель товара',
+        chained_field="type",
+        chained_model_field="type",
+        show_all=False,
+        auto_choose=True,
+        sort=True,
+        null=True
     )
 
     class Meta:

@@ -7,6 +7,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/', include('api.urls')),
     # path('api/', include('user.urls')),
+    path('chaining/', include('smart_selects.urls')),
 ]
 
 if settings.DEBUG:
