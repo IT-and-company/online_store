@@ -27,6 +27,25 @@ class UserSerializer(serializers.ModelSerializer):
         return data
 
 
+class SignupSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ('first_name', 'email', 'phone')
+
+    def validate_email(self, value):
+        if User.objects.filter(email=value).exists():
+            raise serializers.ValidationError(
+                f'Email "{value}" уже используется'
+            )
+        return value
+
+    def validate_phone(self, value):
+        if User.objects.filter(phone=value).exists():
+            raise serializers.ValidationError(
+                f'Телефон "{value}" уже используется'
+            )
+        return value
+
 # class AuthSerializer(serializers.Serializer):
 #     phone = serializers.CharField(max_length=15)
 #     verification_code = serializers.CharField(max_length=4)

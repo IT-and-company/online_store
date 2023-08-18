@@ -1,8 +1,13 @@
 # from django.db import models
 # from django.db.models import F, Sum
 # # from django.http import HttpResponse
+from django.contrib.auth import get_user_model
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework.exceptions import ValidationError
+from rest_framework.status import HTTP_200_OK
+from rest_framework.views import APIView
+
 from products.models import (Basket, Category, Favorite, Size, Tag, Type,
                              VariationProduct)
 from rest_framework import status, viewsets
@@ -10,13 +15,41 @@ from rest_framework.decorators import action
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 
+from .utils import create_confirmation_code, send_confirmation_code
 from .filters import VariationProductFilter
 from .pagination import CustomPagination
 from .permissions import IsAdminOrReadOnly
 from .serializers import (CategorySerializer, OrderSerializer,
                           ProductShortSerializer, SizeSerializer,
                           TagSerializer, TypeSerializer,
-                          VariationProductSerializer)
+                          VariationProductSerializer, SignupSerializer)
+
+
+User = get_user_model()
+
+
+class APISignup(APIView):
+    def post(self, request):
+        serializer = SignupSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        first_name = serializer.validated_data.get('first_name')
+        email = serializer.validated_data.get('email')
+        phone = serializer.validated_data.get('phone')
+        try:
+            user, _ = User.objects.get_or_create(
+                first_name=first_name,
+                email=email,
+                phone=phone
+            )
+        except Exception as error:
+            raise ValidationError(
+                f'Ошибка создания нового пользователя {error}'
+            )
+        user.confirmation_code = create_confirmation_code()
+        user.save()
+        # Реализация этой функции пока в разработке
+        send_confirmation_code(user.phone)
+        return Response(serializer.data, status=HTTP_200_OK)
 
 
 class OrderViewSet(viewsets.ViewSet):

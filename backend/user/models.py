@@ -20,6 +20,11 @@ class User(AbstractBaseUser):
     first_name = models.CharField(max_length=100)
     last_name = models.CharField(max_length=200)
     address = models.TextField(max_length=1000)
+    confirmation_code = models.PositiveSmallIntegerField(
+        'Код подтверждения',
+        blank=True,
+        null=True
+    )
     is_active = models.BooleanField(default=True)
     is_admin = models.BooleanField(default=False)
 
