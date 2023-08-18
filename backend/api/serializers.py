@@ -31,35 +31,16 @@ class UserSerializer(serializers.ModelSerializer):
         return data
 
 
-class AuthSerializer(serializers.Serializer):
-    phone = serializers.CharField(max_length=15)
-    verification_code = serializers.CharField(max_length=4)
-
-    def validate(self, data):
-        phone = data.get('phone')
-        verification_code = data.get('verification_code')
-
-        # Здесь должна быть логика отправки кода и проверки его правильности
-        # Пропустим это для примера
-        # ...
-
-        user = authenticate(request=self.context.get('request'), phone_number=phone)
-
-        if not user:
-            raise serializers.ValidationError('Неверные учетные данные')
-
-        data['user'] = user
-        return data
-
-
 class OrderSerializer(serializers.ModelSerializer):
-    model = Order
-    fields = '__all__'
+    class Meta:
+        model = Order
+        fields = '__all__'
 
 
 class BackCallSerializer(serializers.ModelSerializer):
-    model = BackCall
-    fields = '__all__'
+    class Meta:
+        model = BackCall
+        fields = '__all__'
 
 
 class CategorySerializer(serializers.ModelSerializer):

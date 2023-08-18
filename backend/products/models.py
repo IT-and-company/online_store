@@ -8,11 +8,11 @@ User = get_user_model()
 
 class CategoryType(models.Model):
     name = models.CharField(
-        'Название категории',
+        'Название',
         max_length=settings.MAX_LENGTH_1
     )
     slug = models.SlugField(
-        'Слаг категории',
+        'Слаг',
         unique=True
     )
 

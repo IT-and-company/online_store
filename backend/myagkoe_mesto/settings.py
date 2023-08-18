@@ -136,10 +136,16 @@ REST_FRAMEWORK = {
 }
 
 EMAIL_BACKEND = 'django.core.mail.backends.filebased.EmailBackend'
+EMAIL_HOST = os.getenv('EMAIL_HOST')  # Адрес SMTP-сервера
+EMAIL_PORT = 587  # Порт SMTP-сервера (обычно 587 для TLS)
+EMAIL_USE_TLS = True  # Использовать ли TLS для шифрования соединения
+EMAIL_TIMEOUT = None  # Тайм-аут соединения
+EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER')  # Ваш адрес электронной почты
+EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')  # Ваш пароль от почты
+DEFAULT_FROM_EMAIL = os.getenv('EMAIL_HOST_USER')  # Адрес отправителя по умолчанию
 
-EMAIL_FILE_PATH = os.path.join(BASE_DIR, 'sent_emails')
 
 MAX_LENGTH_1 = 250
 MAX_LENGTH_2 = 7
-MAX_LENGTH_3 = 15
+MAX_LENGTH_3 = 20
 MIN_VALUE = 1

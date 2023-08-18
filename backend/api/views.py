@@ -1,8 +1,11 @@
 # from django.db import models
 # from django.db.models import F, Sum
 # # from django.http import HttpResponse
+from django.conf import settings
 from django.core.mail import send_mail
 from django.shortcuts import get_object_or_404
+from django.template.loader import render_to_string
+from django.utils.html import strip_tags
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
@@ -16,10 +19,13 @@ from .serializers import (BackCallSerializer, CategorySerializer,
                           TagSerializer, TypeSerializer,
                           OrderSerializer, ProductShortSerializer,
                           SizeSerializer, VariationProductSerializer)
-from products.models import (Basket, Category, Favorite, Tag, Type, Size, VariationProduct)
+from client.models import BackCall, Order
+from products.models import (Basket, Category, Favorite, Tag, Type,
+                             Size, VariationProduct)
 
 
-class OrderViewSet(viewsets.ViewSet):
+class OrderViewSet(viewsets.ModelViewSet):
+    queryset = Order.objects.all()
     serializer_class = OrderSerializer
     permission_classes = [AllowAny]
     pagination_class = None
@@ -40,12 +46,33 @@ class OrderViewSet(viewsets.ViewSet):
     #     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-class BackCallViewSet(viewsets.ViewSet):
+class BackCallViewSet(viewsets.ModelViewSet):
+    queryset = BackCall.objects.all()
     serializer_class = BackCallSerializer
     permission_classes = [AllowAny]
     pagination_class = None
 
-#     Реализация отправки на почту
+    def post(self, request):
+        serializer = BackCallSerializer(data=request.data)
+
+        if serializer.is_valid():
+            backcall = serializer.save()
+
+            subject = 'Новая заявка на обратный звонок'
+            html_message = render_to_string(
+                'email_templates/backcall.html',
+                {'backcall': backcall})
+            plain_message = strip_tags(html_message)
+            from_email = settings.DEFAULT_FROM_EMAIL
+            to_email = [
+                'mashkastepanova1991@yandex.ru']
+            send_mail(subject, plain_message, from_email, to_email,
+                      html_message=html_message)
+
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        else:
+            return Response(serializer.errors,
+                            status=status.HTTP_400_BAD_REQUEST)
 
 
 class CategoryViewSet(viewsets.ReadOnlyModelViewSet):
