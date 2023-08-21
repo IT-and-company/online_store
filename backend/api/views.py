@@ -1,8 +1,13 @@
 # from django.db import models
 # from django.db.models import F, Sum
 # # from django.http import HttpResponse
+from django.conf import settings
+from django.core.mail import send_mail
 from django.shortcuts import get_object_or_404
+from django.template.loader import render_to_string
+from django.utils.html import strip_tags
 from django_filters.rest_framework import DjangoFilterBackend
+from client.models import BackCall, Order
 from products.models import (Basket, Category, Favorite, Size, Tag, Type,
                              VariationProduct)
 from rest_framework import status, viewsets
@@ -13,13 +18,14 @@ from rest_framework.response import Response
 from .filters import VariationProductFilter
 from .pagination import CustomPagination
 from .permissions import IsAdminOrReadOnly
-from .serializers import (CategorySerializer, OrderSerializer,
-                          ProductShortSerializer, SizeSerializer,
+from .serializers import (BackCallSerializer, CategorySerializer,
                           TagSerializer, TypeSerializer,
-                          VariationProductSerializer)
+                          OrderSerializer, ProductShortSerializer,
+                          SizeSerializer, VariationProductSerializer)
 
 
 class OrderViewSet(viewsets.ViewSet):
+    queryset = Order.objects.all()
     serializer_class = OrderSerializer
     permission_classes = [AllowAny]
     pagination_class = None
@@ -40,6 +46,36 @@ class OrderViewSet(viewsets.ViewSet):
     #         data=serializer.data, status=status.HTTP_201_CREATED)
     #     return Response(
     #     serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class BackCallViewSet(viewsets.ModelViewSet):
+    queryset = BackCall.objects.all()
+    serializer_class = BackCallSerializer
+    permission_classes = [AllowAny]
+    pagination_class = None
+
+    def create(self, request):
+        serializer = BackCallSerializer(data=request.data)
+        if serializer.is_valid():
+            backcall = serializer.save()
+            subject = 'Новая заявка на обратный звонок'
+            html_message = render_to_string(
+                'email_templates/backcall.html',
+                {'backcall': backcall})
+            plain_message = strip_tags(html_message)
+            from_email = settings.DEFAULT_FROM_EMAIL
+            to_email = [
+                settings.DEFAULT_TO_EMAIL]
+            send_mail(
+                subject=subject,
+                message=plain_message,
+                from_email=from_email,
+                recipient_list=to_email,
+                html_message=html_message)
+
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors,
+                        status=status.HTTP_400_BAD_REQUEST)
 
 
 class CategoryViewSet(viewsets.ReadOnlyModelViewSet):

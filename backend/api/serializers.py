@@ -50,13 +50,15 @@ class UserSerializer(serializers.ModelSerializer):
 
 
 class OrderSerializer(serializers.ModelSerializer):
-    model = Order
-    fields = '__all__'
+    class Meta:
+        model = Order
+        fields = '__all__'
 
 
 class BackCallSerializer(serializers.ModelSerializer):
-    model = BackCall
-    fields = '__all__'
+    class Meta:
+        model = BackCall
+        fields = '__all__'
 
 
 class CategorySerializer(serializers.ModelSerializer):
