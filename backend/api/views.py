@@ -1,25 +1,35 @@
+
 # from django.db import models
 # from django.db.models import F, Sum
 # # from django.http import HttpResponse
+from django.conf import settings
+from django.core.mail import send_mail
 from django.shortcuts import get_object_or_404
+from django.template.loader import render_to_string
+from django.utils.html import strip_tags
 from django_filters.rest_framework import DjangoFilterBackend
-from products.models import (Basket, Category, Favorite, Size, Tag, Type,
-                             VariationProduct)
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
+from rest_framework.views import APIView
+
+from cart.models import Cart
+from client.models import BackCall, Order
+from products.models import (Basket, Category, Favorite, Size, Tag, Type,
+                             VariationProduct)
 
 from .filters import VariationProductFilter
 from .pagination import CustomPagination
 from .permissions import IsAdminOrReadOnly
-from .serializers import (CategorySerializer, OrderSerializer,
-                          ProductShortSerializer, SizeSerializer,
-                          TagSerializer, TypeSerializer,
+from .serializers import (BackCallSerializer, CategorySerializer,
+                          OrderSerializer, ProductShortSerializer,
+                          SizeSerializer, TagSerializer, TypeSerializer,
                           VariationProductSerializer)
 
 
-class OrderViewSet(viewsets.ViewSet):
+class OrderViewSet(viewsets.ModelViewSet):
+    queryset = Order.objects.all()
     serializer_class = OrderSerializer
     permission_classes = [AllowAny]
     pagination_class = None
@@ -36,10 +46,38 @@ class OrderViewSet(viewsets.ViewSet):
     #             ['to@example.com'],
     #             fail_silently=False,
     #         )
-    #         return Response(
-    #         data=serializer.data, status=status.HTTP_201_CREATED)
-    #     return Response(
-    #     serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    #         return Response(data=serializer.data, status=status.HTTP_201_CREATED)
+    #     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class BackCallViewSet(viewsets.ModelViewSet):
+    queryset = BackCall.objects.all()
+    serializer_class = BackCallSerializer
+    permission_classes = [AllowAny]
+    pagination_class = None
+
+    def create(self, request):
+        serializer = BackCallSerializer(data=request.data)
+        if serializer.is_valid():
+            backcall = serializer.save()
+            subject = 'Новая заявка на обратный звонок'
+            html_message = render_to_string(
+                'email_templates/backcall.html',
+                {'backcall': backcall})
+            plain_message = strip_tags(html_message)
+            from_email = settings.DEFAULT_FROM_EMAIL
+            to_email = [
+                'mashkastepanova1991@yandex.ru']
+            send_mail(
+                subject=subject,
+                message=plain_message,
+                from_email=from_email,
+                recipient_list=to_email,
+                html_message=html_message)
+
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors,
+                        status=status.HTTP_400_BAD_REQUEST)
 
 
 class CategoryViewSet(viewsets.ReadOnlyModelViewSet):
@@ -128,6 +166,30 @@ class VariationProductViewSet(viewsets.ModelViewSet):
     def delete_basket(self, request, pk):
         return VariationProductViewSet.delete_obj(request, pk, Basket)
 
+
+class CartAPI(APIView):
+    """
+    """
+    permission_classes = [AllowAny]
+    def get(self, request):
+        """
+        """
+        cart = Cart(request)
+        return Response(request, {'cart': cart})
+
+    def post(self, request, **kwargs):
+        """
+        """
+        cart = Cart(request)
+        product = get_object_or_404(VariationProduct, id=kwargs["product_id"])
+        cart.add(
+            product=product,
+            quantity=kwargs.get['quantity'],
+            update_quantity=kwargs.get['update']
+        )
+        request.data.update(cart)
+        return Response()
+
     # @action(methods=['get'], detail=False,
     #         permission_classes=[AllowAny])
     # def count_basket(self, request):
@@ -140,14 +202,12 @@ class VariationProductViewSet(viewsets.ModelViewSet):
 
     #     count_sum = VariationProduct.objects.filter(
     #         product__basket__user=user).anotate(
-    #         discounted_price=(F('price') - F(
-    #         'price') * F('sale') / 100) * F('quantity')).agregate(
+    #         discounted_price=(F('price') - F('price') * F('sale') / 100) * F('quantity')).agregate(
     #         'discounted_price', output_field=models.FloatField())
     #     return Response({
     #         'count_sum': count_sum['count_sum'] or 0
     #     })
-    # Product.objects.filter(featured=True).annotate(
-    # offer=((F('totalprice') - F('saleprice')) / F('totalprice')) * 100)
+    # Product.objects.filter(featured=True).annotate(offer=((F('totalprice') - F('saleprice')) / F('totalprice')) * 100)
 
 # class PurchaseView(APIView):
 #     def post(self, request, *args, **kwargs):
@@ -156,8 +216,7 @@ class VariationProductViewSet(viewsets.ModelViewSet):
 #         try:
 #             product = VariationProduct.objects.get(pk=product_id)
 #         except VariationProduct.DoesNotExist:
-#             return Response({
-#             'error': 'Product not found'}, status=status.HTTP_404_NOT_FOUND)
+#             return Response({'error': 'Product not found'}, status=status.HTTP_404_NOT_FOUND)
 #
 #         with transaction.atomic():
 #             # Создаем запись о покупке
@@ -166,5 +225,4 @@ class VariationProductViewSet(viewsets.ModelViewSet):
 #             product.purchases_count += 1
 #             product.save()
 #
-#         return Response({'message': 'Purchase successful'},
-#         status=status.HTTP_201_CREATED)
+#         return Response({'message': 'Purchase successful'}, status=status.HTTP_201_CREATED)

@@ -34,7 +34,8 @@ INSTALLED_APPS = [
     'api',
     'client',
     'products',
-    'user'
+    'user',
+    'cart'
 ]
 
 MIDDLEWARE = [
@@ -166,3 +167,4 @@ CSRF_TRUSTED_ORIGINS = [
     f"http://*{env('DOMAIN_URL')}",
     f"https://*{env('DOMAIN_URL')}",
 ]
+
