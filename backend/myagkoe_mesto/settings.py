@@ -168,3 +168,4 @@ CSRF_TRUSTED_ORIGINS = [
     f"https://*{env('DOMAIN_URL')}",
 ]
 
+CART_SESSION_ID = 'cart'
