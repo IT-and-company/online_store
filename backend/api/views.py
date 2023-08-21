@@ -32,23 +32,7 @@ class APISignup(APIView):
     def post(self, request):
         serializer = SignupSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        first_name = serializer.validated_data.get('first_name')
-        email = serializer.validated_data.get('email')
-        phone = serializer.validated_data.get('phone')
-        try:
-            user, _ = User.objects.get_or_create(
-                first_name=first_name,
-                email=email,
-                phone=phone
-            )
-        except Exception as error:
-            raise ValidationError(
-                f'Ошибка создания нового пользователя {error}'
-            )
-        user.confirmation_code = create_confirmation_code()
-        user.save()
-        # Реализация этой функции пока в разработке
-        send_confirmation_code(user.phone)
+        serializer.save()
         return Response(serializer.data, status=HTTP_200_OK)
 
 

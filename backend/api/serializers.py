@@ -1,3 +1,5 @@
+from rest_framework.exceptions import ValidationError
+
 from client.models import BackCall, Order
 from drf_extra_fields.fields import Base64ImageField
 from phonenumber_field.serializerfields import PhoneNumberField
@@ -5,6 +7,7 @@ from products.models import (Basket, Category, Favorite, Image, Product, Size,
                              Specification, Tag, Type, VariationProduct)
 from rest_framework import serializers
 from user.models import User
+from utils import create_confirmation_code, send_confirmation_code
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -30,7 +33,17 @@ class UserSerializer(serializers.ModelSerializer):
 class SignupSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ('first_name', 'email', 'phone')
+        fields = ('first_name', 'email')
+
+    def create(self, validated_data):
+        try:
+            user, _ = User.objects.get_or_create(**validated_data)
+        except Exception as error:
+            raise ValidationError(
+                f'Ошибка создания нового пользователя: {error}')
+        user.confirmation_code = create_confirmation_code()
+        send_confirmation_code(user)
+        return user
 
     def validate_email(self, value):
         if User.objects.filter(email=value).exists():
@@ -39,12 +52,6 @@ class SignupSerializer(serializers.ModelSerializer):
             )
         return value
 
-    def validate_phone(self, value):
-        if User.objects.filter(phone=value).exists():
-            raise serializers.ValidationError(
-                f'Телефон "{value}" уже используется'
-            )
-        return value
 
 # class AuthSerializer(serializers.Serializer):
 #     phone = serializers.CharField(max_length=15)

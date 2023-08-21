@@ -6,26 +6,29 @@ from .managers import UserManager
 
 
 class User(AbstractBaseUser):
-    USERNAME_FIELD = 'phone'
+    USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['email']
 
     phone = PhoneNumberField(
-        'phone',
-        null=False,
-        blank=False,
+        'Номер телефона',
+        null=True,
+        blank=True,
         unique=True,
         help_text='Введите ваш телефон'
     )
-    email = models.EmailField(unique=True, max_length=255)
-    first_name = models.CharField(max_length=100)
-    last_name = models.CharField(max_length=200)
-    address = models.TextField(max_length=1000)
-    confirmation_code = models.PositiveSmallIntegerField(
-        'Код подтверждения',
-        blank=True,
-        null=True
+    email = models.EmailField(
+        'Электронная почта',
+        null=False,
+        blank=False,
+        unique=True,
+        max_length=255
     )
-    is_active = models.BooleanField(default=True)
+    first_name = models.CharField(
+        'Имя пользователя',
+        max_length=100
+    )
+    address = models.TextField(max_length=1000)
+    is_active = models.BooleanField(default=False)
     is_admin = models.BooleanField(default=False)
 
     objects = UserManager()
