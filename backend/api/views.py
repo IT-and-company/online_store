@@ -10,7 +10,7 @@ from rest_framework.decorators import action
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 
-from .filters import VariationProductFilter
+from .filters import SimilarProductFilter, VariationProductFilter
 from .pagination import CustomPagination
 from .permissions import IsAdminOrReadOnly
 from .serializers import (CategorySerializer, OrderSerializer,
