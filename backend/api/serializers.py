@@ -1,9 +1,10 @@
-from client.models import BackCall, Order
 from drf_extra_fields.fields import Base64ImageField
 from phonenumber_field.serializerfields import PhoneNumberField
+from rest_framework import serializers
+
+from client.models import BackCall, Order
 from products.models import (Basket, Category, Favorite, Image, Product, Size,
                              Specification, Tag, Type, VariationProduct)
-from rest_framework import serializers
 from user.models import User
 
 
@@ -164,3 +165,15 @@ class VariationProductSerializer(ProductBaseSerializer):
     class Meta(ProductBaseSerializer.Meta):
         fields = ProductBaseSerializer.Meta.fields + (
             'product', 'specification')
+
+
+class CartSerializer(serializers.Serializer):
+    product = VariationProductSerializer()
+    quantity = serializers.SerializerMethodField()
+    price = serializers.SerializerMethodField()
+
+    def get_quantity(self, obj):
+        return obj['quantity']
+
+    def get_price(self, obj):
+        return obj['price']
