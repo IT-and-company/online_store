@@ -1,6 +1,7 @@
 # from django.db import models
 # from django.db.models import F, Sum
 # # from django.http import HttpResponse
+from django.db.models import Q
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
 from products.models import (Basket, Category, Favorite, Size, Tag, Type,
@@ -10,7 +11,7 @@ from rest_framework.decorators import action
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 
-from .filters import SimilarProductFilter, VariationProductFilter
+from .filters import VariationProductFilter
 from .pagination import CustomPagination
 from .permissions import IsAdminOrReadOnly
 from .serializers import (CategorySerializer, OrderSerializer,
@@ -76,6 +77,37 @@ class VariationProductViewSet(viewsets.ModelViewSet):
     pagination_class = CustomPagination
     filter_backends = [DjangoFilterBackend]
     filterset_class = VariationProductFilter
+
+    @action(detail=False, methods=['get'])
+    def latest_products(self, request):
+        queryset = VariationProduct.objects.all().order_by('-pub_date')
+        serializer = ProductShortSerializer(queryset, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    @action(detail=False, methods=['get'])
+    def similar_products(self, request):
+        product_id = request.query_params.get('product_id')
+
+        if product_id:
+            # Получаем выбранный продукт
+            selected_product = VariationProduct.objects.get(pk=product_id)
+
+            # Формируем Q-объект для поиска похожих товаров
+            similar_filter = Q(
+                size=selected_product.size,
+                type=selected_product.type,
+                price__lte=selected_product.price * 1.2,
+                category=selected_product.category
+            )
+
+            # Применяем фильтр к запросу
+            queryset = VariationProduct.objects.filter(similar_filter).exclude(
+                pk=selected_product.pk)
+
+            serializer = ProductShortSerializer(queryset, many=True)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+
+        return Response(status.HTTP_400_BAD_REQUEST)
 
     @staticmethod
     def create_obj(request, pk, model, serializer):

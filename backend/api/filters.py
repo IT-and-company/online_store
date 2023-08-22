@@ -1,6 +1,4 @@
 from django_filters.rest_framework import FilterSet, filters
-from django.db.models import Q
-from rest_framework.filters import BaseFilterBackend
 from products.models import ProductModel, Size, Tag, Type, VariationProduct
 
 
@@ -36,27 +34,4 @@ class VariationProductFilter(FilterSet):
         user = self.request.user
         if value and user.is_authenticated:
             return queryset.filter(basket__user=user)
-        return queryset
-
-
-class SimilarProductFilter(BaseFilterBackend):
-    def filter_queryset(self, request, queryset, view):
-        product_id = request.query_params.get('product_id')
-
-        if product_id:
-            # Получаем выбранный продукт
-            selected_product = VariationProduct.objects.get(pk=product_id)
-
-            # Формируем Q-объект для поиска похожих товаров
-            similar_filter = Q(
-                size=selected_product.size,
-                type=selected_product.type,
-                price__lte=selected_product.price * 1.2,  # Например, выбираем товары с ценой не более чем на 20% выше
-                category=selected_product.category
-            )
-
-            # Применяем фильтр к запросу
-            queryset = queryset.filter(similar_filter).exclude(
-                pk=selected_product.pk)
-
         return queryset
