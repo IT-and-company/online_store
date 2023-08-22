@@ -1,5 +1,7 @@
 from django_filters.rest_framework import FilterSet, filters
-from products.models import ProductModel, Size, Tag, Type, VariationProduct
+from products.models import (Category, ProductModel, Size,
+                             Tag, Type, VariationProduct)
+from rest_framework.filters import BaseFilterBackend
 
 
 class VariationProductFilter(FilterSet):
@@ -34,4 +36,18 @@ class VariationProductFilter(FilterSet):
         user = self.request.user
         if value and user.is_authenticated:
             return queryset.filter(basket__user=user)
+        return queryset
+
+
+class CategoryTypeFilter(BaseFilterBackend):
+    def filter_queryset(self, request, queryset, view):
+        category_slug = request.query_params.get('category_slug')
+        type_slug = request.query_params.get('type_slug')
+
+        if Type.objects.filter(slug=type_slug):
+            type_id = Type.objects.get(slug=type_slug).id
+            queryset = queryset.filter(genre=type_id)
+        if Category.objects.filter(slug=category_slug):
+            category_id = Category.objects.get(slug=category_slug).id
+            queryset = queryset.filter(category=category_id)
         return queryset
