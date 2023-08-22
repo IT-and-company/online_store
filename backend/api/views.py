@@ -2,6 +2,8 @@
 # from django.db import models
 # from django.db.models import F, Sum
 # # from django.http import HttpResponse
+from distutils.util import strtobool
+
 from django.conf import settings
 from django.core.mail import send_mail
 from django.shortcuts import get_object_or_404
@@ -16,15 +18,16 @@ from rest_framework.views import APIView
 
 from cart.models import Cart
 from client.models import BackCall, Order
-from products.models import (Basket, Category, Favorite, Size, Tag, Type,
+from products.models import (Category, Favorite, Size, Tag, Type,
                              VariationProduct)
 
 from .filters import VariationProductFilter
 from .pagination import CustomPagination
 from .permissions import IsAdminOrReadOnly
-from .serializers import (BackCallSerializer, CategorySerializer,
-                          OrderSerializer, ProductShortSerializer,
-                          SizeSerializer, TagSerializer, TypeSerializer,
+from .serializers import (BackCallSerializer, CartSerializer,
+                          CategorySerializer, OrderSerializer,
+                          ProductShortSerializer, SizeSerializer,
+                          TagSerializer, TypeSerializer,
                           VariationProductSerializer)
 
 
@@ -46,8 +49,10 @@ class OrderViewSet(viewsets.ModelViewSet):
     #             ['to@example.com'],
     #             fail_silently=False,
     #         )
-    #         return Response(data=serializer.data, status=status.HTTP_201_CREATED)
-    #     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    #         return Response(data=serializer.data,
+    #               status=status.HTTP_201_CREATED)
+    #     return Response(serializer.errors,
+    #               status=status.HTTP_400_BAD_REQUEST)
 
 
 class BackCallViewSet(viewsets.ModelViewSet):
@@ -156,39 +161,60 @@ class VariationProductViewSet(viewsets.ModelViewSet):
     def delete_favorite(self, request, pk):
         return VariationProductViewSet.delete_obj(request, pk, Favorite)
 
-    @action(detail=True, methods=['post'],
-            permission_classes=[AllowAny])
-    def basket(self, request, pk):
-        return VariationProductViewSet.create_obj(
-            request, pk, Basket, ProductShortSerializer)
+    # @action(detail=True, methods=['post'],
+    #         permission_classes=[AllowAny])
+    # def basket(self, request, pk):
+    #     return VariationProductViewSet.create_obj(
+    #         request, pk, Basket, ProductShortSerializer)
 
-    @basket.mapping.delete
-    def delete_basket(self, request, pk):
-        return VariationProductViewSet.delete_obj(request, pk, Basket)
+    # @basket.mapping.delete
+    # def delete_basket(self, request, pk):
+    #     return VariationProductViewSet.delete_obj(request, pk, Basket)
 
 
 class CartAPI(APIView):
     """
     """
     permission_classes = [AllowAny]
+
     def get(self, request):
         """
         """
         cart = Cart(request)
-        return Response(request, {'cart': cart})
+        serialized_cart = CartSerializer(
+            cart,
+            many=True,
+            context={'request': request}
+        ).data
+        return Response({'cart': serialized_cart}, status=status.HTTP_200_OK)
 
     def post(self, request, **kwargs):
         """
         """
         cart = Cart(request)
-        product = get_object_or_404(VariationProduct, id=kwargs["product_id"])
-        cart.add(
-            product=product,
-            quantity=kwargs.get['quantity'],
-            update_quantity=kwargs.get['update']
-        )
-        request.data.update(cart)
-        return Response()
+        product_id = request.query_params.get("product_id")
+        product = get_object_or_404(VariationProduct, id=product_id)
+        if product:
+            cart.add(
+                product=product,
+                quantity=int(request.query_params.get('quantity', 1)),
+                update_quantity=strtobool(
+                    request.query_params.get('update_quantity')
+                )
+            )
+        request.data.update({'cart': cart})
+        return Response(status=status.HTTP_201_CREATED)
+
+    def delete(self, request, **kwargs):
+        """
+        """
+        cart = Cart(request)
+        product_id = request.query_params.get("product_id")
+        product = get_object_or_404(VariationProduct, id=product_id)
+        if product:
+            cart.remove(product)
+        request.data.update({'cart': cart})
+        return Response(status=status.HTTP_202_ACCEPTED)
 
     # @action(methods=['get'], detail=False,
     #         permission_classes=[AllowAny])
@@ -202,12 +228,14 @@ class CartAPI(APIView):
 
     #     count_sum = VariationProduct.objects.filter(
     #         product__basket__user=user).anotate(
-    #         discounted_price=(F('price') - F('price') * F('sale') / 100) * F('quantity')).agregate(
+    #         discounted_price=(F('price') - F('price') * F('sale') / 100
+    #               ) * F('quantity')).agregate(
     #         'discounted_price', output_field=models.FloatField())
     #     return Response({
     #         'count_sum': count_sum['count_sum'] or 0
     #     })
-    # Product.objects.filter(featured=True).annotate(offer=((F('totalprice') - F('saleprice')) / F('totalprice')) * 100)
+    # Product.objects.filter(featured=True).annotate(offer=(
+    #       (F('totalprice') - F('saleprice')) / F('totalprice')) * 100)
 
 # class PurchaseView(APIView):
 #     def post(self, request, *args, **kwargs):
@@ -216,7 +244,9 @@ class CartAPI(APIView):
 #         try:
 #             product = VariationProduct.objects.get(pk=product_id)
 #         except VariationProduct.DoesNotExist:
-#             return Response({'error': 'Product not found'}, status=status.HTTP_404_NOT_FOUND)
+#             return Response(
+#               {'error': 'Product not found'},
+#                   status=status.HTTP_404_NOT_FOUND)
 #
 #         with transaction.atomic():
 #             # Создаем запись о покупке
@@ -225,4 +255,5 @@ class CartAPI(APIView):
 #             product.purchases_count += 1
 #             product.save()
 #
-#         return Response({'message': 'Purchase successful'}, status=status.HTTP_201_CREATED)
+#         return Response({'message': 'Purchase successful'},
+#               status=status.HTTP_201_CREATED)

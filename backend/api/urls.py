@@ -1,8 +1,8 @@
 from django.urls import include, path
 from rest_framework.routers import DefaultRouter
 
-from .views import (CategoryViewSet, SizeViewSet, TagViewSet, TypeViewSet,
-                    VariationProductViewSet)
+from .views import (CartAPI, CategoryViewSet, SizeViewSet, TagViewSet,
+                    TypeViewSet, VariationProductViewSet)
 
 app_name = 'api'
 
@@ -16,4 +16,5 @@ router.register('product', VariationProductViewSet)
 
 urlpatterns = [
     path('', include(router.urls)),
+    path('cart/', CartAPI.as_view()),
 ]
