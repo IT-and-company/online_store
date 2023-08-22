@@ -1,8 +1,12 @@
 from django.urls import include, path
 from rest_framework.routers import DefaultRouter
+from rest_framework_simplejwt.views import (
+    TokenObtainPairView,
+    TokenRefreshView
+)
 
 from .views import (CategoryViewSet, SizeViewSet, TagViewSet, TypeViewSet,
-                    VariationProductViewSet, APISignup)
+                    VariationProductViewSet, UserRegisterView, activate)
 
 app_name = 'api'
 
@@ -15,10 +19,16 @@ router.register('size', SizeViewSet)
 router.register('product', VariationProductViewSet)
 
 url_auth = (
-    path('auth/signup', APISignup.as_view(), name='signup'),
+    path('token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
+    path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
+    path('register/', UserRegisterView.as_view(), name='registration'),
+    path('activate/<uidb64>/<token>/', activate, name='activate')
 )
 
 urlpatterns = [
     path('', include(router.urls)),
-    path('', include(url_auth))
+    path('token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
+    path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
+    path('register/', UserRegisterView.as_view(), name='registration'),
+    path('activate/<uidb64>/<token>/', activate, name='activate'),
 ]

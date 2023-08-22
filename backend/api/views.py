@@ -2,20 +2,23 @@
 # from django.db.models import F, Sum
 # # from django.http import HttpResponse
 from django.contrib.auth import get_user_model
+from django.http import HttpRequest, HttpResponse
 from django.shortcuts import get_object_or_404
+from django.utils.encoding import force_str
+from django.utils.http import urlsafe_base64_decode
 from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework.exceptions import ValidationError
-from rest_framework.status import HTTP_200_OK
-from rest_framework.views import APIView
+# from rest_framework.exceptions import ValidationError
+# from rest_framework.status import HTTP_200_OK
+# from rest_framework.views import APIView
 
 from products.models import (Basket, Category, Favorite, Size, Tag, Type,
                              VariationProduct)
-from rest_framework import status, viewsets
+from rest_framework import status, viewsets, generics
 from rest_framework.decorators import action
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 
-from .utils import create_confirmation_code, send_confirmation_code
+from .utils import send_confirmation_link, TokenGenerator
 from .filters import VariationProductFilter
 from .pagination import CustomPagination
 from .permissions import IsAdminOrReadOnly
@@ -28,12 +31,38 @@ from .serializers import (CategorySerializer, OrderSerializer,
 User = get_user_model()
 
 
-class APISignup(APIView):
-    def post(self, request):
-        serializer = SignupSerializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        serializer.save()
-        return Response(serializer.data, status=HTTP_200_OK)
+# class APISignup(APIView):
+#     def post(self, request):
+#         serializer = SignupSerializer(data=request.data)
+#         serializer.is_valid(raise_exception=True)
+#         serializer.save()
+#         return Response(serializer.data, status=HTTP_200_OK)
+
+
+class UserRegisterView(generics.CreateAPIView):
+    queryset = User.objects.all()
+    serializer_class = SignupSerializer
+
+    def create(self, request, *args, **kwargs):
+        response = super(UserRegisterView, self).create(
+            request, *args, **kwargs)
+        send_confirmation_link(request, response.data)
+        return response
+
+
+def activate(request: HttpRequest, uidb64: str, token: str) -> HttpResponse:
+    account_activation_token = TokenGenerator()
+    try:
+        uid = force_str(urlsafe_base64_decode(uidb64))
+        user = User.objects.get(pk=uid)
+    except (TypeError, ValueError, OverflowError, User.DoesNotExist):
+        user = None
+    if user is not None and account_activation_token.check_token(user, token):
+        user.is_active = True
+        user.save()
+        return HttpResponse(
+            'Спасибо за подтверждение! Ваш аккаунт активирован!')
+    return HttpResponse('Ссылка для активации недействительна!')
 
 
 class OrderViewSet(viewsets.ViewSet):

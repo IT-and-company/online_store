@@ -2,32 +2,31 @@ from rest_framework.exceptions import ValidationError
 
 from client.models import BackCall, Order
 from drf_extra_fields.fields import Base64ImageField
-from phonenumber_field.serializerfields import PhoneNumberField
+# from phonenumber_field.serializerfields import PhoneNumberField
 from products.models import (Basket, Category, Favorite, Image, Product, Size,
                              Specification, Tag, Type, VariationProduct)
 from rest_framework import serializers
 from user.models import User
-from utils import create_confirmation_code, send_confirmation_code
 
 
-class UserSerializer(serializers.ModelSerializer):
-    name = serializers.CharField(max_length=150, required=True)
-    phone = PhoneNumberField()
-
-    class Meta:
-        fields = ('name', 'phone',)
-        model = User
-
-    def validate(self, data):
-        if data.get('name') == 'me':
-            raise serializers.ValidationError(
-                'Пользователь не может иметь такое имя')
-
-        if User.objects.filter(phone=data.get('phone')).exists():
-            raise serializers.ValidationError(
-                'Пользователь с таким телефоном уже существует')
-
-        return data
+# class UserSerializer(serializers.ModelSerializer):
+#     name = serializers.CharField(max_length=150, required=True)
+#     phone = PhoneNumberField()
+#
+#     class Meta:
+#         fields = ('name', 'phone',)
+#         model = User
+#
+#     def validate(self, data):
+#         if data.get('name') == 'me':
+#             raise serializers.ValidationError(
+#                 'Пользователь не может иметь такое имя')
+#
+#         if User.objects.filter(phone=data.get('phone')).exists():
+#             raise serializers.ValidationError(
+#                 'Пользователь с таким телефоном уже существует')
+#
+#         return data
 
 
 class SignupSerializer(serializers.ModelSerializer):
@@ -41,8 +40,8 @@ class SignupSerializer(serializers.ModelSerializer):
         except Exception as error:
             raise ValidationError(
                 f'Ошибка создания нового пользователя: {error}')
-        user.confirmation_code = create_confirmation_code()
-        send_confirmation_code(user)
+        user.is_active = False
+        user.save()
         return user
 
     def validate_email(self, value):
