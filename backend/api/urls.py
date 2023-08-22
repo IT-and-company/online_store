@@ -18,13 +18,6 @@ router.register('tags', TagViewSet)
 router.register('size', SizeViewSet)
 router.register('product', VariationProductViewSet)
 
-url_auth = (
-    path('token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
-    path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
-    path('register/', UserRegisterView.as_view(), name='registration'),
-    path('activate/<uidb64>/<token>/', activate, name='activate')
-)
-
 urlpatterns = [
     path('', include(router.urls)),
     path('token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
