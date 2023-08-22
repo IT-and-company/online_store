@@ -1,14 +1,15 @@
 import random
 
 import six
-# from django.conf import settings
+from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.contrib.auth.tokens import PasswordResetTokenGenerator
 from django.contrib.sites.shortcuts import get_current_site
-from django.core.mail import EmailMessage
+from django.core.mail import send_mail
 from django.http import HttpRequest
 from django.template.loader import render_to_string
 from django.utils.encoding import force_bytes
+from django.utils.html import strip_tags
 from django.utils.http import urlsafe_base64_encode
 
 # from sms_config import SMSTransport
@@ -49,5 +50,11 @@ def send_confirmation_link(request: HttpRequest, user_data: dict) -> None:
         'uid': urlsafe_base64_encode(force_bytes(user.pk)),
         'token': token,
     })
-    email = EmailMessage(title_mail, message, to=(user.email,))
-    email.send()
+    plain_message = strip_tags(message)
+    send_mail(
+        title_mail,
+        plain_message,
+        from_email=settings.DEFAULT_FROM_EMAIL,
+        recipient_list=(user.email,),
+        html_message=message
+    )
