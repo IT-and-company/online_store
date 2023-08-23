@@ -1,12 +1,15 @@
+from django.contrib.auth import get_user_model
+
+from drf_extra_fields.fields import Base64ImageField
+# from phonenumber_field.serializerfields import PhoneNumberField
+from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 
 from client.models import BackCall, Order
-from drf_extra_fields.fields import Base64ImageField
-# from phonenumber_field.serializerfields import PhoneNumberField
 from products.models import (Basket, Category, Favorite, Image, Product, Size,
                              Specification, Tag, Type, VariationProduct)
-from rest_framework import serializers
-from user.models import User
+
+User = get_user_model()
 
 
 # class UserSerializer(serializers.ModelSerializer):
@@ -103,7 +106,6 @@ class TagSerializer(serializers.ModelSerializer):
 
 
 class SizeSerializer(serializers.ModelSerializer):
-
     class Meta:
         model = Size
         fields = ('length',
