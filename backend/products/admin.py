@@ -1,8 +1,9 @@
 from django.contrib import admin
 from django.contrib.auth.models import Group
 
-from .models import (Basket, Category, Favorite, Image, Product, ProductModel,
-                     Size, Specification, Tag, Type, VariationProduct)
+from .models import (CartProduct, Category, Favorite, Image, Product,
+                     ProductModel, Size, Specification, Tag, Type, UserCart,
+                     VariationProduct)
 
 
 @admin.register(Category)
@@ -95,13 +96,19 @@ class FavoriteAdmin(admin.ModelAdmin):
     )
 
 
-@admin.register(Basket)
-class BasketAdmin(admin.ModelAdmin):
-    list_display = ('pk', 'user', 'product', 'quantity')
+@admin.register(UserCart)
+class UserCartAdmin(admin.ModelAdmin):
+    list_display = ('pk', 'user')
     search_fields = (
         'user__username',
-        'user__phone',
-        'product__name'
+    )
+
+
+@admin.register(CartProduct)
+class CartProductAdmin(admin.ModelAdmin):
+    list_display = ('pk', 'cart', 'product', 'quantity')
+    search_fields = (
+        'product__name',
     )
 
 
