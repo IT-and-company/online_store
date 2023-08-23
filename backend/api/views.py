@@ -3,30 +3,31 @@
 # # from django.http import HttpResponse
 from distutils.util import strtobool
 
-from django.conf import settings
-from django.core.mail import send_mail
-from django.shortcuts import get_object_or_404
-from django.template.loader import render_to_string
-from django.utils.html import strip_tags
-from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework import status, viewsets
-from rest_framework.decorators import action
-from rest_framework.permissions import AllowAny
-from rest_framework.response import Response
-from rest_framework.views import APIView
+from django.conf import settings  # noqa
+from django.core.mail import send_mail  # noqa
+from django.shortcuts import get_object_or_404  # noqa
+from django.template.loader import render_to_string  # noqa
+from django.utils.html import strip_tags  # noqa
+from django_filters.rest_framework import DjangoFilterBackend  # noqa
+from rest_framework import status, viewsets  # noqa
+from rest_framework.decorators import action  # noqa
+from rest_framework.permissions import AllowAny  # noqa
+from rest_framework.response import Response  # noqa
+from rest_framework.views import APIView  # noqa
 
-from api.filters import VariationProductFilter
-from api.pagination import CustomPagination
-from api.permissions import IsAdminOrReadOnly
-from api.serializers import (BackCallSerializer, CartSerializer,
-                             CategorySerializer, OrderSerializer,
-                             ProductShortSerializer, SizeSerializer,
-                             TagSerializer, TypeSerializer,
-                             VariationProductSerializer)
-from cart.models import Cart
-from client.models import BackCall, Order
-from products.models import (Category, Favorite, Size, Tag, Type,
-                             VariationProduct)
+from api.filters import VariationProductFilter  # noqa
+from api.pagination import CustomPagination  # noqa
+from api.permissions import IsAdminOrReadOnly  # noqa
+from api.serializers import VariationProductSerializer  # noqa
+from api.serializers import (CartSerializer, CategorySerializer,  # noqa
+                             OrderSerializer, ProductShortSerializer,
+                             SizeSerializer, TagSerializer, TypeSerializer)
+from client.models import Order  # noqa
+from products.cart import Cart  # noqa
+from products.models import (CartProduct, Category, Favorite, Size,  # noqa
+                             Tag, Type, UserCart, VariationProduct)
+
+  # noqa
 
 
 class OrderViewSet(viewsets.ModelViewSet):
@@ -51,36 +52,6 @@ class OrderViewSet(viewsets.ModelViewSet):
     #               status=status.HTTP_201_CREATED)
     #     return Response(serializer.errors,
     #               status=status.HTTP_400_BAD_REQUEST)
-
-
-class BackCallViewSet(viewsets.ModelViewSet):
-    queryset = BackCall.objects.all()
-    serializer_class = BackCallSerializer
-    permission_classes = [AllowAny]
-    pagination_class = None
-
-    def create(self, request):
-        serializer = BackCallSerializer(data=request.data)
-        if serializer.is_valid():
-            backcall = serializer.save()
-            subject = 'Новая заявка на обратный звонок'
-            html_message = render_to_string(
-                'email_templates/backcall.html',
-                {'backcall': backcall})
-            plain_message = strip_tags(html_message)
-            from_email = settings.DEFAULT_FROM_EMAIL
-            to_email = [
-                'mashkastepanova1991@yandex.ru']
-            send_mail(
-                subject=subject,
-                message=plain_message,
-                from_email=from_email,
-                recipient_list=to_email,
-                html_message=html_message)
-
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors,
-                        status=status.HTTP_400_BAD_REQUEST)
 
 
 class CategoryViewSet(viewsets.ReadOnlyModelViewSet):
@@ -172,24 +143,43 @@ class VariationProductViewSet(viewsets.ModelViewSet):
 
 class CartAPI(APIView):
     """
+    Эндпоинт для корзины.
     """
     permission_classes = [AllowAny]
 
     def get(self, request):
         """
+        Метод просмотра корзины.
         """
-        cart = Cart(request)
-        serialized_cart = CartSerializer(
+        if request.user.is_authenticated:
+            user = request.user
+            cart = Cart(user_id=user.id)
+        else:
+            cart = Cart(request=request)
+        print(cart.__dict__)
+
+        serialized_cart = list(CartSerializer(
             cart,
             many=True,
             context={'request': request}
-        ).data
+        ).data)
+
+        total_price = cart.get_total_price()
+        total_quantity = len(cart)
+        serialized_cart.append({'total_price': total_price})
+        serialized_cart.append({'total_quantity': total_quantity})
         return Response({'cart': serialized_cart}, status=status.HTTP_200_OK)
 
     def post(self, request, **kwargs):
         """
+        Метод добавления товара в корзину.
         """
-        cart = Cart(request)
+        if request.user.is_authenticated:
+            user = request.user
+            cart = Cart(user_id=user.id)
+        else:
+            cart = Cart(request=request)
+
         product_id = request.query_params.get("product_id")
         product = get_object_or_404(VariationProduct, id=product_id)
         if product:
@@ -205,8 +195,13 @@ class CartAPI(APIView):
 
     def delete(self, request, **kwargs):
         """
+        Метод удаления продуктов из корзины.
         """
-        cart = Cart(request)
+        if request.user.is_authenticated:
+            user = request.user
+            cart = Cart(user_id=user.id)
+        else:
+            cart = Cart(request=request)
         product_id = request.query_params.get("product_id")
         product = get_object_or_404(VariationProduct, id=product_id)
         if product:
@@ -222,7 +217,7 @@ class CartAPI(APIView):
     #     else:
     #         user = None
 
-    # нехватает колличества продуктов
+    # не хватает колличества продуктов
 
     #     count_sum = VariationProduct.objects.filter(
     #         product__basket__user=user).anotate(

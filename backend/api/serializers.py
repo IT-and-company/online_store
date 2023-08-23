@@ -168,7 +168,7 @@ class VariationProductSerializer(ProductBaseSerializer):
 
 
 class CartSerializer(serializers.Serializer):
-    product = VariationProductSerializer()
+    product = ProductShortSerializer()
     quantity = serializers.SerializerMethodField()
     price = serializers.SerializerMethodField()
 
@@ -176,4 +176,7 @@ class CartSerializer(serializers.Serializer):
         return obj['quantity']
 
     def get_price(self, obj):
-        return obj['price']
+        product = VariationProduct.objects.get(id=obj['product'].id)
+        if product.sale:
+            return (product.price * product.sale) / 100
+        return product.price
