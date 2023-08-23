@@ -10,8 +10,6 @@ class VariationProductFilter(FilterSet):
                                              queryset=Tag.objects.all())
     size = filters.ModelMultipleChoiceFilter(field_name='size',
                                              queryset=Size.objects.all())
-    type = filters.ModelMultipleChoiceFilter(
-        field_name='type', queryset=Type.objects.all())
     model = filters.ModelMultipleChoiceFilter(
         field_name='model', queryset=ProductModel.objects.all())
     min_price = filters.NumberFilter(field_name="price", lookup_expr='gte')
@@ -41,13 +39,13 @@ class VariationProductFilter(FilterSet):
 
 class CategoryTypeFilter(BaseFilterBackend):
     def filter_queryset(self, request, queryset, view):
-        category_slug = request.query_params.get('category_slug')
-        type_slug = request.query_params.get('type_slug')
+        categories = request.query_params.getlist('categories')
+        types = request.query_params.getlist('types')
 
-        if Type.objects.filter(slug=type_slug):
-            type_id = Type.objects.get(slug=type_slug).id
-            queryset = queryset.filter(genre=type_id)
-        if Category.objects.filter(slug=category_slug):
-            category_id = Category.objects.get(slug=category_slug).id
-            queryset = queryset.filter(category=category_id)
+        if categories:
+            queryset = queryset.filter(product__category__slug__in=categories)
+
+        if types:
+            queryset = queryset.filter(product__type__slug__in=types)
+
         return queryset

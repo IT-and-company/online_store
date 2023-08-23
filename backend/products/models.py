@@ -175,6 +175,7 @@ class Specification(models.Model):
     )
     model = models.CharField(
         'Тип модели',
+        blank=True,
         max_length=settings.MAX_LENGTH_1,
         help_text='Введите тип товара'  # Например угловой, модульный и т.д.
     )
@@ -185,6 +186,7 @@ class Specification(models.Model):
     )
     manufacturer = models.CharField(
         'Производитель',
+        blank=True,
         max_length=settings.MAX_LENGTH_1,
         help_text='Введите Производителя'
     )

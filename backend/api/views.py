@@ -75,7 +75,7 @@ class VariationProductViewSet(viewsets.ModelViewSet):
     serializer_class = VariationProductSerializer
     permission_classes = [IsAdminOrReadOnly]
     pagination_class = CustomPagination
-    filter_backends = [DjangoFilterBackend]
+    filter_backends = [DjangoFilterBackend, CategoryTypeFilter]
     filterset_class = VariationProductFilter
 
     @staticmethod
