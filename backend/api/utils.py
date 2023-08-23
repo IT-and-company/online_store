@@ -54,7 +54,7 @@ def send_confirmation_link(request: HttpRequest, user_data: dict) -> None:
     send_mail(
         title_mail,
         plain_message,
-        from_email=settings.DEFAULT_FROM_EMAIL,
+        from_email=settings.EMAIL_HOST_USER,
         recipient_list=(user.email,),
         html_message=message
     )

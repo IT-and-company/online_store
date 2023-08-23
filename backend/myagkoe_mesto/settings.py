@@ -154,9 +154,15 @@ SIMPLE_JWT = {
    'AUTH_HEADER_TYPES': ('Bearer',),
 }
 
-EMAIL_BACKEND = 'django.core.mail.backends.filebased.EmailBackend'
-
-EMAIL_FILE_PATH = os.path.join(BASE_DIR, 'sent_emails')
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = str(env('EMAIL_HOST'))
+EMAIL_PORT = str(env('EMAIL_PORT'))
+EMAIL_USE_TLS = False
+EMAIL_USE_SSL = True
+EMAIL_TIMEOUT = None
+EMAIL_HOST_USER = str(env('EMAIL_HOST_USER'))
+EMAIL_HOST_PASSWORD = str(env('EMAIL_HOST_PASSWORD'))
+DEFAULT_FROM_EMAIL = str(env('DEFAULT_FROM_EMAIL'))
 
 MAX_LENGTH_1 = 250
 MAX_LENGTH_2 = 7
