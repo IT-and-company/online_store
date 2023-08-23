@@ -1,4 +1,5 @@
 import os
+from datetime import timedelta
 from pathlib import Path
 
 import environ
@@ -136,12 +137,11 @@ AUTH_USER_MODEL = 'user.User'
 
 REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': [
-        'rest_framework.permissions.IsAuthenticated',
+        'rest_framework.permissions.AllowAny',
     ],
 
     'DEFAULT_AUTHENTICATION_CLASSES': [
-        'rest_framework.authentication.TokenAuthentication',
-        # 'rest_framework.authentication.BasicAuthentication',
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
     ],
     'DEFAULT_FILTER_BACKENDS': [
         'django_filters.rest_framework.DjangoFilterBackend'
@@ -150,9 +150,20 @@ REST_FRAMEWORK = {
                                  'PageNumberPagination'),
 }
 
-EMAIL_BACKEND = 'django.core.mail.backends.filebased.EmailBackend'
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME': timedelta(days=1),
+    'AUTH_HEADER_TYPES': ('Bearer',),
+}
 
-EMAIL_FILE_PATH = os.path.join(BASE_DIR, 'sent_emails')
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = str(env('EMAIL_HOST'))
+EMAIL_PORT = str(env('EMAIL_PORT'))
+EMAIL_USE_TLS = False
+EMAIL_USE_SSL = True
+EMAIL_TIMEOUT = None
+EMAIL_HOST_USER = str(env('EMAIL_HOST_USER'))
+EMAIL_HOST_PASSWORD = str(env('EMAIL_HOST_PASSWORD'))
+DEFAULT_FROM_EMAIL = str(env('DEFAULT_FROM_EMAIL'))
 
 MAX_LENGTH_1 = 250
 MAX_LENGTH_2 = 7

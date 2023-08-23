@@ -1,31 +1,60 @@
+
+from django.contrib.auth import get_user_model
+
 from drf_extra_fields.fields import Base64ImageField
 from phonenumber_field.serializerfields import PhoneNumberField
 from rest_framework import serializers
+from rest_framework.exceptions import ValidationError
 
 from client.models import BackCall, Order
 from products.models import (Basket, Category, Favorite, Image, Product, Size,
                              Specification, Tag, Type, VariationProduct)
-from user.models import User
 
 
-class UserSerializer(serializers.ModelSerializer):
-    name = serializers.CharField(max_length=150, required=True)
-    phone = PhoneNumberField()
+User = get_user_model()
 
+
+# class UserSerializer(serializers.ModelSerializer):
+#     name = serializers.CharField(max_length=150, required=True)
+#     phone = PhoneNumberField()
+#
+#     class Meta:
+#         fields = ('name', 'phone',)
+#         model = User
+#
+#     def validate(self, data):
+#         if data.get('name') == 'me':
+#             raise serializers.ValidationError(
+#                 'Пользователь не может иметь такое имя')
+#
+#         if User.objects.filter(phone=data.get('phone')).exists():
+#             raise serializers.ValidationError(
+#                 'Пользователь с таким телефоном уже существует')
+#
+#         return data
+
+
+class SignupSerializer(serializers.ModelSerializer):
     class Meta:
-        fields = ('name', 'phone',)
         model = User
+        fields = ('first_name', 'email')
 
-    def validate(self, data):
-        if data.get('name') == 'me':
+    def create(self, validated_data):
+        try:
+            user, _ = User.objects.get_or_create(**validated_data)
+        except Exception as error:
+            raise ValidationError(
+                f'Ошибка создания нового пользователя: {error}')
+        user.is_active = False
+        user.save()
+        return user
+
+    def validate_email(self, value):
+        if User.objects.filter(email=value).exists():
             raise serializers.ValidationError(
-                'Пользователь не может иметь такое имя')
-
-        if User.objects.filter(phone=data.get('phone')).exists():
-            raise serializers.ValidationError(
-                'Пользователь с таким телефоном уже существует')
-
-        return data
+                f'Email "{value}" уже используется'
+            )
+        return value
 
 
 # class AuthSerializer(serializers.Serializer):
@@ -79,7 +108,6 @@ class TagSerializer(serializers.ModelSerializer):
 
 
 class SizeSerializer(serializers.ModelSerializer):
-
     class Meta:
         model = Size
         fields = ('length',
