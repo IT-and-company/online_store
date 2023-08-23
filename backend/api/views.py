@@ -1,7 +1,7 @@
 # from django.db import models
 # from django.db.models import F, Sum
 # # from django.http import HttpResponse
-from django.db.models import Q
+from django.db.models import Q, F, ExpressionWrapper, FloatField
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
 from products.models import (Basket, Category, Favorite, Size, Tag, Type,
@@ -91,13 +91,15 @@ class VariationProductViewSet(viewsets.ModelViewSet):
         if product_id:
             # Получаем выбранный продукт
             selected_product = VariationProduct.objects.get(pk=product_id)
+            category_ids = selected_product.product.category.values_list(
+                'id', flat=True)
 
             # Формируем Q-объект для поиска похожих товаров
             similar_filter = Q(
-                size=selected_product.size,
-                type=selected_product.type,
-                price__lte=selected_product.price * 1.2,
-                category=selected_product.category
+                size__in=selected_product.size.all(),
+                product__category__id__in=category_ids,
+                product__type=selected_product.product.type,
+                price__lte=F('price') * 1.2
             )
 
             # Применяем фильтр к запросу
