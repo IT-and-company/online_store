@@ -30,11 +30,12 @@ INSTALLED_APPS = [
     'phonenumbers',
     'psycopg2',
     'djoser',
+    'smart_selects',
 
     'api',
     'client',
     'products',
-    'user'
+    'user',
 ]
 
 MIDDLEWARE = [
@@ -177,3 +178,5 @@ CSRF_TRUSTED_ORIGINS = [
     f"http://*{env('DOMAIN_URL')}",
     f"https://*{env('DOMAIN_URL')}",
 ]
+
+CART_SESSION_ID = 'cart'

@@ -5,8 +5,9 @@ from rest_framework_simplejwt.views import (
     TokenRefreshView
 )
 
-from .views import (CategoryViewSet, SizeViewSet, TagViewSet, TypeViewSet,
-                    VariationProductViewSet, UserRegisterView, activate)
+from .views import (CartAPI, CategoryViewSet, SizeViewSet, TagViewSet,
+                    TypeViewSet, VariationProductViewSet, UserRegisterView,
+                    activate)
 
 app_name = 'api'
 
@@ -24,4 +25,5 @@ urlpatterns = [
     path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     path('register/', UserRegisterView.as_view(), name='registration'),
     path('activate/<uidb64>/<token>/', activate, name='activate'),
+    path('cart/', CartAPI.as_view()),
 ]

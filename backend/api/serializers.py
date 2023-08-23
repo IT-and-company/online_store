@@ -1,13 +1,15 @@
+
 from django.contrib.auth import get_user_model
 
 from drf_extra_fields.fields import Base64ImageField
-# from phonenumber_field.serializerfields import PhoneNumberField
+from phonenumber_field.serializerfields import PhoneNumberField
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 
 from client.models import BackCall, Order
 from products.models import (Basket, Category, Favorite, Image, Product, Size,
                              Specification, Tag, Type, VariationProduct)
+
 
 User = get_user_model()
 
@@ -191,3 +193,18 @@ class VariationProductSerializer(ProductBaseSerializer):
     class Meta(ProductBaseSerializer.Meta):
         fields = ProductBaseSerializer.Meta.fields + (
             'product', 'specification')
+
+
+class CartSerializer(serializers.Serializer):
+    product = ProductShortSerializer()
+    quantity = serializers.SerializerMethodField()
+    price = serializers.SerializerMethodField()
+
+    def get_quantity(self, obj):
+        return obj['quantity']
+
+    def get_price(self, obj):
+        product = VariationProduct.objects.get(id=obj['product'].id)
+        if product.sale:
+            return (product.price * product.sale) / 100
+        return product.price

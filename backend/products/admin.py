@@ -1,11 +1,9 @@
-# import json
-
-from django import forms
 from django.contrib import admin
 from django.contrib.auth.models import Group
 
-from .models import (Basket, Category, Favorite, Image, Product, ProductModel,
-                     Size, Specification, Tag, Type, VariationProduct)
+from .models import (CartProduct, Category, Favorite, Image, Product,
+                     ProductModel, Size, Specification, Tag, Type, UserCart,
+                     VariationProduct)
 
 
 @admin.register(Category)
@@ -71,43 +69,6 @@ class VariationProductInline(admin.TabularInline):
     min_num = 1
 
 
-class ProductAdminForm(forms.ModelForm):
-    # data = {}
-    # for item in Type.objects.all():
-    #     data[str(item.id)]={}
-    # for model in ProductModel.objects.all():
-    #     data[str(model.type.id)][str(model.id)] = {
-    #             'id': str(model.id),
-    #             'type_id': str(model.type.id),
-    #             'name': str(model.name)
-    #     }
-    # data = json.dumps(data)
-    type = forms.ModelChoiceField(
-        queryset=Type.objects.all(),
-        # widget=forms.Select(
-        #     attrs={
-        #         'onchange': f'model_type = this.options[this.selectedIndex]'
-        #         '.value; var data = {data};'
-        #         '(function(){ var select = document.getElementById'
-        #         '("id_model");'
-        #         ' select.options.length=0; select.options'
-        #         '[select.options.length] = new Option("----","");'
-        #         ' for(let [key, value] of Object.entries'
-        #         '(data[model_type.toString()]))'
-        #         ' { select.options[select.options.length]'
-        #         ' = new Option(value.name,value.id);} })()'
-        #         }
-        # )
-    )
-    model = forms.ModelChoiceField(
-        queryset=ProductModel.objects.all()
-    )
-
-    class Meta:
-        model = Product
-        fields = '__all__'
-
-
 @admin.register(Product)
 class ProductAdmin(admin.ModelAdmin):
 
@@ -118,7 +79,7 @@ class ProductAdmin(admin.ModelAdmin):
     list_filter = ('name',)
     empty_value_display = '-пусто-'
     readonly_fields = ('is_favorited',)
-    form = ProductAdminForm
+    # form = ProductAdminForm
 
     @admin.display(description='Количество избраного')
     def is_favorited(self, obj):
@@ -135,13 +96,19 @@ class FavoriteAdmin(admin.ModelAdmin):
     )
 
 
-@admin.register(Basket)
-class BasketAdmin(admin.ModelAdmin):
-    list_display = ('pk', 'user', 'product', 'quantity')
+@admin.register(UserCart)
+class UserCartAdmin(admin.ModelAdmin):
+    list_display = ('pk', 'user')
     search_fields = (
         'user__username',
-        'user__phone',
-        'product__name'
+    )
+
+
+@admin.register(CartProduct)
+class CartProductAdmin(admin.ModelAdmin):
+    list_display = ('pk', 'cart', 'product', 'quantity')
+    search_fields = (
+        'product__name',
     )
 
 

@@ -2,6 +2,7 @@ from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.db import models
 from django.template.defaultfilters import slugify
+from smart_selects.db_fields import ChainedForeignKey
 
 User = get_user_model()
 
@@ -138,10 +139,16 @@ class Product(models.Model):
         null=True,
         verbose_name='Тип товара'
     )
-    model = models.ManyToManyField(
+    model = ChainedForeignKey(
         ProductModel,
         related_name='model',
-        verbose_name='Модель товара'
+        verbose_name='Модель товара',
+        chained_field="type",
+        chained_model_field="type",
+        show_all=False,
+        auto_choose=True,
+        sort=True,
+        null=True
     )
 
     class Meta:
@@ -308,3 +315,37 @@ class Basket(FavoriteBasket):
         default_related_name = 'basket'
         verbose_name = 'Корзина'
         verbose_name_plural = 'Корзина'
+
+
+class UserCart(models.Model):
+    user = models.OneToOneField(
+        User,
+        on_delete=models.CASCADE,
+        verbose_name='Пользователь',
+        related_name='cart'
+    )
+
+    def __str__(self):
+        return f'Корзина {self.user.get_username()}'
+
+
+class CartProduct(models.Model):
+    quantity = models.IntegerField(
+        default=0,
+        verbose_name='Количество'
+    )
+    cart = models.ForeignKey(
+        UserCart,
+        null=True,
+        on_delete=models.CASCADE,
+        verbose_name='Корзина',
+        related_name='products'
+    )
+    product = models.ForeignKey(
+        VariationProduct,
+        on_delete=models.CASCADE,
+        verbose_name='Продукт'
+    )
+
+    def __str__(self):
+        return f'{self.product} в корзине {self.cart}'
