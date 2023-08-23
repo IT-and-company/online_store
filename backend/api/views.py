@@ -1,13 +1,9 @@
 from distutils.util import strtobool
 
-from django.conf import settings
 from django.contrib.auth import get_user_model
-from django.core.mail import send_mail
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import get_object_or_404
-from django.template.loader import render_to_string
 from django.utils.encoding import force_str
-from django.utils.html import strip_tags
 from django.utils.http import urlsafe_base64_decode
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import status, viewsets, generics
@@ -19,7 +15,6 @@ from rest_framework.views import APIView
 from api.filters import VariationProductFilter
 from api.pagination import CustomPagination
 from api.permissions import IsAdminOrReadOnly
-from api.serializers import VariationProductSerializer
 from api.serializers import (CartSerializer, CategorySerializer,
                              OrderSerializer, ProductShortSerializer,
                              SizeSerializer, TagSerializer, TypeSerializer,
@@ -27,8 +22,8 @@ from api.serializers import (CartSerializer, CategorySerializer,
 from api.utils import send_confirmation_link, TokenGenerator
 from client.models import Order
 from products.cart import Cart
-from products.models import (CartProduct, Category, Favorite, Size,
-                             Tag, Type, UserCart, VariationProduct)
+from products.models import (Category, Favorite, Size,
+                             Tag, Type, VariationProduct)
 
 
 User = get_user_model()
