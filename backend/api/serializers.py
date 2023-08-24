@@ -1,30 +1,58 @@
-from client.models import BackCall, Order
+from django.contrib.auth import get_user_model
+
 from drf_extra_fields.fields import Base64ImageField
-from phonenumber_field.serializerfields import PhoneNumberField
+from rest_framework import serializers
+from rest_framework.exceptions import ValidationError
+
+from client.models import BackCall, Order
 from products.models import (Basket, Category, Favorite, Image, Product, Size,
                              Specification, Tag, Type, VariationProduct)
-from rest_framework import serializers
-from user.models import User
 
 
-class UserSerializer(serializers.ModelSerializer):
-    name = serializers.CharField(max_length=150, required=True)
-    phone = PhoneNumberField()
+User = get_user_model()
 
+
+# class UserSerializer(serializers.ModelSerializer):
+#     name = serializers.CharField(max_length=150, required=True)
+#     phone = PhoneNumberField()
+#
+#     class Meta:
+#         fields = ('name', 'phone',)
+#         model = User
+#
+#     def validate(self, data):
+#         if data.get('name') == 'me':
+#             raise serializers.ValidationError(
+#                 'Пользователь не может иметь такое имя')
+#
+#         if User.objects.filter(phone=data.get('phone')).exists():
+#             raise serializers.ValidationError(
+#                 'Пользователь с таким телефоном уже существует')
+#
+#         return data
+
+
+class SignupSerializer(serializers.ModelSerializer):
     class Meta:
-        fields = ('name', 'phone',)
         model = User
+        fields = ('first_name', 'email')
 
-    def validate(self, data):
-        if data.get('name') == 'me':
+    def create(self, validated_data):
+        try:
+            user, _ = User.objects.get_or_create(**validated_data)
+        except Exception as error:
+            raise ValidationError(
+                f'Ошибка создания нового пользователя: {error}')
+        user.is_active = False
+        user.save()
+        return user
+
+    def validate_email(self, value):
+        if User.objects.filter(email=value).exists():
             raise serializers.ValidationError(
-                'Пользователь не может иметь такое имя')
-
-        if User.objects.filter(phone=data.get('phone')).exists():
-            raise serializers.ValidationError(
-                'Пользователь с таким телефоном уже существует')
-
-        return data
+                f'Email "{value}" уже используется'
+            )
+        return value
 
 
 # class AuthSerializer(serializers.Serializer):
@@ -50,13 +78,15 @@ class UserSerializer(serializers.ModelSerializer):
 
 
 class OrderSerializer(serializers.ModelSerializer):
-    model = Order
-    fields = '__all__'
+    class Meta:
+        model = Order
+        fields = '__all__'
 
 
 class BackCallSerializer(serializers.ModelSerializer):
-    model = BackCall
-    fields = '__all__'
+    class Meta:
+        model = BackCall
+        fields = '__all__'
 
 
 class CategorySerializer(serializers.ModelSerializer):
@@ -78,7 +108,6 @@ class TagSerializer(serializers.ModelSerializer):
 
 
 class SizeSerializer(serializers.ModelSerializer):
-
     class Meta:
         model = Size
         fields = ('length',
@@ -147,7 +176,7 @@ class ProductBaseSerializer(serializers.ModelSerializer):
         return self.get_request(obj, Favorite)
 
     def get_is_discount(self, obj):
-        return obj.price - (obj.price * obj.sale / 100)
+        return int(obj.price - (obj.price * obj.sale / 100))
 
 
 class ProductShortSerializer(ProductBaseSerializer):
@@ -164,3 +193,18 @@ class VariationProductSerializer(ProductBaseSerializer):
     class Meta(ProductBaseSerializer.Meta):
         fields = ProductBaseSerializer.Meta.fields + (
             'product', 'specification')
+
+
+class CartSerializer(serializers.Serializer):
+    product = ProductShortSerializer()
+    quantity = serializers.SerializerMethodField()
+    price = serializers.SerializerMethodField()
+
+    def get_quantity(self, obj):
+        return obj['quantity']
+
+    def get_price(self, obj):
+        product = VariationProduct.objects.get(id=obj['product'].id)
+        if product.sale:
+            return (product.price * product.sale) / 100
+        return product.price
