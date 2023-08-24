@@ -16,6 +16,7 @@ from rest_framework.decorators import action
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from rest_framework_simplejwt.views import TokenViewBase
 
 from api.filters import CategoryTypeFilter, VariationProductFilter
 from api.pagination import CustomPagination
@@ -24,7 +25,8 @@ from api.serializers import (BackCallSerializer, CartSerializer,
                              CategorySerializer, OrderSerializer,
                              ProductShortSerializer, SizeSerializer,
                              TagSerializer, TypeSerializer,
-                             VariationProductSerializer, SignupSerializer)
+                             VariationProductSerializer, SignupSerializer,
+                             TokenObtainPairWithoutPasswordSerializer)
 from api.utils import send_confirmation_link, TokenGenerator
 from client.models import BackCall, Order
 from products.cart import Cart
@@ -67,6 +69,10 @@ def activate(request: HttpRequest, uidb64: str, token: str) -> HttpResponse:
         return HttpResponse(
             'Спасибо за подтверждение! Ваш аккаунт активирован!')
     return HttpResponse('Ссылка для активации недействительна!')
+
+
+class TokenObtainPairWithoutPasswordView(TokenViewBase):
+    serializer_class = TokenObtainPairWithoutPasswordSerializer
 
 
 class BackCallViewSet(viewsets.ModelViewSet):

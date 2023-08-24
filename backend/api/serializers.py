@@ -3,6 +3,7 @@ from django.contrib.auth import get_user_model
 from drf_extra_fields.fields import Base64ImageField
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 
 from client.models import BackCall, Order
 from products.models import (Basket, Category, Favorite, Image, Product, Size,
@@ -53,6 +54,18 @@ class SignupSerializer(serializers.ModelSerializer):
                 f'Email "{value}" уже используется'
             )
         return value
+
+
+class TokenObtainPairWithoutPasswordSerializer(TokenObtainPairSerializer):
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['password'].required = False
+
+    def validate(self, attrs):
+        attrs.update({'password': ''})
+        return super(
+            TokenObtainPairWithoutPasswordSerializer, self).validate(attrs)
 
 
 # class AuthSerializer(serializers.Serializer):
