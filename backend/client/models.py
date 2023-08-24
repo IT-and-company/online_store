@@ -23,7 +23,7 @@ class BackCallOrder(models.Model):
         abstract = True
 
     def __str__(self):
-        return self.phone
+        return self.name
 
 
 class Order(BackCallOrder):
