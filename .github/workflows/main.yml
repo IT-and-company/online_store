@@ -86,4 +86,5 @@ jobs:
             echo EMAIL_HOST_USER=${{ secrets.EMAIL_HOST_USER }} >> .env
             echo EMAIL_HOST_PASSWORD=${{ secrets.EMAIL_HOST_PASSWORD }} >> .env
             echo DEFAULT_FROM_EMAIL=${{ secrets.DEFAULT_FROM_EMAIL }} >> .env
+            echo DEFAULT_TO_EMAIL=${{ secrets.DEFAULT_TO_EMAIL }} >> .env
             sudo docker-compose up -d --build
