@@ -1,5 +1,6 @@
 from distutils.util import strtobool
 
+from django.db.models import F, Q
 from django.conf import settings
 from django.core.mail import send_mail
 from django.contrib.auth import get_user_model
@@ -156,6 +157,39 @@ class VariationProductViewSet(viewsets.ModelViewSet):
     pagination_class = CustomPagination
     filter_backends = [DjangoFilterBackend]
     filterset_class = VariationProductFilter
+
+    @action(detail=False, methods=['get'])
+    def latest_products(self, request):
+        queryset = VariationProduct.objects.all().order_by('-pub_date')
+        serializer = ProductShortSerializer(queryset, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    @action(detail=False, methods=['get'])
+    def similar_products(self, request):
+        product_id = request.query_params.get('product_id')
+
+        if product_id:
+            # Получаем выбранный продукт
+            selected_product = VariationProduct.objects.get(pk=product_id)
+            category_ids = selected_product.product.category.values_list(
+                'id', flat=True)
+
+            # Формируем Q-объект для поиска похожих товаров
+            similar_filter = Q(
+                size__in=selected_product.size.all(),
+                product__category__id__in=category_ids,
+                product__type=selected_product.product.type,
+                price__lte=F('price') * 1.2
+            )
+
+            # Применяем фильтр к запросу
+            queryset = VariationProduct.objects.filter(similar_filter).exclude(
+                pk=selected_product.pk)
+
+            serializer = ProductShortSerializer(queryset, many=True)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+
+        return Response(status.HTTP_400_BAD_REQUEST)
 
     @staticmethod
     def create_obj(request, pk, model, serializer):
