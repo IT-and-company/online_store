@@ -1,7 +1,7 @@
 from django_filters.rest_framework import FilterSet, filters
+from rest_framework.filters import BaseFilterBackend
 from products.models import (Category, ProductModel, Size,
                              Tag, Type, VariationProduct)
-from rest_framework.filters import BaseFilterBackend
 
 
 class VariationProductFilter(FilterSet):

@@ -317,3 +317,37 @@ class Basket(FavoriteBasket):
         default_related_name = 'basket'
         verbose_name = 'Корзина'
         verbose_name_plural = 'Корзина'
+
+
+class UserCart(models.Model):
+    user = models.OneToOneField(
+        User,
+        on_delete=models.CASCADE,
+        verbose_name='Пользователь',
+        related_name='cart'
+    )
+
+    def __str__(self):
+        return f'Корзина {self.user.get_username()}'
+
+
+class CartProduct(models.Model):
+    quantity = models.IntegerField(
+        default=0,
+        verbose_name='Количество'
+    )
+    cart = models.ForeignKey(
+        UserCart,
+        null=True,
+        on_delete=models.CASCADE,
+        verbose_name='Корзина',
+        related_name='products'
+    )
+    product = models.ForeignKey(
+        VariationProduct,
+        on_delete=models.CASCADE,
+        verbose_name='Продукт'
+    )
+
+    def __str__(self):
+        return f'{self.product} в корзине {self.cart}'
