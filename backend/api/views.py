@@ -17,7 +17,7 @@ from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from api.filters import VariationProductFilter
+from api.filters import CategoryTypeFilter, VariationProductFilter
 from api.pagination import CustomPagination
 from api.permissions import IsAdminOrReadOnly
 from api.serializers import (BackCallSerializer, CartSerializer,
@@ -133,6 +133,7 @@ class CategoryViewSet(viewsets.ReadOnlyModelViewSet):
 class TypeViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Type.objects.all()
     serializer_class = TypeSerializer
+    permission_classes = [AllowAny]
     pagination_class = None
 
 
@@ -155,7 +156,7 @@ class VariationProductViewSet(viewsets.ModelViewSet):
     serializer_class = VariationProductSerializer
     permission_classes = [IsAdminOrReadOnly]
     pagination_class = CustomPagination
-    filter_backends = [DjangoFilterBackend]
+    filter_backends = [DjangoFilterBackend, CategoryTypeFilter]
     filterset_class = VariationProductFilter
 
     @action(detail=False, methods=['get'])

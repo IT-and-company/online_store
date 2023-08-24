@@ -1,6 +1,7 @@
 from django_filters.rest_framework import FilterSet, filters
-
-from products.models import ProductModel, Size, Tag, Type, VariationProduct
+from rest_framework.filters import BaseFilterBackend
+from products.models import (Category, ProductModel, Size,
+                             Tag, Type, VariationProduct)
 
 
 class VariationProductFilter(FilterSet):
@@ -9,8 +10,6 @@ class VariationProductFilter(FilterSet):
                                              queryset=Tag.objects.all())
     size = filters.ModelMultipleChoiceFilter(field_name='size',
                                              queryset=Size.objects.all())
-    type = filters.ModelMultipleChoiceFilter(
-        field_name='type', queryset=Type.objects.all())
     model = filters.ModelMultipleChoiceFilter(
         field_name='model', queryset=ProductModel.objects.all())
     min_price = filters.NumberFilter(field_name="price", lookup_expr='gte')
@@ -35,4 +34,18 @@ class VariationProductFilter(FilterSet):
         user = self.request.user
         if value and user.is_authenticated:
             return queryset.filter(basket__user=user)
+        return queryset
+
+
+class CategoryTypeFilter(BaseFilterBackend):
+    def filter_queryset(self, request, queryset, view):
+        categories = request.query_params.getlist('categories')
+        types = request.query_params.getlist('types')
+
+        if categories:
+            queryset = queryset.filter(product__category__slug__in=categories)
+
+        if types:
+            queryset = queryset.filter(product__type__slug__in=types)
+
         return queryset
