@@ -20,16 +20,15 @@ from api.filters import VariationProductFilter
 from api.pagination import CustomPagination
 from api.permissions import IsAdminOrReadOnly
 from api.serializers import (BackCallSerializer, CartSerializer,
-                             CategorySerializer,OrderSerializer,
+                             CategorySerializer, OrderSerializer,
                              ProductShortSerializer, SizeSerializer,
                              TagSerializer, TypeSerializer,
                              VariationProductSerializer, SignupSerializer)
 from api.utils import send_confirmation_link, TokenGenerator
 from client.models import BackCall, Order
 from products.cart import Cart
-from products.models import (Basket, Category,
-                             Favorite, Size, Tag,
-                             Type, VariationProduct)
+from products.models import (Category, Favorite, Size,
+                             Tag, Type, VariationProduct)
 
 
 User = get_user_model()
@@ -121,7 +120,6 @@ class OrderViewSet(viewsets.ModelViewSet):
     #               status=status.HTTP_201_CREATED)
     #     return Response(serializer.errors,
     #               status=status.HTTP_400_BAD_REQUEST)
-
 
 
 class CategoryViewSet(viewsets.ReadOnlyModelViewSet):
