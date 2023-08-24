@@ -30,7 +30,7 @@ from client.models import BackCall, Order
 from products.cart import Cart
 from products.models import (Category, Favorite, Size,
                              Tag, Type, VariationProduct)
-
+from rest_framework.decorators import api_view
 
 User = get_user_model()
 
@@ -233,16 +233,6 @@ class VariationProductViewSet(viewsets.ModelViewSet):
     def delete_favorite(self, request, pk):
         return VariationProductViewSet.delete_obj(request, pk, Favorite)
 
-    # @action(detail=True, methods=['post'],
-    #         permission_classes=[AllowAny])
-    # def basket(self, request, pk):
-    #     return VariationProductViewSet.create_obj(
-    #         request, pk, Basket, ProductShortSerializer)
-
-    # @basket.mapping.delete
-    # def delete_basket(self, request, pk):
-    #     return VariationProductViewSet.delete_obj(request, pk, Basket)
-
 
 class CartAPI(APIView):
     """
@@ -259,7 +249,6 @@ class CartAPI(APIView):
             cart = Cart(user_id=user.id)
         else:
             cart = Cart(request=request)
-        print(cart.__dict__)
 
         serialized_cart = list(CartSerializer(
             cart,
@@ -311,6 +300,17 @@ class CartAPI(APIView):
             cart.remove(product)
         request.data.update({'cart': cart})
         return Response(status=status.HTTP_202_ACCEPTED)
+
+
+@api_view(['POST'])
+def clear_cart(request):
+    if request.user.is_authenticated:
+        user = request.user
+        cart = Cart(user_id=user.id)
+    else:
+        cart = Cart(request=request)
+    cart.clear()
+    return Response(status=status.HTTP_204_NO_CONTENT)
 
     # @action(methods=['get'], detail=False,
     #         permission_classes=[AllowAny])
