@@ -1,4 +1,5 @@
 import os
+from datetime import timedelta
 from pathlib import Path
 
 import environ
@@ -34,7 +35,7 @@ INSTALLED_APPS = [
     'api',
     'client',
     'products',
-    'user'
+    'user',
 ]
 
 MIDDLEWARE = [
@@ -136,17 +137,23 @@ AUTH_USER_MODEL = 'user.User'
 
 REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': [
-        'rest_framework.permissions.IsAuthenticated',
+        'rest_framework.permissions.AllowAny',
     ],
 
     'DEFAULT_AUTHENTICATION_CLASSES': [
-        'rest_framework.authentication.TokenAuthentication',
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
     ],
     'DEFAULT_FILTER_BACKENDS': [
         'django_filters.rest_framework.DjangoFilterBackend'
     ],
     'DEFAULT_PAGINATION_CLASS': ('rest_framework.pagination.'
                                  'PageNumberPagination'),
+}
+
+
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME': timedelta(days=1),
+    'AUTH_HEADER_TYPES': ('Bearer',),
 }
 
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
@@ -173,3 +180,5 @@ CSRF_TRUSTED_ORIGINS = [
     f"http://*{env('DOMAIN_URL')}",
     f"https://*{env('DOMAIN_URL')}",
 ]
+
+CART_SESSION_ID = 'cart'

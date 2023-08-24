@@ -47,8 +47,6 @@ class UserRegisterView(generics.CreateAPIView):
     queryset = User.objects.all()
     serializer_class = SignupSerializer
 
-
-class OrderViewSet(viewsets.ViewSet):
     def create(self, request, *args, **kwargs):
         response = super(UserRegisterView, self).create(
             request, *args, **kwargs)
@@ -99,6 +97,31 @@ class BackCallViewSet(viewsets.ModelViewSet):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors,
                         status=status.HTTP_400_BAD_REQUEST)
+
+
+class OrderViewSet(viewsets.ModelViewSet):
+    queryset = Order.objects.all()
+    serializer_class = OrderSerializer
+    permission_classes = [AllowAny]
+    pagination_class = None
+
+    # def send_email(self, request):
+    #     serializer = self.serializer_class(data=request.data)
+    #     if serializer.is_valid():
+    #         data = serializer.validated_data
+    #         # Отправляем форму на почту
+    #         send_mail(
+    #             'Sent email from {}'.format(data.get('name')),
+    #             'Here is the message. {}'.format(data.get('text')),
+    #             data.get('email'),
+    #             ['to@example.com'],
+    #             fail_silently=False,
+    #         )
+    #         return Response(data=serializer.data,
+    #               status=status.HTTP_201_CREATED)
+    #     return Response(serializer.errors,
+    #               status=status.HTTP_400_BAD_REQUEST)
+
 
 
 class CategoryViewSet(viewsets.ReadOnlyModelViewSet):
