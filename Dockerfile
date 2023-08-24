@@ -1,4 +1,4 @@
-gFROM python:3.11.4-slim
+FROM python:3.11.4-slim
 RUN mkdir -p /home/online_store
 RUN addgroup --system online_store && adduser --system --group online_store
 
