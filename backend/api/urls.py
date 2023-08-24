@@ -8,7 +8,7 @@ from rest_framework_simplejwt.views import (
 from .views import (BackCallViewSet, CartAPI, CategoryViewSet, OrderViewSet,
                     SizeViewSet, TagViewSet, TypeViewSet,
                     VariationProductViewSet, UserRegisterView,
-                    activate)
+                    activate, clear_cart)
 
 app_name = 'api'
 
@@ -29,4 +29,5 @@ urlpatterns = [
     path('register/', UserRegisterView.as_view(), name='registration'),
     path('activate/<uidb64>/<token>/', activate, name='activate'),
     path('cart/', CartAPI.as_view()),
+    path('cart/clear/', clear_cart),
 ]
