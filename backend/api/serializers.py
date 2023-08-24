@@ -204,7 +204,4 @@ class CartSerializer(serializers.Serializer):
         return obj['quantity']
 
     def get_price(self, obj):
-        product = VariationProduct.objects.get(id=obj['product'].id)
-        if product.sale:
-            return (product.price * product.sale) / 100
-        return product.price
+        return obj['price']
