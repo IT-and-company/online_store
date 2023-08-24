@@ -176,7 +176,7 @@ class ProductBaseSerializer(serializers.ModelSerializer):
         return self.get_request(obj, Favorite)
 
     def get_is_discount(self, obj):
-        return obj.price - (obj.price * obj.sale / 100)
+        return int(obj.price - (obj.price * obj.sale / 100))
 
 
 class ProductShortSerializer(ProductBaseSerializer):

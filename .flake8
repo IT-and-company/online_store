@@ -9,6 +9,7 @@ ignore =
     W503,
     # missing explicit return at the end of function able to return non-None value.
     R503,
+    R504,
 per-file-ignores =
     # line too long (82 > 79 characters)
     */settings.py:E501
