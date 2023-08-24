@@ -25,9 +25,9 @@ from api.serializers import (BackCallSerializer, CartSerializer,
                              ProductShortSerializer, SizeSerializer,
                              TagSerializer, TypeSerializer,
                              VariationProductSerializer, SignupSerializer)
-from api.utils import send_confirmation_link, TokenGenerator
+from api.utils import get_cart, send_confirmation_link, TokenGenerator
 from client.models import BackCall, Order
-from products.cart import Cart
+
 from products.models import (Category, Favorite, Size,
                              Tag, Type, VariationProduct)
 from rest_framework.decorators import api_view
@@ -244,11 +244,7 @@ class CartAPI(APIView):
         """
         Метод просмотра корзины.
         """
-        if request.user.is_authenticated:
-            user = request.user
-            cart = Cart(user_id=user.id)
-        else:
-            cart = Cart(request=request)
+        cart = get_cart(request)
 
         serialized_cart = list(CartSerializer(
             cart,
@@ -266,11 +262,7 @@ class CartAPI(APIView):
         """
         Метод добавления товара в корзину.
         """
-        if request.user.is_authenticated:
-            user = request.user
-            cart = Cart(user_id=user.id)
-        else:
-            cart = Cart(request=request)
+        cart = get_cart(request)
 
         product_id = request.query_params.get("product_id")
         product = get_object_or_404(VariationProduct, id=product_id)
@@ -289,11 +281,8 @@ class CartAPI(APIView):
         """
         Метод удаления продуктов из корзины.
         """
-        if request.user.is_authenticated:
-            user = request.user
-            cart = Cart(user_id=user.id)
-        else:
-            cart = Cart(request=request)
+        cart = get_cart(request)
+
         product_id = request.query_params.get("product_id")
         product = get_object_or_404(VariationProduct, id=product_id)
         if product:
@@ -304,11 +293,7 @@ class CartAPI(APIView):
 
 @api_view(['POST'])
 def clear_cart(request):
-    if request.user.is_authenticated:
-        user = request.user
-        cart = Cart(user_id=user.id)
-    else:
-        cart = Cart(request=request)
+    cart = get_cart(request)
     cart.clear()
     return Response(status=status.HTTP_204_NO_CONTENT)
 
