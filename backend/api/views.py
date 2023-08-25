@@ -11,12 +11,12 @@ from django.utils.html import strip_tags
 from django.utils.http import urlsafe_base64_decode
 from django.template.loader import render_to_string
 from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework import status, viewsets, generics
+from rest_framework import status, viewsets, generics, mixins
 from rest_framework.decorators import action
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from rest_framework_simplejwt.views import TokenViewBase, TokenObtainPairView
+from rest_framework_simplejwt.views import TokenViewBase
 
 from api.filters import CategoryTypeFilter, VariationProductFilter
 from api.pagination import CustomPagination
@@ -26,7 +26,8 @@ from api.serializers import (BackCallSerializer, CartSerializer,
                              ProductShortSerializer, SizeSerializer,
                              TagSerializer, TypeSerializer,
                              VariationProductSerializer, SignupSerializer,
-                             TokenObtainPairWithoutPasswordSerializer)
+                             TokenObtainPairWithoutPasswordSerializer,
+                             UserSerializer)
 from api.utils import send_confirmation_link, TokenGenerator
 from client.models import BackCall, Order
 from products.cart import Cart
@@ -35,6 +36,12 @@ from products.models import (Category, Favorite, Size,
 
 
 User = get_user_model()
+
+
+class UserViewSet(viewsets.GenericViewSet, mixins.RetrieveModelMixin,
+                  mixins.UpdateModelMixin):
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
 
 
 # class APISignup(APIView):
@@ -71,7 +78,7 @@ def activate(request: HttpRequest, uidb64: str, token: str) -> HttpResponse:
     return HttpResponse('Ссылка для активации недействительна!')
 
 
-class TokenObtainPairWithoutPasswordView(TokenObtainPairView):
+class TokenObtainPairWithoutPasswordView(TokenViewBase):
     serializer_class = TokenObtainPairWithoutPasswordSerializer
 
 

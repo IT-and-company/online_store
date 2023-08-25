@@ -5,7 +5,7 @@ from rest_framework_simplejwt.views import TokenRefreshView
 from .views import (BackCallViewSet, CartAPI, CategoryViewSet, OrderViewSet,
                     SizeViewSet, TagViewSet, TypeViewSet,
                     VariationProductViewSet, UserRegisterView,
-                    activate, TokenObtainPairWithoutPasswordView)
+                    activate, TokenObtainPairWithoutPasswordView, UserViewSet)
 
 app_name = 'api'
 
@@ -18,6 +18,7 @@ router.register('size', SizeViewSet)
 router.register('product', VariationProductViewSet)
 router.register('call', BackCallViewSet)
 router.register('order', OrderViewSet)
+router.register('users', UserViewSet)
 
 urlpatterns = [
     path('', include(router.urls)),

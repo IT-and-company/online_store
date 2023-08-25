@@ -5,7 +5,7 @@ User = get_user_model()
 
 
 class AuthenticationWithoutPassword(BaseBackend):
-    def authenticate(self, request, email=None):
+    def authenticate(self, request, email=None, password=None):
         if email is None:
             email = request.data.get('email', '')
         try:

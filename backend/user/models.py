@@ -7,7 +7,7 @@ from .managers import UserManager
 
 class User(AbstractBaseUser, PermissionsMixin):
     USERNAME_FIELD = 'email'
-    REQUIRED_FIELDS = ['phone']
+    REQUIRED_FIELDS = []
 
     phone = PhoneNumberField(
         'Номер телефона',

@@ -9,8 +9,13 @@ from client.models import BackCall, Order
 from products.models import (Basket, Category, Favorite, Image, Product, Size,
                              Specification, Tag, Type, VariationProduct)
 
-
 User = get_user_model()
+
+
+class UserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = '__all__'
 
 
 # class UserSerializer(serializers.ModelSerializer):
