@@ -27,6 +27,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'django_filters',
     'rest_framework',
+    'rest_framework_simplejwt',
     'phonenumbers',
     'psycopg2',
     'djoser',
@@ -152,7 +153,7 @@ REST_FRAMEWORK = {
 
 
 SIMPLE_JWT = {
-    'ACCESS_TOKEN_LIFETIME': timedelta(days=1),
+    'ACCESS_TOKEN_LIFETIME': timedelta(days=3),
     'AUTH_HEADER_TYPES': ('Bearer',),
 }
 
@@ -182,3 +183,8 @@ CSRF_TRUSTED_ORIGINS = [
 ]
 
 CART_SESSION_ID = 'cart'
+
+AUTHENTICATION_BACKENDS = (
+    'django.contrib.auth.backends.ModelBackend',
+    'api.auth_backend.AuthenticationWithoutPassword',
+)
