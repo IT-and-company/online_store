@@ -12,6 +12,7 @@ from django.utils.encoding import force_bytes
 from django.utils.html import strip_tags
 from django.utils.http import urlsafe_base64_encode
 
+from products.cart import Cart
 # from sms_config import SMSTransport
 
 
@@ -58,3 +59,9 @@ def send_confirmation_link(request: HttpRequest, user_data: dict) -> None:
         recipient_list=(user.email,),
         html_message=message
     )
+
+
+def get_cart(request):
+    return (Cart(request=request, from_db=True)
+            if request.user.is_authenticated
+            else Cart(request=request))
