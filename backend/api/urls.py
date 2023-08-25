@@ -5,7 +5,7 @@ from rest_framework_simplejwt.views import TokenRefreshView
 from .views import (BackCallViewSet, CartAPI, CategoryViewSet, OrderViewSet,
                     SizeViewSet, TagViewSet, TypeViewSet,
                     VariationProductViewSet, UserRegisterView,
-                    activate, clear_cart, TokenObtainPairWithoutPasswordView, 
+                    activate, clear_cart, TokenObtainPairWithoutPasswordView,
                     UserViewSet)
 
 app_name = 'api'
