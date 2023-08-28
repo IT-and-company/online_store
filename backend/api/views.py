@@ -1,6 +1,8 @@
+import random
+
 from distutils.util import strtobool
 
-from django.db.models import F, Q
+from django.db.models import F, Q, Count
 from django.conf import settings
 from django.core.mail import send_mail
 from django.contrib.auth import get_user_model
@@ -32,7 +34,7 @@ from api.utils import get_cart, send_confirmation_link, TokenGenerator
 
 from client.models import BackCall, Order
 
-from products.models import (Category, Favorite, Size,
+from products.models import (Category, CartProduct, Favorite, Size,
                              Tag, Type, VariationProduct)
 from rest_framework.decorators import api_view
 
@@ -172,6 +174,27 @@ class VariationProductViewSet(viewsets.ModelViewSet):
     pagination_class = CustomPagination
     filter_backends = [DjangoFilterBackend, CategoryTypeFilter]
     filterset_class = VariationProductFilter
+
+    @action(detail=False, methods=['get'])
+    def hits_products(self, request):
+        # Получает все товары в корзинах пользователей, считая количество каждого товара
+        all_cart_products = CartProduct.objects.values('product').annotate(
+            count=Count('product')).order_by('-count')
+        top_products = all_cart_products[:10]
+
+        top_product_ids = [item['product'] for item in top_products]
+        remaining_count = 10 - len(top_product_ids)
+
+        if remaining_count > 0:
+            random_products = VariationProduct.objects.exclude(
+                id__in=top_product_ids).order_by('?')[:remaining_count]
+            top_product_ids += [product.id for product in random_products]
+
+        top_products_list = VariationProduct.objects.filter(
+            id__in=top_product_ids)
+        serializer = ProductShortSerializer(top_products_list, many=True)
+
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
     @action(detail=False, methods=['get'])
     def latest_products(self, request):
