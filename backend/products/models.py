@@ -346,7 +346,8 @@ class CartProduct(models.Model):
     product = models.ForeignKey(
         VariationProduct,
         on_delete=models.CASCADE,
-        verbose_name='Продукт'
+        verbose_name='Продукт',
+        related_name='cartproduct'
     )
 
     def __str__(self):

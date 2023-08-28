@@ -1,6 +1,8 @@
+import random
+
 from distutils.util import strtobool
 
-from django.db.models import F, Q
+from django.db.models import F, Q, Count
 from django.conf import settings
 from django.core.mail import send_mail
 from django.contrib.auth import get_user_model
@@ -158,6 +160,24 @@ class VariationProductViewSet(viewsets.ModelViewSet):
     pagination_class = CustomPagination
     filter_backends = [DjangoFilterBackend, CategoryTypeFilter]
     filterset_class = VariationProductFilter
+
+    @action(detail=False, methods=['get'])
+    def hits_products(self, request):
+        hits_products = VariationProduct.objects.annotate(
+            num_carts=Count('cartproduct')).order_by('-num_carts')
+
+        random_products = random.sample(list(VariationProduct.objects.exclude(
+            id__in=hits_products.values_list('id', flat=True))), 5)
+
+        combined_products = list(hits_products) + random_products
+
+        serializer = ProductShortSerializer(
+            combined_products,
+            many=True,
+            context={'request': request}
+        )
+
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
     @action(detail=False, methods=['get'])
     def latest_products(self, request):
