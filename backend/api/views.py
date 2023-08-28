@@ -1,5 +1,3 @@
-import random
-
 from distutils.util import strtobool
 
 from django.db.models import F, Q, Count
@@ -177,7 +175,6 @@ class VariationProductViewSet(viewsets.ModelViewSet):
 
     @action(detail=False, methods=['get'])
     def hits_products(self, request):
-        # Получает все товары в корзинах пользователей, считая количество каждого товара
         all_cart_products = CartProduct.objects.values('product').annotate(
             count=Count('product')).order_by('-count')
         top_products = all_cart_products[:10]
