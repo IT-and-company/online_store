@@ -10,7 +10,7 @@ class VariationProductFilter(FilterSet):
     size = filters.ModelMultipleChoiceFilter(field_name='size',
                                              queryset=Size.objects.all())
     model = filters.ModelMultipleChoiceFilter(
-        field_name='model', queryset=ProductModel.objects.all())
+        field_name='product__model', queryset=ProductModel.objects.all())
     min_price = filters.NumberFilter(field_name="price", lookup_expr='gte')
     max_price = filters.NumberFilter(field_name="price", lookup_expr='lte')
     is_favorited = filters.BooleanFilter(
