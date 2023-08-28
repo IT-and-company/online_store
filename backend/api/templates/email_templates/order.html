@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Новый заказ</title>
+</head>
+<body>
+    <h1>Заказ</h1>
+    <p>Имя: {{ order.name }}</p>
+    <p>Телефон: {{ order.phone }}</p>
+    <p>Email: {{ order.email }}</p>
+    <p>Адрес: {{ order.address }}</p>
+    <table>
+        <tr>
+            <th>Товар</th>
+            <th>Количество</th>
+            <th>Цена</th>
+            <th>Цвет</th>
+            <th>Размер</th>
+        </tr>
+        {% for item in cart_items %}
+        <tr>
+            <td>{{ item.product }}</td>
+            <td>{{ item.quantity }}</td>
+            <td>{{ item.price }}</td>
+            <td>{{ item.color }}</td>
+            <td>{{ item.size }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+</body>
+</html>

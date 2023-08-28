@@ -96,6 +96,8 @@ class TokenObtainPairWithoutPasswordSerializer(TokenObtainPairSerializer):
 
 
 class OrderSerializer(serializers.ModelSerializer):
+    cart_items = serializers.ListField(child=serializers.DictField())
+
     class Meta:
         model = Order
         fields = '__all__'
