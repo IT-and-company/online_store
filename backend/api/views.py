@@ -30,7 +30,7 @@ from api.serializers import (BackCallSerializer, CartSerializer,
 from api.utils import get_cart, send_confirmation_link, TokenGenerator
 from client.models import BackCall, Order
 
-from products.models import (Category, Favorite, Size,
+from products.models import (Category, CartProduct, Favorite, Size,
                              Tag, Type, VariationProduct)
 from rest_framework.decorators import api_view
 
@@ -163,19 +163,22 @@ class VariationProductViewSet(viewsets.ModelViewSet):
 
     @action(detail=False, methods=['get'])
     def hits_products(self, request):
-        hits_products = VariationProduct.objects.annotate(
-            num_carts=Count('cartproduct')).order_by('-num_carts')
+        # Получает все товары в корзинах пользователей, считая количество каждого товара
+        all_cart_products = CartProduct.objects.values('product').annotate(
+            count=Count('product')).order_by('-count')
+        top_products = all_cart_products[:10]
 
-        random_products = random.sample(list(VariationProduct.objects.exclude(
-            id__in=hits_products.values_list('id', flat=True))), 5)
+        top_product_ids = [item['product'] for item in top_products]
+        remaining_count = 10 - len(top_product_ids)
 
-        combined_products = list(hits_products) + random_products
+        if remaining_count > 0:
+            random_products = VariationProduct.objects.exclude(
+                id__in=top_product_ids).order_by('?')[:remaining_count]
+            top_product_ids += [product.id for product in random_products]
 
-        serializer = ProductShortSerializer(
-            combined_products,
-            many=True,
-            context={'request': request}
-        )
+        top_products_list = VariationProduct.objects.filter(
+            id__in=top_product_ids)
+        serializer = ProductShortSerializer(top_products_list, many=True)
 
         return Response(serializer.data, status=status.HTTP_200_OK)
 
