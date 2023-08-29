@@ -13,32 +13,27 @@ User = get_user_model()
 
 
 class UserSerializer(serializers.ModelSerializer):
+    """Сериализатор для работы с объектами модели User."""
     class Meta:
         model = User
         fields = '__all__'
 
 
-# class UserSerializer(serializers.ModelSerializer):
-#     name = serializers.CharField(max_length=150, required=True)
-#     phone = PhoneNumberField()
-#
-#     class Meta:
-#         fields = ('name', 'phone',)
-#         model = User
-#
-#     def validate(self, data):
-#         if data.get('name') == 'me':
-#             raise serializers.ValidationError(
-#                 'Пользователь не может иметь такое имя')
-#
-#         if User.objects.filter(phone=data.get('phone')).exists():
-#             raise serializers.ValidationError(
-#                 'Пользователь с таким телефоном уже существует')
-#
-#         return data
+class LoginSerializer(serializers.Serializer):
+    """Сериализатор для проверки и обработки email при входе на сайт."""
+    email = serializers.EmailField()
+
+    def validate_email(self, value):
+        print('pidor')
+        if not User.objects.filter(email=value, is_active=True).exists():
+            raise serializers.ValidationError(
+                f'Email "{value}" не зарегистрирован или не активирован'
+            )
+        return value
 
 
 class SignupSerializer(serializers.ModelSerializer):
+    """Сериализатор для создания нового объекта модели User."""
     class Meta:
         model = User
         fields = ('first_name', 'email')
@@ -62,7 +57,8 @@ class SignupSerializer(serializers.ModelSerializer):
 
 
 class TokenObtainPairWithoutPasswordSerializer(TokenObtainPairSerializer):
-
+    """Сериализатор, переопределяющий работу TokenObtainPairSerializer,
+    который позволяет получить JWT-токен без передачи пароля."""
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['password'].required = False
@@ -71,28 +67,6 @@ class TokenObtainPairWithoutPasswordSerializer(TokenObtainPairSerializer):
         attrs.update({'password': ''})
         return super(
             TokenObtainPairWithoutPasswordSerializer, self).validate(attrs)
-
-
-# class AuthSerializer(serializers.Serializer):
-#     phone = serializers.CharField(max_length=15)
-#     verification_code = serializers.CharField(max_length=4)
-#
-#     def validate(self, data):
-#         phone = data.get('phone')
-#         # verification_code = data.get('verification_code')
-#
-#         # Здесь должна быть логика отправки кода и проверки его правильности
-#         # Пропустим это для примера
-#         # ...
-#
-#         user = authenticate(request=self.context.get('request'),
-#         phone=phone)
-#
-#         if not user:
-#             raise serializers.ValidationError('Неверные учетные данные')
-#
-#         data['user'] = user
-#         return data
 
 
 class OrderSerializer(serializers.ModelSerializer):
