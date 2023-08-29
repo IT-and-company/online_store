@@ -6,8 +6,8 @@ from rest_framework.exceptions import ValidationError
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 
 from client.models import BackCall, Order
-from products.models import (Basket, Category, Favorite, Image, Product, Size,
-                             Specification, Tag, Type, VariationProduct)
+from products.models import (OrderCart, OrderProduct, Category, Favorite, Image, Product, Size,
+                             Specification, ColorTag, Type, VariationProduct)
 
 User = get_user_model()
 
@@ -96,7 +96,6 @@ class TokenObtainPairWithoutPasswordSerializer(TokenObtainPairSerializer):
 
 
 class OrderSerializer(serializers.ModelSerializer):
-    cart_items = serializers.ListField(child=serializers.DictField())
 
     class Meta:
         model = Order
@@ -121,9 +120,9 @@ class TypeSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
-class TagSerializer(serializers.ModelSerializer):
+class ColorTagSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Tag
+        model = ColorTag
         fields = '__all__'
 
 
@@ -156,7 +155,7 @@ class ProductSerializer(serializers.ModelSerializer):
 
 
 class ProductBaseSerializer(serializers.ModelSerializer):
-    tags = TagSerializer(many=True, read_only=True)
+    color_tag = ColorTagSerializer(read_only=True)
     image = ImageSerializer(many=True, read_only=True)
     price = serializers.IntegerField()
     sale = serializers.IntegerField()
@@ -164,8 +163,6 @@ class ProductBaseSerializer(serializers.ModelSerializer):
         method_name='get_is_discount')
     is_favorited = serializers.SerializerMethodField(
         method_name='get_is_favorited')
-    is_in_basket = serializers.SerializerMethodField(
-        method_name='get_is_in_basket')
 
     class Meta:
         model = VariationProduct
@@ -174,10 +171,9 @@ class ProductBaseSerializer(serializers.ModelSerializer):
             'price',
             'sale',
             'size',
-            'tags',
+            'color_tag',
             'is_discount',
             'is_favorited',
-            'is_in_basket'
         )
 
     def get_request(self, obj, model):
@@ -188,9 +184,6 @@ class ProductBaseSerializer(serializers.ModelSerializer):
                                         product=obj).exists()
 
         return False
-
-    def get_is_in_basket(self, obj):
-        return self.get_request(obj, Basket)
 
     def get_is_favorited(self, obj):
         return self.get_request(obj, Favorite)

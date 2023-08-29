@@ -4,6 +4,7 @@ from django.db import models
 from django.template.defaultfilters import slugify
 from smart_selects.db_fields import ChainedForeignKey
 
+from client.models import Order
 User = get_user_model()
 
 
@@ -66,31 +67,31 @@ class ProductModel(CategoryType):
         verbose_name_plural = 'Модели'
 
 
-class Tag(models.Model):
-    name = models.CharField(
-        'Название тега',
+class ColorTag(models.Model):
+    color_name = models.CharField(
+        'Название цвета',
         unique=True,
         max_length=settings.MAX_LENGTH_1,
         help_text='Введите тег'
     )
-    color = models.CharField(
-        'Цвет тега',
+    hex = models.CharField(
+        'Код цвета',
         unique=True,
         max_length=settings.MAX_LENGTH_2,
         help_text='Укажите цвет тега'
     )
     slug = models.SlugField(
-        'Слаг тега',
+        'Слаг цвета',
         unique=True,
         max_length=settings.MAX_LENGTH_1
     )
 
     class Meta:
-        verbose_name = 'Тег'
-        verbose_name_plural = 'Теги'
+        verbose_name = 'Тег цвета'
+        verbose_name_plural = 'Теги цвета'
 
     def __str__(self):
-        return self.name
+        return self.color_name
 
     def save(self, *args, **kwargs):
         if not self.slug:
@@ -128,8 +129,10 @@ class Product(models.Model):
         blank=True,
         help_text='Напишите описание товара'
     )
-    category = models.ManyToManyField(
+    category = models.ForeignKey(
         Category,
+        on_delete=models.SET_NULL,
+        null=True,
         related_name='category',
         verbose_name='Категория товара'
     )
@@ -168,8 +171,10 @@ class Specification(models.Model):
         max_length=settings.MAX_LENGTH_1,
         help_text='Введите артикул товара'
     )
-    size = models.ManyToManyField(
+    size = models.ForeignKey(
         Size,
+        on_delete=models.SET_NULL,
+        null=True,
         related_name='size_in_specific',
         verbose_name='Размер товара'
     )
@@ -241,17 +246,21 @@ class VariationProduct(models.Model):
         blank=True,
         default=0
     )
-    size = models.ManyToManyField(
+    size = models.ForeignKey(
         Size,
+        on_delete=models.SET_NULL,
         blank=True,
-        related_name='size',
+        null=True,
+        related_name='products',
         verbose_name='Размер товара'
     )
-    tags = models.ManyToManyField(
-        Tag,
+    color_tag = models.ForeignKey(
+        ColorTag,
+        on_delete=models.SET_NULL,
+        null=True,
         db_index=True,
         verbose_name='Цвет товара',
-        related_name='colour'
+        related_name='products'
     )
     specification = models.ForeignKey(
         Specification,
@@ -306,19 +315,6 @@ class Favorite(FavoriteBasket):
         verbose_name_plural = 'Избранное'
 
 
-class Basket(FavoriteBasket):
-    quantity = models.PositiveIntegerField(default=1)
-
-    class Meta:
-        constraints = [models.UniqueConstraint(
-            fields=['user', 'product'],
-            name='unique_basket')
-        ]
-        default_related_name = 'basket'
-        verbose_name = 'Корзина'
-        verbose_name_plural = 'Корзина'
-
-
 class UserCart(models.Model):
     user = models.OneToOneField(
         User,
@@ -331,11 +327,38 @@ class UserCart(models.Model):
         return f'Корзина {self.user.get_username()}'
 
 
-class CartProduct(models.Model):
+class OrderCart(models.Model):
+
+    order = models.OneToOneField(
+        Order,
+        on_delete=models.CASCADE,
+        verbose_name='Заказ',
+        related_name='cart'
+    )
+
+    def __str__(self):
+        return f'Корзина {self.order}'
+
+
+class CartProductBase(models.Model):
     quantity = models.IntegerField(
         default=0,
         verbose_name='Количество'
     )
+
+    product = models.ForeignKey(
+        VariationProduct,
+        on_delete=models.CASCADE,
+        verbose_name='Продукт',
+        # related_name='cartproduct'
+    )
+
+    class Meta:
+        abstract = True
+
+
+class CartProduct(CartProductBase):
+
     cart = models.ForeignKey(
         UserCart,
         null=True,
@@ -343,12 +366,20 @@ class CartProduct(models.Model):
         verbose_name='Корзина',
         related_name='products'
     )
-    product = models.ForeignKey(
-        VariationProduct,
-        on_delete=models.CASCADE,
-        verbose_name='Продукт',
-        related_name='cartproduct'
-    )
 
     def __str__(self):
         return f'{self.product} в корзине {self.cart}'
+
+
+class OrderProduct(CartProductBase):
+
+    cart = models.ForeignKey(
+        OrderCart,
+        null=True,
+        on_delete=models.CASCADE,
+        verbose_name='Корзина',
+        related_name='products'
+    )
+
+    def __str__(self):
+        return f'{self.product} в заказе {self.cart}'

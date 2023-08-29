@@ -24,7 +24,7 @@ from api.permissions import IsAdminOrReadOnly
 from api.serializers import (BackCallSerializer, CartSerializer,
                              CategorySerializer, OrderSerializer,
                              ProductShortSerializer, SizeSerializer,
-                             TagSerializer, TypeSerializer,
+                             ColorTagSerializer, TypeSerializer,
                              VariationProductSerializer, SignupSerializer,
                              TokenObtainPairWithoutPasswordSerializer,
                              UserSerializer)
@@ -33,7 +33,7 @@ from api.utils import get_cart, send_confirmation_link, TokenGenerator
 from client.models import BackCall, Order
 
 from products.models import (Category, CartProduct, Favorite, Size,
-                             Tag, Type, VariationProduct)
+                             ColorTag, Type, VariationProduct, OrderCart, OrderProduct)
 from rest_framework.decorators import api_view
 
 User = get_user_model()
@@ -121,51 +121,55 @@ class OrderViewSet(viewsets.ModelViewSet):
 
     def create(self, request, *args, **kwargs):
         serializer = OrderSerializer(data=request.data)
-
         if serializer.is_valid():
-            cart = get_cart(request)
-
-            # Добавляем содержимое корзины в данные заказа
-            cart_items = []
-            for item in cart:
-                product = item['product']
-                quantity = item['quantity']
-                price = item['price']
-                color = product.color
-                size = product.size
-
-                cart_items.append({
-                    'product': str(product),
-                    'quantity': quantity,
-                    'price': price,
-                    'color': color,
-                    'size': size,
-                })
-
             order_data = serializer.validated_data
-            order_data['cart_items'] = cart_items
+            order = Order.objects.create(**order_data)
+        cart = get_cart(request)
+        order_cart = OrderCart.objects.create(
+            order=order
+        )
+        print(order_cart, 'ORDER_CART')
+        for product in cart:
+            print('COUNT')
+            a = OrderProduct.objects.create(
+                cart=order_cart,
+                product=product['product'],
+                quantity=product['quantity']
+            )
+            print(a, 'ORDER_PRODUCT')
+        # нужно передать корзину в сериализатор, и создать
+        # if serializer.is_valid():
+        # Добавляем содержимое корзины в данные заказа
+        # cart_items = []
+        # serializer = OrderSerializer(data=request.data)
+        # if serializer.is_valid():
+            # order_data = serializer.validated_data
+            # order_data['cart_items'] = cart_items
 
             # Создаем объект заказа
-            order = Order.objects.create(**order_data)
+            # order = Order.objects.create(**order_data)
 
             # Отправляем сообщение с данными заказа на почту
 
-            subject = 'Новая заявка на заказ'
-            html_message = render_to_string(
-                'email_templates/order_email.html',
-                {'cart_items': cart_items})
-            plain_message = strip_tags(html_message)
-            from_email = settings.DEFAULT_FROM_EMAIL
-            to_email = [
-                settings.DEFAULT_TO_EMAIL]
-            send_mail(
-                subject=subject,
-                message=plain_message,
-                from_email=from_email,
-                recipient_list=to_email,
-                html_message=html_message)
-
-            cart.clear()
+            # subject = 'Новая заявка на заказ'
+            # html_message = render_to_string(
+            #     'email_templates/order_email.html',
+            #     {'cart_items': cart_items})
+            # plain_message = strip_tags(html_message)
+            # from_email = settings.DEFAULT_FROM_EMAIL
+            # to_email = [
+            #     settings.DEFAULT_TO_EMAIL]
+            # send_mail(
+            #     subject=subject,
+            #     message=plain_message,
+            #     from_email=from_email,
+            #     recipient_list=to_email,
+            #     html_message=html_message)
+            print('ПОСЫЛАЮ ПИСЬМО')
+            # print(order_data)
+            print('*****')
+            # print(order.__dict__)
+            # cart.clear()
 
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors,
@@ -187,8 +191,8 @@ class TypeViewSet(viewsets.ReadOnlyModelViewSet):
 
 
 class TagViewSet(viewsets.ReadOnlyModelViewSet):
-    queryset = Tag.objects.all()
-    serializer_class = TagSerializer
+    queryset = ColorTag.objects.all()
+    serializer_class = ColorTagSerializer
     permission_classes = [AllowAny]
     pagination_class = None
 
@@ -340,7 +344,7 @@ class CartAPI(APIView):
                 product=product,
                 quantity=int(request.query_params.get('quantity', 1)),
                 update_quantity=strtobool(
-                    request.query_params.get('update_quantity', False)
+                    request.query_params.get('update_quantity', 'False')
                 )
             )
         request.data.update({'cart': cart})

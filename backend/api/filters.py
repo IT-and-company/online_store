@@ -1,12 +1,14 @@
 from django_filters.rest_framework import FilterSet, filters
 from rest_framework.filters import BaseFilterBackend
-from products.models import ProductModel, Size, Tag, VariationProduct
+from products.models import ProductModel, Size, ColorTag, VariationProduct
 
 
 class VariationProductFilter(FilterSet):
-    tags = filters.ModelMultipleChoiceFilter(field_name='tags__slug',
-                                             to_field_name='slug',
-                                             queryset=Tag.objects.all())
+    color_tag = filters.ModelMultipleChoiceFilter(
+        field_name='color_tag__slug',
+        to_field_name='slug',
+        queryset=ColorTag.objects.all()
+    )
     size = filters.ModelMultipleChoiceFilter(field_name='size',
                                              queryset=Size.objects.all())
     model = filters.ModelMultipleChoiceFilter(
@@ -20,7 +22,7 @@ class VariationProductFilter(FilterSet):
 
     class Meta:
         model = VariationProduct
-        fields = ['tags', 'is_favorited', 'is_in_basket', 'size', 'model',
+        fields = ['color_tag', 'is_favorited', 'is_in_basket', 'size', 'model',
                   'min_price', 'max_price']
 
     def get_favorited(self, queryset, name, value):
