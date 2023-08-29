@@ -17,24 +17,16 @@ class VariationProductFilter(FilterSet):
     max_price = filters.NumberFilter(field_name="price", lookup_expr='lte')
     is_favorited = filters.BooleanFilter(
         method='get_favorited')
-    is_in_basket = filters.BooleanFilter(
-        method='get_is_in_basket')
 
     class Meta:
         model = VariationProduct
-        fields = ['color_tag', 'is_favorited', 'is_in_basket', 'size', 'model',
+        fields = ['color_tag', 'is_favorited', 'size', 'model',
                   'min_price', 'max_price']
 
     def get_favorited(self, queryset, name, value):
         user = self.request.user
         if value and user.is_authenticated:
             return queryset.filter(favorite__user=user)
-        return queryset
-
-    def get_is_in_basket(self, queryset, name, value):
-        user = self.request.user
-        if value and user.is_authenticated:
-            return queryset.filter(basket__user=user)
         return queryset
 
 

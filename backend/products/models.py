@@ -4,6 +4,8 @@ from django.db import models
 from django.template.defaultfilters import slugify
 from smart_selects.db_fields import ChainedForeignKey
 
+# from PIL import Image
+
 from client.models import Order
 User = get_user_model()
 
@@ -95,7 +97,7 @@ class ColorTag(models.Model):
 
     def save(self, *args, **kwargs):
         if not self.slug:
-            self.slug = slugify(self.name)
+            self.slug = slugify(self.color_name)
         return super().save(*args, **kwargs)
 
 
@@ -223,6 +225,15 @@ class Image(models.Model):
 
     def __str__(self):
         return f'{self.image.name.split("/")[-1]}'
+
+    # def save(self, *args, **kwargs):
+    #     super().save()
+    #     img = Image.open(self.image.path)
+    #
+    #     if img.height > 300 or img.width > 300:
+    #         output_size = (300, 300)
+    #         img.thumbnail(output_size)
+    #         img.save(self.image.path)
 
 
 class VariationProduct(models.Model):

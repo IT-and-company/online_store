@@ -269,31 +269,18 @@ class VariationProductViewSet(viewsets.ModelViewSet):
     def create_obj(request, pk, model, serializer):
         product = get_object_or_404(VariationProduct, pk=pk)
 
-        # Это какая-то нереальная хтонь, но оно работает.
-
-        if request.user.is_authenticated:
-            user = request.user
-        else:
-            user = None
-
-        if user and model.objects.filter(product=product, user=user).exists():
+        if model.objects.filter(product=product,
+                                user=request.user).exists():
             return Response(status.HTTP_400_BAD_REQUEST)
 
-        model(product=product, user=user).save()
+        model(product=product, user=request.user).save()
         serializer = serializer(get_object_or_404(VariationProduct, id=pk),
                                 context={'request': request})
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
     @staticmethod
     def delete_obj(request, pk, model):
-        product = get_object_or_404(VariationProduct, pk=pk)
-
-        if request.user.is_authenticated:
-            user = request.user
-        else:
-            user = None
-        model.objects.filter(product=product, user=user).delete()
-
+        get_object_or_404(model, product=pk, user=request.user).delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
     @action(detail=True, methods=['post'],
@@ -369,45 +356,3 @@ def clear_cart(request):
     cart = get_cart(request)
     cart.clear()
     return Response(status=status.HTTP_204_NO_CONTENT)
-
-    # @action(methods=['get'], detail=False,
-    #         permission_classes=[AllowAny])
-    # def count_basket(self, request):
-    #     if request.user.is_authenticated:
-    #         user = request.user
-    #     else:
-    #         user = None
-
-    # не хватает колличества продуктов
-
-    #     count_sum = VariationProduct.objects.filter(
-    #         product__basket__user=user).anotate(
-    #         discounted_price=(F('price') - F('price') * F('sale') / 100
-    #               ) * F('quantity')).agregate(
-    #         'discounted_price', output_field=models.FloatField())
-    #     return Response({
-    #         'count_sum': count_sum['count_sum'] or 0
-    #     })
-    # Product.objects.filter(featured=True).annotate(offer=(
-    #       (F('totalprice') - F('saleprice')) / F('totalprice')) * 100)
-
-# class PurchaseView(APIView):
-#     def post(self, request, *args, **kwargs):
-#         product_id = request.data.get('product_id')
-#
-#         try:
-#             product = VariationProduct.objects.get(pk=product_id)
-#         except VariationProduct.DoesNotExist:
-#             return Response(
-#               {'error': 'Product not found'},
-#                   status=status.HTTP_404_NOT_FOUND)
-#
-#         with transaction.atomic():
-#             # Создаем запись о покупке
-#
-#             # Увеличиваем количество покупок товара
-#             product.purchases_count += 1
-#             product.save()
-#
-#         return Response({'message': 'Purchase successful'},
-#               status=status.HTTP_201_CREATED)
