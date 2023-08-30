@@ -148,27 +148,28 @@ class OrderViewSet(viewsets.ModelViewSet):
                 order=order
             )
             cart_items = []
-            for product in cart:
+            for item in cart:
                 product_data = {
-                    'product': product['product'],
-                    'quantity': product['quantity'],
-                    'price': product['price'],
+                    'product': item['product'],
+                    'quantity': item['quantity'],
+                    'price': item['price'],
                 }
                 OrderProduct.objects.create(
                     cart=order_cart,
                     **product_data
                 )
-                product_data['total_price'] = product['total_price']
+                product_data['total_price'] = item['total_price']
                 cart_items.append(product_data)
 
             # Отправляем сообщение с данными заказа на почту
             subject = 'Новая заявка на заказ'
             html_message = render_to_string(
-                'email_templates/order_email.html',
+                'email_templates/order.html',
                 {
+                    'order': order,
                     'cart_items': cart_items,
                     'total_price': cart.get_total_price(),
-                    'total_quantity': len(cart)
+                    'total_quantity': len(cart),
                 }
             )
             plain_message = strip_tags(html_message)
