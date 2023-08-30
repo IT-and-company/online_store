@@ -2,11 +2,13 @@ from django.urls import include, path
 from rest_framework.routers import DefaultRouter
 from rest_framework_simplejwt.views import TokenRefreshView
 
-from .views import (BackCallViewSet, CartAPI, CategoryViewSet, OrderViewSet,
-                    SizeViewSet, TagViewSet, TypeViewSet,
-                    VariationProductViewSet, UserRegisterView,
-                    activate, clear_cart, TokenObtainPairWithoutPasswordView,
-                    UserViewSet, APILogin, confirm_login)
+from .views import (APILogin, BackCallViewSet, CartAPI, CategoryViewSet,
+                    OrderViewSet, SizeViewSet, TagViewSet,
+                    TokenObtainPairWithoutPasswordView, TypeViewSet,
+                    VariationProductViewSet, UserOrderViewSet,
+                    UserRegisterView, UserViewSet,
+                    activate, clear_cart, confirm_login,
+                    )
 
 app_name = 'api'
 
@@ -20,6 +22,7 @@ router.register('product', VariationProductViewSet)
 router.register('call', BackCallViewSet)
 router.register('order', OrderViewSet)
 router.register('users', UserViewSet)
+router.register('user_orders', UserOrderViewSet, basename='Order')
 
 urlpatterns = [
     path('', include(router.urls)),

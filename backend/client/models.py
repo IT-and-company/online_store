@@ -53,6 +53,7 @@ class BackCall(BackCallOrder):
 
 
 class UserCart(models.Model):
+
     user = models.OneToOneField(
         User,
         on_delete=models.CASCADE,
@@ -65,6 +66,14 @@ class UserCart(models.Model):
 
 
 class OrderCart(models.Model):
+
+    user = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        verbose_name='Пользователь',
+        related_name='order_cart',
+        null=True,
+    )
 
     order = models.OneToOneField(
         Order,

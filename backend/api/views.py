@@ -13,7 +13,7 @@ from django.template.loader import render_to_string
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import status, viewsets, generics, mixins
 from rest_framework.decorators import action, api_view
-from rest_framework.permissions import AllowAny
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_simplejwt.views import TokenViewBase
@@ -168,9 +168,12 @@ class OrderViewSet(viewsets.ModelViewSet):
             order_data = serializer.validated_data
             order = Order.objects.create(**order_data)
             cart = get_cart(request)
-            order_cart = OrderCart.objects.create(
-                order=order
-            )
+            order_cart_data = {'order': order}
+
+            if request.user.is_authenticated:
+                order_cart_data['user'] = request.user
+
+            order_cart = OrderCart.objects.create(**order_cart_data)
             cart_items = []
             for item in cart:
                 product_data = {
@@ -212,6 +215,15 @@ class OrderViewSet(viewsets.ModelViewSet):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors,
                         status=status.HTTP_400_BAD_REQUEST)
+
+
+class UserOrderViewSet(viewsets.ReadOnlyModelViewSet):
+    serializer_class = OrderListSerializer
+    permission_classes = [IsAuthenticated]
+    pagination_class = None
+
+    def get_queryset(self):
+        return Order.objects.filter(cart__user__id=self.request.user.pk)
 
 
 class CategoryViewSet(viewsets.ReadOnlyModelViewSet):
