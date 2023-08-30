@@ -4,6 +4,8 @@ from django.db import models
 from django.template.defaultfilters import slugify
 from smart_selects.db_fields import ChainedForeignKey
 
+from PIL import Image
+
 User = get_user_model()
 
 
@@ -203,7 +205,7 @@ class Specification(models.Model):
                 f'{self.manufacturer}')
 
 
-class Image(models.Model):
+class Picture(models.Model):
     image = models.ImageField(
         'Фото товара',
         upload_to='product/%Y/%m/%d',
@@ -219,6 +221,15 @@ class Image(models.Model):
     def __str__(self):
         return f'{self.image.name.split("/")[-1]}'
 
+    def save(self, *args, **kwargs):
+        super().save()
+        img = Image.open(self.image.path)
+
+        if img.height > 450 or img.width > 850:
+            output_size = (450, 850)
+            img.thumbnail(output_size)
+            img.save(self.image.path)
+
 
 class VariationProduct(models.Model):
     product = models.ForeignKey(
@@ -228,7 +239,7 @@ class VariationProduct(models.Model):
         verbose_name='Товары'
     )
     image = models.ManyToManyField(
-        Image,
+        Picture,
         verbose_name='Фотографии'
     )
     price = models.IntegerField(
@@ -265,8 +276,8 @@ class VariationProduct(models.Model):
     )
 
     class Meta:
-        verbose_name = 'Статья'
-        verbose_name_plural = 'Статьи'
+        verbose_name = 'Товар'
+        verbose_name_plural = 'Товары'
 
     def __str__(self):
         return (f'{self.product.name}: '

@@ -6,8 +6,8 @@ from rest_framework.exceptions import ValidationError
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 
 from client.models import BackCall, Order
-from products.models import (Basket, Category, Favorite, Image, Product, Size,
-                             Specification, Tag, Type, VariationProduct)
+from products.models import (Basket, Category, Favorite, Picture, Product,
+                             Size, Specification, Tag, Type, VariationProduct)
 
 User = get_user_model()
 
@@ -113,11 +113,11 @@ class SpecificationSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
-class ImageSerializer(serializers.ModelSerializer):
+class PictureSerializer(serializers.ModelSerializer):
     image = Base64ImageField()
 
     class Meta:
-        model = Image
+        model = Picture
         fields = '__all__'
 
 
@@ -129,7 +129,7 @@ class ProductSerializer(serializers.ModelSerializer):
 
 class ProductBaseSerializer(serializers.ModelSerializer):
     tags = TagSerializer(many=True, read_only=True)
-    image = ImageSerializer(many=True, read_only=True)
+    image = PictureSerializer(many=True, read_only=True)
     price = serializers.IntegerField()
     sale = serializers.IntegerField()
     is_discount = serializers.SerializerMethodField(
