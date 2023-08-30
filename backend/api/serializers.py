@@ -176,7 +176,7 @@ class ProductBaseSerializer(serializers.ModelSerializer):
         request = self.context.get('request')
         return (request and request.user.is_authenticated
                 and model.objects.filter(user=request.user,
-                                         recipe=obj).exists())
+                                         product=obj).exists())
 
     def get_is_favorited(self, obj):
         return self.get_request(obj, Favorite)
