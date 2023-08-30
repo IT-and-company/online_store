@@ -4,7 +4,7 @@ from django.db import models
 from django.template.defaultfilters import slugify
 from smart_selects.db_fields import ChainedForeignKey
 
-# from PIL import Image
+from PIL import Image
 
 User = get_user_model()
 
@@ -183,12 +183,12 @@ class Specification(models.Model):
         'Тип модели',
         blank=True,
         max_length=settings.MAX_LENGTH_1,
-        help_text='Введите тип товара'  # Например угловой, модульный и т.д.
+        help_text='Введите тип товара'
     )
     materials = models.CharField(
-        'Материлы',
+        'Материалы',
         max_length=settings.MAX_LENGTH_1,
-        help_text='Введите материлы товара'
+        help_text='Введите материалы товара'
     )
     manufacturer = models.CharField(
         'Производитель',
@@ -225,14 +225,14 @@ class Picture(models.Model):
     def __str__(self):
         return f'{self.image.name.split("/")[-1]}'
 
-    # def save(self, *args, **kwargs):
-    #     super().save()
-    #     img = Image.open(self.image.path)
-    #
-    #     if img.height > 300 or img.width > 300:
-    #         output_size = (300, 300)
-    #         img.thumbnail(output_size)
-    #         img.save(self.image.path)
+    def save(self, *args, **kwargs):
+        super().save()
+        img = Image.open(self.image.path)
+
+        if img.height > 450 or img.width > 850:
+            output_size = (450, 850)
+            img.thumbnail(output_size)
+            img.save(self.image.path)
 
 
 class VariationProduct(models.Model):

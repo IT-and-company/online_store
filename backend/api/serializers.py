@@ -69,27 +69,6 @@ class TokenObtainPairWithoutPasswordSerializer(TokenObtainPairSerializer):
             TokenObtainPairWithoutPasswordSerializer, self).validate(attrs)
 
 
-# class AuthSerializer(serializers.Serializer):
-#     phone = serializers.CharField(max_length=15)
-#     verification_code = serializers.CharField(max_length=4)
-#
-#     def validate(self, data):
-#         phone = data.get('phone')
-#         # verification_code = data.get('verification_code')
-#
-#         # Здесь должна быть логика отправки кода и проверки его правильности
-#         # Пропустим это для примера
-#         # ...
-#
-#         user = authenticate(request=self.context.get('request'),
-#         phone=phone)
-#
-#         if not user:
-#             raise serializers.ValidationError('Неверные учетные данные')
-#
-#         data['user'] = user
-#         return data
-
 class OrderProductSerializer(serializers.ModelSerializer):
 
     class Meta:
