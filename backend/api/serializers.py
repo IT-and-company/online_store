@@ -70,6 +70,7 @@ class TokenObtainPairWithoutPasswordSerializer(TokenObtainPairSerializer):
 
 
 class OrderProductSerializer(serializers.ModelSerializer):
+    """Сериализатор для работы с объектами модели OrderProduct."""
 
     class Meta:
         model = OrderProduct
@@ -77,6 +78,7 @@ class OrderProductSerializer(serializers.ModelSerializer):
 
 
 class OrderCartSerializer(serializers.ModelSerializer):
+    """Сериализатор для работы с объектами модели OrderCart."""
     products = OrderProductSerializer(many=True, read_only=True)
 
     class Meta:
@@ -85,6 +87,7 @@ class OrderCartSerializer(serializers.ModelSerializer):
 
 
 class OrderListSerializer(serializers.ModelSerializer):
+    """Сериализатор для работы со списком заказов."""
     cart = OrderCartSerializer()
 
     class Meta:
@@ -93,36 +96,42 @@ class OrderListSerializer(serializers.ModelSerializer):
 
 
 class OrderCreateSerializer(serializers.ModelSerializer):
+    """Сериализатор для создания заказа."""
     class Meta:
         model = Order
         fields = '__all__'
 
 
 class BackCallSerializer(serializers.ModelSerializer):
+    """Сериализатор для работы с заявками на обратный звонок."""
     class Meta:
         model = BackCall
         fields = '__all__'
 
 
 class CategorySerializer(serializers.ModelSerializer):
+    """Сериализатор для работы с категориями товаров."""
     class Meta:
         model = Category
         fields = '__all__'
 
 
 class TypeSerializer(serializers.ModelSerializer):
+    """Сериализатор для работы с типами товаров."""
     class Meta:
         model = Type
         fields = '__all__'
 
 
 class ColorTagSerializer(serializers.ModelSerializer):
+    """Сериализатор для работы с цветами товаров."""
     class Meta:
         model = ColorTag
         fields = '__all__'
 
 
 class SizeSerializer(serializers.ModelSerializer):
+    """Сериализатор для работы с размерами товаров."""
     class Meta:
         model = Size
         fields = ('length',
@@ -131,12 +140,14 @@ class SizeSerializer(serializers.ModelSerializer):
 
 
 class SpecificationSerializer(serializers.ModelSerializer):
+    """Сериализатор для работы со спецификацией товаров."""
     class Meta:
         model = Specification
         fields = '__all__'
 
 
 class PictureSerializer(serializers.ModelSerializer):
+    """Сериализатор для работы с изображениями товаров."""
     image = Base64ImageField()
 
     class Meta:
@@ -145,12 +156,15 @@ class PictureSerializer(serializers.ModelSerializer):
 
 
 class ProductSerializer(serializers.ModelSerializer):
+    """Сериализатор для работы с товарами."""
     class Meta:
         model = Product
         fields = '__all__'
 
 
 class ProductBaseSerializer(serializers.ModelSerializer):
+    """Сериализатор для отображения продукта со всеми характеристиками
+    и дополнительными полями."""
     color_tag = ColorTagSerializer(read_only=True)
     image = PictureSerializer(many=True, read_only=True)
     price = serializers.IntegerField()
@@ -186,6 +200,8 @@ class ProductBaseSerializer(serializers.ModelSerializer):
 
 
 class ProductShortSerializer(ProductBaseSerializer):
+    """Сериализатор наследующийся от базового сериализатор товаров,
+    который добавляет к каждому объекту товара поле product."""
     product = serializers.CharField(source='product.name', read_only=True)
 
     class Meta(ProductBaseSerializer.Meta):
@@ -193,6 +209,7 @@ class ProductShortSerializer(ProductBaseSerializer):
 
 
 class VariationProductSerializer(ProductBaseSerializer):
+    """Сериализатор для работы с разными вариантами каждого товара."""
     product = ProductSerializer(read_only=True)
     specification = SpecificationSerializer(read_only=True)
 
@@ -202,6 +219,7 @@ class VariationProductSerializer(ProductBaseSerializer):
 
 
 class CartSerializer(serializers.Serializer):
+    """Сериализатор для работы с корзиной."""
     product = ProductShortSerializer()
     quantity = serializers.SerializerMethodField()
     price = serializers.SerializerMethodField()

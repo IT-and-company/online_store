@@ -4,6 +4,7 @@ from products.models import ProductModel, Size, ColorTag, VariationProduct
 
 
 class VariationProductFilter(FilterSet):
+    """Класс фильтрации для обработки полей модели VariationProduct."""
     color_tag = filters.ModelMultipleChoiceFilter(
         field_name='color_tag__slug',
         to_field_name='slug',
@@ -31,6 +32,7 @@ class VariationProductFilter(FilterSet):
 
 
 class CategoryTypeFilter(BaseFilterBackend):
+    """Класс фильтрации, который сортирует продукты по типу и категории."""
     def filter_queryset(self, request, queryset, view):
         categories = request.query_params.getlist('categories')
         types = request.query_params.getlist('types')

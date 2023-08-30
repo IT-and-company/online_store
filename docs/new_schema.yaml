@@ -6,7 +6,9 @@ paths:
   /api/categories/:
     get:
       operationId: listCategorys
-      description: ''
+      description: "\u0412\u044C\u044E\u0441\u0435\u0442 \u0434\u043B\u044F \u0440\
+        \u0430\u0431\u043E\u0442\u044B \u0441 \u043A\u0430\u0442\u0435\u0433\u043E\
+        \u0440\u0438\u044F\u043C\u0438 \u0442\u043E\u0432\u0430\u0440\u043E\u0432."
       parameters: []
       responses:
         '200':
@@ -22,7 +24,9 @@ paths:
   /api/categories/{id}/:
     get:
       operationId: retrieveCategory
-      description: ''
+      description: "\u0412\u044C\u044E\u0441\u0435\u0442 \u0434\u043B\u044F \u0440\
+        \u0430\u0431\u043E\u0442\u044B \u0441 \u043A\u0430\u0442\u0435\u0433\u043E\
+        \u0440\u0438\u044F\u043C\u0438 \u0442\u043E\u0432\u0430\u0440\u043E\u0432."
       parameters:
       - name: id
         in: path
@@ -43,7 +47,9 @@ paths:
   /api/type/:
     get:
       operationId: listTypes
-      description: ''
+      description: "\u0412\u044C\u044E\u0441\u0435\u0442 \u0434\u043B\u044F \u0440\
+        \u0430\u0431\u043E\u0442\u044B \u0441 \u0442\u0438\u043F\u0430\u043C\u0438\
+        \ \u0442\u043E\u0432\u0430\u0440\u043E\u0432."
       parameters: []
       responses:
         '200':
@@ -59,7 +65,9 @@ paths:
   /api/type/{id}/:
     get:
       operationId: retrieveType
-      description: ''
+      description: "\u0412\u044C\u044E\u0441\u0435\u0442 \u0434\u043B\u044F \u0440\
+        \u0430\u0431\u043E\u0442\u044B \u0441 \u0442\u0438\u043F\u0430\u043C\u0438\
+        \ \u0442\u043E\u0432\u0430\u0440\u043E\u0432."
       parameters:
       - name: id
         in: path
@@ -79,7 +87,9 @@ paths:
   /api/tags/:
     get:
       operationId: listColorTags
-      description: ''
+      description: "\u0412\u044C\u044E\u0441\u0435\u0442 \u0434\u043B\u044F \u0440\
+        \u0430\u0431\u043E\u0442\u044B \u0441 \u0446\u0432\u0435\u0442\u0430\u043C\
+        \u0438 \u0442\u043E\u0432\u0430\u0440\u043E\u0432."
       parameters: []
       responses:
         '200':
@@ -95,7 +105,9 @@ paths:
   /api/tags/{id}/:
     get:
       operationId: retrieveColorTag
-      description: ''
+      description: "\u0412\u044C\u044E\u0441\u0435\u0442 \u0434\u043B\u044F \u0440\
+        \u0430\u0431\u043E\u0442\u044B \u0441 \u0446\u0432\u0435\u0442\u0430\u043C\
+        \u0438 \u0442\u043E\u0432\u0430\u0440\u043E\u0432."
       parameters:
       - name: id
         in: path
@@ -116,7 +128,9 @@ paths:
   /api/size/:
     get:
       operationId: listSizes
-      description: ''
+      description: "\u0412\u044C\u044E\u0441\u0435\u0442 \u0434\u043B\u044F \u0440\
+        \u0430\u0431\u043E\u0442\u044B \u0441 \u0440\u0430\u0437\u043C\u0435\u0440\
+        \u0430\u043C\u0438 \u0442\u043E\u0432\u0430\u0440\u043E\u0432."
       parameters: []
       responses:
         '200':
@@ -132,7 +146,9 @@ paths:
   /api/size/{id}/:
     get:
       operationId: retrieveSize
-      description: ''
+      description: "\u0412\u044C\u044E\u0441\u0435\u0442 \u0434\u043B\u044F \u0440\
+        \u0430\u0431\u043E\u0442\u044B \u0441 \u0440\u0430\u0437\u043C\u0435\u0440\
+        \u0430\u043C\u0438 \u0442\u043E\u0432\u0430\u0440\u043E\u0432."
       parameters:
       - name: id
         in: path
@@ -153,7 +169,9 @@ paths:
   /api/product/:
     get:
       operationId: listVariationProducts
-      description: ''
+      description: "\u0412\u044C\u044E\u0441\u0435\u0442 \u0434\u043B\u044F \u0440\
+        \u0430\u0431\u043E\u0442\u044B \u0441 \u0442\u043E\u0432\u0430\u0440\u0430\
+        \u043C\u0438."
       parameters:
       - name: page
         required: false
@@ -232,7 +250,9 @@ paths:
       - api
     post:
       operationId: createVariationProduct
-      description: ''
+      description: "\u0412\u044C\u044E\u0441\u0435\u0442 \u0434\u043B\u044F \u0440\
+        \u0430\u0431\u043E\u0442\u044B \u0441 \u0442\u043E\u0432\u0430\u0440\u0430\
+        \u043C\u0438."
       parameters: []
       requestBody:
         content:
@@ -257,7 +277,9 @@ paths:
   /api/product/hits_products/:
     get:
       operationId: hitsProductsVariationProduct
-      description: ''
+      description: "\u0412\u044C\u044E\u0441\u0435\u0442 \u0434\u043B\u044F \u0440\
+        \u0430\u0431\u043E\u0442\u044B \u0441 \u0442\u043E\u0432\u0430\u0440\u0430\
+        \u043C\u0438."
       parameters: []
       responses:
         '200':
@@ -271,7 +293,9 @@ paths:
   /api/product/latest_products/:
     get:
       operationId: latestProductsVariationProduct
-      description: ''
+      description: "\u0412\u044C\u044E\u0441\u0435\u0442 \u0434\u043B\u044F \u0440\
+        \u0430\u0431\u043E\u0442\u044B \u0441 \u0442\u043E\u0432\u0430\u0440\u0430\
+        \u043C\u0438."
       parameters: []
       responses:
         '200':
@@ -285,7 +309,9 @@ paths:
   /api/product/similar_products/:
     get:
       operationId: similarProductsVariationProduct
-      description: ''
+      description: "\u0412\u044C\u044E\u0441\u0435\u0442 \u0434\u043B\u044F \u0440\
+        \u0430\u0431\u043E\u0442\u044B \u0441 \u0442\u043E\u0432\u0430\u0440\u0430\
+        \u043C\u0438."
       parameters: []
       responses:
         '200':
@@ -299,7 +325,9 @@ paths:
   /api/product/{id}/:
     get:
       operationId: retrieveVariationProduct
-      description: ''
+      description: "\u0412\u044C\u044E\u0441\u0435\u0442 \u0434\u043B\u044F \u0440\
+        \u0430\u0431\u043E\u0442\u044B \u0441 \u0442\u043E\u0432\u0430\u0440\u0430\
+        \u043C\u0438."
       parameters:
       - name: id
         in: path
@@ -355,7 +383,9 @@ paths:
       - api
     put:
       operationId: updateVariationProduct
-      description: ''
+      description: "\u0412\u044C\u044E\u0441\u0435\u0442 \u0434\u043B\u044F \u0440\
+        \u0430\u0431\u043E\u0442\u044B \u0441 \u0442\u043E\u0432\u0430\u0440\u0430\
+        \u043C\u0438."
       parameters:
       - name: id
         in: path
@@ -422,7 +452,9 @@ paths:
       - api
     patch:
       operationId: partialUpdateVariationProduct
-      description: ''
+      description: "\u0412\u044C\u044E\u0441\u0435\u0442 \u0434\u043B\u044F \u0440\
+        \u0430\u0431\u043E\u0442\u044B \u0441 \u0442\u043E\u0432\u0430\u0440\u0430\
+        \u043C\u0438."
       parameters:
       - name: id
         in: path
@@ -489,7 +521,9 @@ paths:
       - api
     delete:
       operationId: destroyVariationProduct
-      description: ''
+      description: "\u0412\u044C\u044E\u0441\u0435\u0442 \u0434\u043B\u044F \u0440\
+        \u0430\u0431\u043E\u0442\u044B \u0441 \u0442\u043E\u0432\u0430\u0440\u0430\
+        \u043C\u0438."
       parameters:
       - name: id
         in: path
@@ -542,7 +576,10 @@ paths:
   /api/call/:
     get:
       operationId: listBackCalls
-      description: ''
+      description: "\u0412\u044C\u044E\u0441\u0435\u0442 \u0434\u043B\u044F \u0440\
+        \u0430\u0431\u043E\u0442\u044B \u0441 \u0437\u0430\u044F\u0432\u043A\u0430\
+        \u043C\u0438 \u043D\u0430 \u043E\u0431\u0440\u0430\u0442\u043D\u044B\u0439\
+        \ \u0437\u0432\u043E\u043D\u043E\u043A."
       parameters: []
       responses:
         '200':
@@ -557,7 +594,10 @@ paths:
       - api
     post:
       operationId: createBackCall
-      description: ''
+      description: "\u0412\u044C\u044E\u0441\u0435\u0442 \u0434\u043B\u044F \u0440\
+        \u0430\u0431\u043E\u0442\u044B \u0441 \u0437\u0430\u044F\u0432\u043A\u0430\
+        \u043C\u0438 \u043D\u0430 \u043E\u0431\u0440\u0430\u0442\u043D\u044B\u0439\
+        \ \u0437\u0432\u043E\u043D\u043E\u043A."
       parameters: []
       requestBody:
         content:
@@ -582,7 +622,10 @@ paths:
   /api/call/{id}/:
     get:
       operationId: retrieveBackCall
-      description: ''
+      description: "\u0412\u044C\u044E\u0441\u0435\u0442 \u0434\u043B\u044F \u0440\
+        \u0430\u0431\u043E\u0442\u044B \u0441 \u0437\u0430\u044F\u0432\u043A\u0430\
+        \u043C\u0438 \u043D\u0430 \u043E\u0431\u0440\u0430\u0442\u043D\u044B\u0439\
+        \ \u0437\u0432\u043E\u043D\u043E\u043A."
       parameters:
       - name: id
         in: path
@@ -602,7 +645,10 @@ paths:
       - api
     put:
       operationId: updateBackCall
-      description: ''
+      description: "\u0412\u044C\u044E\u0441\u0435\u0442 \u0434\u043B\u044F \u0440\
+        \u0430\u0431\u043E\u0442\u044B \u0441 \u0437\u0430\u044F\u0432\u043A\u0430\
+        \u043C\u0438 \u043D\u0430 \u043E\u0431\u0440\u0430\u0442\u043D\u044B\u0439\
+        \ \u0437\u0432\u043E\u043D\u043E\u043A."
       parameters:
       - name: id
         in: path
@@ -633,7 +679,10 @@ paths:
       - api
     patch:
       operationId: partialUpdateBackCall
-      description: ''
+      description: "\u0412\u044C\u044E\u0441\u0435\u0442 \u0434\u043B\u044F \u0440\
+        \u0430\u0431\u043E\u0442\u044B \u0441 \u0437\u0430\u044F\u0432\u043A\u0430\
+        \u043C\u0438 \u043D\u0430 \u043E\u0431\u0440\u0430\u0442\u043D\u044B\u0439\
+        \ \u0437\u0432\u043E\u043D\u043E\u043A."
       parameters:
       - name: id
         in: path
@@ -664,7 +713,10 @@ paths:
       - api
     delete:
       operationId: destroyBackCall
-      description: ''
+      description: "\u0412\u044C\u044E\u0441\u0435\u0442 \u0434\u043B\u044F \u0440\
+        \u0430\u0431\u043E\u0442\u044B \u0441 \u0437\u0430\u044F\u0432\u043A\u0430\
+        \u043C\u0438 \u043D\u0430 \u043E\u0431\u0440\u0430\u0442\u043D\u044B\u0439\
+        \ \u0437\u0432\u043E\u043D\u043E\u043A."
       parameters:
       - name: id
         in: path
@@ -681,7 +733,9 @@ paths:
   /api/order/:
     get:
       operationId: listOrders
-      description: ''
+      description: "\u0412\u044C\u044E\u0441\u0435\u0442 \u0434\u043B\u044F \u0440\
+        \u0430\u0431\u043E\u0442\u044B \u0441 \u0437\u0430\u043A\u0430\u0437\u0430\
+        \u043C\u0438."
       parameters: []
       responses:
         '200':
@@ -696,7 +750,9 @@ paths:
       - api
     post:
       operationId: createOrder
-      description: ''
+      description: "\u0412\u044C\u044E\u0441\u0435\u0442 \u0434\u043B\u044F \u0440\
+        \u0430\u0431\u043E\u0442\u044B \u0441 \u0437\u0430\u043A\u0430\u0437\u0430\
+        \u043C\u0438."
       parameters: []
       requestBody:
         content:
@@ -721,7 +777,9 @@ paths:
   /api/order/{id}/:
     get:
       operationId: retrieveOrder
-      description: ''
+      description: "\u0412\u044C\u044E\u0441\u0435\u0442 \u0434\u043B\u044F \u0440\
+        \u0430\u0431\u043E\u0442\u044B \u0441 \u0437\u0430\u043A\u0430\u0437\u0430\
+        \u043C\u0438."
       parameters:
       - name: id
         in: path
@@ -741,7 +799,9 @@ paths:
       - api
     put:
       operationId: updateOrder
-      description: ''
+      description: "\u0412\u044C\u044E\u0441\u0435\u0442 \u0434\u043B\u044F \u0440\
+        \u0430\u0431\u043E\u0442\u044B \u0441 \u0437\u0430\u043A\u0430\u0437\u0430\
+        \u043C\u0438."
       parameters:
       - name: id
         in: path
@@ -772,7 +832,9 @@ paths:
       - api
     patch:
       operationId: partialUpdateOrder
-      description: ''
+      description: "\u0412\u044C\u044E\u0441\u0435\u0442 \u0434\u043B\u044F \u0440\
+        \u0430\u0431\u043E\u0442\u044B \u0441 \u0437\u0430\u043A\u0430\u0437\u0430\
+        \u043C\u0438."
       parameters:
       - name: id
         in: path
@@ -803,7 +865,9 @@ paths:
       - api
     delete:
       operationId: destroyOrder
-      description: ''
+      description: "\u0412\u044C\u044E\u0441\u0435\u0442 \u0434\u043B\u044F \u0440\
+        \u0430\u0431\u043E\u0442\u044B \u0441 \u0437\u0430\u043A\u0430\u0437\u0430\
+        \u043C\u0438."
       parameters:
       - name: id
         in: path
@@ -970,7 +1034,9 @@ paths:
   /api/product/{id}/favorite/:
     post:
       operationId: favoriteVariationProduct
-      description: ''
+      description: "\u0412\u044C\u044E\u0441\u0435\u0442 \u0434\u043B\u044F \u0440\
+        \u0430\u0431\u043E\u0442\u044B \u0441 \u0442\u043E\u0432\u0430\u0440\u0430\
+        \u043C\u0438."
       parameters:
       - name: id
         in: path
@@ -1001,7 +1067,9 @@ paths:
       - api
     delete:
       operationId: deleteFavoriteVariationProduct
-      description: ''
+      description: "\u0412\u044C\u044E\u0441\u0435\u0442 \u0434\u043B\u044F \u0440\
+        \u0430\u0431\u043E\u0442\u044B \u0441 \u0442\u043E\u0432\u0430\u0440\u0430\
+        \u043C\u0438."
       parameters:
       - name: id
         in: path

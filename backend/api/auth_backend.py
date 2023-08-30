@@ -5,6 +5,7 @@ User = get_user_model()
 
 
 class AuthenticationWithoutPassword(BaseBackend):
+    """Класс, переопределяющий систему аутентификации без пароля."""
     def authenticate(self, request, email=None, password=None):
         if email is None:
             email = request.data.get('email', '')

@@ -113,6 +113,7 @@ class TokenObtainPairWithoutPasswordView(TokenViewBase):
 
 
 class BackCallViewSet(viewsets.ModelViewSet):
+    """Вьюсет для работы с заявками на обратный звонок."""
     queryset = BackCall.objects.all()
     serializer_class = BackCallSerializer
     permission_classes = [AllowAny]
@@ -143,10 +144,11 @@ class BackCallViewSet(viewsets.ModelViewSet):
 
 
 class OrderViewSet(viewsets.ModelViewSet):
+    """Вьюсет для работы с заказами."""
     queryset = Order.objects.all()
     permission_classes = [AllowAny]
     pagination_class = None
-    # Обтображаем созданные заказы с корзиной и продуктами
+    # Отображаем созданные заказы с корзиной и продуктами
     serializer_classes = {
         'list': OrderListSerializer,
         'retrieve': OrderListSerializer,
@@ -213,6 +215,7 @@ class OrderViewSet(viewsets.ModelViewSet):
 
 
 class CategoryViewSet(viewsets.ReadOnlyModelViewSet):
+    """Вьюсет для работы с категориями товаров."""
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
     permission_classes = [AllowAny]
@@ -220,6 +223,7 @@ class CategoryViewSet(viewsets.ReadOnlyModelViewSet):
 
 
 class TypeViewSet(viewsets.ReadOnlyModelViewSet):
+    """Вьюсет для работы с типами товаров."""
     queryset = Type.objects.all()
     serializer_class = TypeSerializer
     permission_classes = [AllowAny]
@@ -227,6 +231,7 @@ class TypeViewSet(viewsets.ReadOnlyModelViewSet):
 
 
 class TagViewSet(viewsets.ReadOnlyModelViewSet):
+    """Вьюсет для работы с цветами товаров."""
     queryset = ColorTag.objects.all()
     serializer_class = ColorTagSerializer
     permission_classes = [AllowAny]
@@ -234,6 +239,7 @@ class TagViewSet(viewsets.ReadOnlyModelViewSet):
 
 
 class SizeViewSet(viewsets.ReadOnlyModelViewSet):
+    """Вьюсет для работы с размерами товаров."""
     queryset = Size.objects.all()
     serializer_class = SizeSerializer
     permission_classes = [AllowAny]
@@ -241,6 +247,7 @@ class SizeViewSet(viewsets.ReadOnlyModelViewSet):
 
 
 class VariationProductViewSet(viewsets.ModelViewSet):
+    """Вьюсет для работы с товарами."""
     queryset = VariationProduct.objects.all()
     serializer_class = VariationProductSerializer
     permission_classes = [IsAdminOrReadOnly]

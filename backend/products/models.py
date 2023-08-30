@@ -113,7 +113,7 @@ class Size(models.Model):
 
     class Meta:
         verbose_name = 'Размер'
-        verbose_name_plural = 'размеры'
+        verbose_name_plural = 'Размеры'
 
     def __str__(self):
         return f'{self.length} х {self.width} х {self.height} см'
