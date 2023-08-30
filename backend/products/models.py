@@ -6,7 +6,6 @@ from smart_selects.db_fields import ChainedForeignKey
 
 # from PIL import Image
 
-from client.models import Order
 User = get_user_model()
 
 
@@ -324,73 +323,3 @@ class Favorite(FavoriteBasket):
         default_related_name = 'favorite'
         verbose_name = 'Избранное'
         verbose_name_plural = 'Избранное'
-
-
-class UserCart(models.Model):
-    user = models.OneToOneField(
-        User,
-        on_delete=models.CASCADE,
-        verbose_name='Пользователь',
-        related_name='cart'
-    )
-
-    def __str__(self):
-        return f'Корзина {self.user.get_username()}'
-
-
-class OrderCart(models.Model):
-
-    order = models.OneToOneField(
-        Order,
-        on_delete=models.CASCADE,
-        verbose_name='Заказ',
-        related_name='cart'
-    )
-
-    def __str__(self):
-        return f'Корзина {self.order}'
-
-
-class CartProductBase(models.Model):
-    quantity = models.IntegerField(
-        default=0,
-        verbose_name='Количество'
-    )
-
-    product = models.ForeignKey(
-        VariationProduct,
-        on_delete=models.CASCADE,
-        verbose_name='Продукт',
-        # related_name='cartproduct'
-    )
-
-    class Meta:
-        abstract = True
-
-
-class CartProduct(CartProductBase):
-
-    cart = models.ForeignKey(
-        UserCart,
-        null=True,
-        on_delete=models.CASCADE,
-        verbose_name='Корзина',
-        related_name='products'
-    )
-
-    def __str__(self):
-        return f'{self.product} в корзине {self.cart}'
-
-
-class OrderProduct(CartProductBase):
-
-    cart = models.ForeignKey(
-        OrderCart,
-        null=True,
-        on_delete=models.CASCADE,
-        verbose_name='Корзина',
-        related_name='products'
-    )
-
-    def __str__(self):
-        return f'{self.product} в заказе {self.cart}'

@@ -12,7 +12,7 @@ from django.utils.encoding import force_bytes
 from django.utils.html import strip_tags
 from django.utils.http import urlsafe_base64_encode
 
-from products.cart import Cart
+from client.cart import Cart
 # from sms_config import SMSTransport
 
 

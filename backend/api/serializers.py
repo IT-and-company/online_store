@@ -5,8 +5,8 @@ from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 
-from client.models import BackCall, Order
-from products.models import (OrderCart, OrderProduct, Category, Favorite, Image, Product, Size,
+from client.models import BackCall, Order, OrderCart, OrderProduct
+from products.models import (Category, Favorite, Image, Product, Size,
                              Specification, ColorTag, Type, VariationProduct)
 
 User = get_user_model()
@@ -94,8 +94,30 @@ class TokenObtainPairWithoutPasswordSerializer(TokenObtainPairSerializer):
 #         data['user'] = user
 #         return data
 
+class OrderProductSerializer(serializers.ModelSerializer):
 
-class OrderSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = OrderProduct
+        fields = '__all__'
+
+
+class OrderCartSerializer(serializers.ModelSerializer):
+    products = OrderProductSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = OrderCart
+        fields = '__all__'
+
+
+class OrderListSerializer(serializers.ModelSerializer):
+    cart = OrderCartSerializer()
+
+    class Meta:
+        model = Order
+        fields = '__all__'
+
+
+class OrderCreateSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Order

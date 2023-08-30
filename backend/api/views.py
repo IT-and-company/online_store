@@ -22,7 +22,8 @@ from api.filters import CategoryTypeFilter, VariationProductFilter
 from api.pagination import CustomPagination
 from api.permissions import IsAdminOrReadOnly
 from api.serializers import (BackCallSerializer, CartSerializer,
-                             CategorySerializer, OrderSerializer,
+                             CategorySerializer, OrderListSerializer,
+                             OrderCreateSerializer,
                              ProductShortSerializer, SizeSerializer,
                              ColorTagSerializer, TypeSerializer,
                              VariationProductSerializer, SignupSerializer,
@@ -32,8 +33,14 @@ from api.utils import get_cart, send_confirmation_link, TokenGenerator
 
 from client.models import BackCall, Order
 
-from products.models import (Category, CartProduct, Favorite, Size,
-                             ColorTag, Type, VariationProduct, OrderCart, OrderProduct)
+from products.models import (Category,
+                             ColorTag,
+                             Favorite,
+                             Size,
+                             Type,
+                             VariationProduct,)
+
+from client.models import (CartProduct, OrderCart, OrderProduct,)
 from rest_framework.decorators import api_view
 
 User = get_user_model()
@@ -115,61 +122,67 @@ class BackCallViewSet(viewsets.ModelViewSet):
 
 class OrderViewSet(viewsets.ModelViewSet):
     queryset = Order.objects.all()
-    serializer_class = OrderSerializer
     permission_classes = [AllowAny]
     pagination_class = None
+    # Обтображаем созданные заказы с корзиной и продуктами
+    serializer_classes = {
+        'list': OrderListSerializer,
+        'retrieve': OrderListSerializer,
+    }
+    # При создании получаем корзину автоматически,
+    # поэтому сериализуем только поля заказа
+    default_serializer_class = OrderCreateSerializer
+
+    def get_serializer_class(self):
+        return self.serializer_classes.get(
+            self.action, self.default_serializer_class
+        )
 
     def create(self, request, *args, **kwargs):
-        serializer = OrderSerializer(data=request.data)
+        serializer = OrderCreateSerializer(data=request.data)
         if serializer.is_valid():
             order_data = serializer.validated_data
             order = Order.objects.create(**order_data)
-        cart = get_cart(request)
-        order_cart = OrderCart.objects.create(
-            order=order
-        )
-        print(order_cart, 'ORDER_CART')
-        for product in cart:
-            print('COUNT')
-            a = OrderProduct.objects.create(
-                cart=order_cart,
-                product=product['product'],
-                quantity=product['quantity']
+            cart = get_cart(request)
+            order_cart = OrderCart.objects.create(
+                order=order
             )
-            print(a, 'ORDER_PRODUCT')
-        # нужно передать корзину в сериализатор, и создать
-        # if serializer.is_valid():
-        # Добавляем содержимое корзины в данные заказа
-        # cart_items = []
-        # serializer = OrderSerializer(data=request.data)
-        # if serializer.is_valid():
-            # order_data = serializer.validated_data
-            # order_data['cart_items'] = cart_items
-
-            # Создаем объект заказа
-            # order = Order.objects.create(**order_data)
+            cart_items = []
+            for product in cart:
+                product_data = {
+                    'product': product['product'],
+                    'quantity': product['quantity'],
+                    'price': product['price'],
+                }
+                OrderProduct.objects.create(
+                    cart=order_cart,
+                    **product_data
+                )
+                product_data['total_price'] = product['total_price']
+                cart_items.append(product_data)
 
             # Отправляем сообщение с данными заказа на почту
-
-            # subject = 'Новая заявка на заказ'
-            # html_message = render_to_string(
-            #     'email_templates/order_email.html',
-            #     {'cart_items': cart_items})
-            # plain_message = strip_tags(html_message)
-            # from_email = settings.DEFAULT_FROM_EMAIL
-            # to_email = [
-            #     settings.DEFAULT_TO_EMAIL]
-            # send_mail(
-            #     subject=subject,
-            #     message=plain_message,
-            #     from_email=from_email,
-            #     recipient_list=to_email,
-            #     html_message=html_message)
-            print('ПОСЫЛАЮ ПИСЬМО')
-            # print(order_data)
-            print('*****')
-            # print(order.__dict__)
-            # cart.clear()
+            subject = 'Новая заявка на заказ'
+            html_message = render_to_string(
+                'email_templates/order_email.html',
+                {
+                    'cart_items': cart_items,
+                    'total_price': cart.get_total_price(),
+                    'total_quantity': len(cart)
+                }
+            )
+            plain_message = strip_tags(html_message)
+            from_email = settings.DEFAULT_FROM_EMAIL
+            to_email = [
+                settings.DEFAULT_TO_EMAIL
+            ]
+            send_mail(
+                subject=subject,
+                message=plain_message,
+                from_email=from_email,
+                recipient_list=to_email,
+                html_message=html_message)
+            cart.clear()
 
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors,

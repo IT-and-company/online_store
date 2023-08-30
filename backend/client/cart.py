@@ -2,7 +2,8 @@ from decimal import Decimal
 
 from django.conf import settings
 
-from products.models import CartProduct, UserCart, VariationProduct
+from client.models import CartProduct, UserCart
+from products.models import VariationProduct
 
 
 class Cart(object):
