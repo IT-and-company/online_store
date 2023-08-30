@@ -6,8 +6,8 @@ from rest_framework.exceptions import ValidationError
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 
 from client.models import BackCall, Order
-from products.models import (Basket, Category, Favorite, Picture, Product, Size,
-                             Specification, Tag, Type, VariationProduct)
+from products.models import (Basket, Category, Favorite, Picture, Product,
+                             Size, Specification, Tag, Type, VariationProduct)
 
 User = get_user_model()
 
