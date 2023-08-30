@@ -12,7 +12,7 @@ from django.utils.http import urlsafe_base64_decode
 from django.template.loader import render_to_string
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import status, viewsets, generics, mixins
-from rest_framework.decorators import action
+from rest_framework.decorators import action, api_view
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -22,18 +22,23 @@ from api.filters import CategoryTypeFilter, VariationProductFilter
 from api.pagination import CustomPagination
 from api.permissions import IsAdminOrReadOnly
 from api.serializers import (BackCallSerializer, CartSerializer,
-                             CategorySerializer, OrderSerializer,
+                             CategorySerializer, OrderListSerializer,
+                             OrderCreateSerializer,
                              ProductShortSerializer, SizeSerializer,
-                             TagSerializer, TypeSerializer,
+                             ColorTagSerializer, TypeSerializer,
                              VariationProductSerializer, SignupSerializer,
                              TokenObtainPairWithoutPasswordSerializer,
                              UserSerializer, LoginSerializer)
 from api.utils import (get_cart, send_confirmation_link, TokenGenerator,
                        send_confirmation_link_for_login)
-from client.models import BackCall, Order
-from products.models import (Category, CartProduct, Favorite, Size,
-                             Tag, Type, VariationProduct)
-from rest_framework.decorators import api_view
+from client.models import BackCall, Order, CartProduct, OrderCart, OrderProduct
+from products.models import (Category,
+                             ColorTag,
+                             Favorite,
+                             Size,
+                             Type,
+                             VariationProduct,)
+
 
 User = get_user_model()
 
@@ -139,26 +144,72 @@ class BackCallViewSet(viewsets.ModelViewSet):
 
 class OrderViewSet(viewsets.ModelViewSet):
     queryset = Order.objects.all()
-    serializer_class = OrderSerializer
     permission_classes = [AllowAny]
     pagination_class = None
+    # Обтображаем созданные заказы с корзиной и продуктами
+    serializer_classes = {
+        'list': OrderListSerializer,
+        'retrieve': OrderListSerializer,
+    }
+    # При создании получаем корзину автоматически,
+    # поэтому сериализуем только поля заказа
+    default_serializer_class = OrderCreateSerializer
 
-    # def send_email(self, request):
-    #     serializer = self.serializer_class(data=request.data)
-    #     if serializer.is_valid():
-    #         data = serializer.validated_data
-    #         # Отправляем форму на почту
-    #         send_mail(
-    #             'Sent email from {}'.format(data.get('name')),
-    #             'Here is the message. {}'.format(data.get('text')),
-    #             data.get('email'),
-    #             ['to@example.com'],
-    #             fail_silently=False,
-    #         )
-    #         return Response(data=serializer.data,
-    #               status=status.HTTP_201_CREATED)
-    #     return Response(serializer.errors,
-    #               status=status.HTTP_400_BAD_REQUEST)
+    def get_serializer_class(self):
+        return self.serializer_classes.get(
+            self.action, self.default_serializer_class
+        )
+
+    def create(self, request, *args, **kwargs):
+        serializer = OrderCreateSerializer(data=request.data)
+        if serializer.is_valid():
+            order_data = serializer.validated_data
+            order = Order.objects.create(**order_data)
+            cart = get_cart(request)
+            order_cart = OrderCart.objects.create(
+                order=order
+            )
+            cart_items = []
+            for item in cart:
+                product_data = {
+                    'product': item['product'],
+                    'quantity': item['quantity'],
+                    'price': item['price'],
+                }
+                OrderProduct.objects.create(
+                    cart=order_cart,
+                    **product_data
+                )
+                product_data['total_price'] = item['total_price']
+                cart_items.append(product_data)
+
+            # Отправляем сообщение с данными заказа на почту
+            subject = 'Новая заявка на заказ'
+            html_message = render_to_string(
+                'email_templates/order.html',
+                {
+                    'order': order,
+                    'cart_items': cart_items,
+                    'total_price': cart.get_total_price(),
+                    'total_quantity': len(cart),
+                }
+            )
+            plain_message = strip_tags(html_message)
+            from_email = settings.DEFAULT_FROM_EMAIL
+            to_email = [
+                settings.DEFAULT_TO_EMAIL
+            ]
+            send_mail(
+                subject=subject,
+                message=plain_message,
+                from_email=from_email,
+                recipient_list=to_email,
+                html_message=html_message)
+            cart.clear()
+
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors,
+                        status=status.HTTP_400_BAD_REQUEST)
 
 
 class CategoryViewSet(viewsets.ReadOnlyModelViewSet):
@@ -176,8 +227,8 @@ class TypeViewSet(viewsets.ReadOnlyModelViewSet):
 
 
 class TagViewSet(viewsets.ReadOnlyModelViewSet):
-    queryset = Tag.objects.all()
-    serializer_class = TagSerializer
+    queryset = ColorTag.objects.all()
+    serializer_class = ColorTagSerializer
     permission_classes = [AllowAny]
     pagination_class = None
 
@@ -254,31 +305,18 @@ class VariationProductViewSet(viewsets.ModelViewSet):
     def create_obj(request, pk, model, serializer):
         product = get_object_or_404(VariationProduct, pk=pk)
 
-        # Это какая-то нереальная хтонь, но оно работает.
-
-        if request.user.is_authenticated:
-            user = request.user
-        else:
-            user = None
-
-        if user and model.objects.filter(product=product, user=user).exists():
+        if model.objects.filter(product=product,
+                                user=request.user).exists():
             return Response(status.HTTP_400_BAD_REQUEST)
 
-        model(product=product, user=user).save()
+        model(product=product, user=request.user).save()
         serializer = serializer(get_object_or_404(VariationProduct, id=pk),
                                 context={'request': request})
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
     @staticmethod
     def delete_obj(request, pk, model):
-        product = get_object_or_404(VariationProduct, pk=pk)
-
-        if request.user.is_authenticated:
-            user = request.user
-        else:
-            user = None
-        model.objects.filter(product=product, user=user).delete()
-
+        get_object_or_404(model, product=pk, user=request.user).delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
     @action(detail=True, methods=['post'],
@@ -329,7 +367,7 @@ class CartAPI(APIView):
                 product=product,
                 quantity=int(request.query_params.get('quantity', 1)),
                 update_quantity=strtobool(
-                    request.query_params.get('update_quantity')
+                    request.query_params.get('update_quantity', 'False')
                 )
             )
         request.data.update({'cart': cart})
@@ -354,45 +392,3 @@ def clear_cart(request):
     cart = get_cart(request)
     cart.clear()
     return Response(status=status.HTTP_204_NO_CONTENT)
-
-    # @action(methods=['get'], detail=False,
-    #         permission_classes=[AllowAny])
-    # def count_basket(self, request):
-    #     if request.user.is_authenticated:
-    #         user = request.user
-    #     else:
-    #         user = None
-
-    # не хватает колличества продуктов
-
-    #     count_sum = VariationProduct.objects.filter(
-    #         product__basket__user=user).anotate(
-    #         discounted_price=(F('price') - F('price') * F('sale') / 100
-    #               ) * F('quantity')).agregate(
-    #         'discounted_price', output_field=models.FloatField())
-    #     return Response({
-    #         'count_sum': count_sum['count_sum'] or 0
-    #     })
-    # Product.objects.filter(featured=True).annotate(offer=(
-    #       (F('totalprice') - F('saleprice')) / F('totalprice')) * 100)
-
-# class PurchaseView(APIView):
-#     def post(self, request, *args, **kwargs):
-#         product_id = request.data.get('product_id')
-#
-#         try:
-#             product = VariationProduct.objects.get(pk=product_id)
-#         except VariationProduct.DoesNotExist:
-#             return Response(
-#               {'error': 'Product not found'},
-#                   status=status.HTTP_404_NOT_FOUND)
-#
-#         with transaction.atomic():
-#             # Создаем запись о покупке
-#
-#             # Увеличиваем количество покупок товара
-#             product.purchases_count += 1
-#             product.save()
-#
-#         return Response({'message': 'Purchase successful'},
-#               status=status.HTTP_201_CREATED)

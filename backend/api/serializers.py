@@ -5,9 +5,9 @@ from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 
-from client.models import BackCall, Order
-from products.models import (Basket, Category, Favorite, Picture, Product,
-                             Size, Specification, Tag, Type, VariationProduct)
+from client.models import BackCall, Order, OrderCart, OrderProduct
+from products.models import (Category, Favorite, Picture, Product, Size,
+                             Specification, ColorTag, Type, VariationProduct)
 
 User = get_user_model()
 
@@ -69,7 +69,51 @@ class TokenObtainPairWithoutPasswordSerializer(TokenObtainPairSerializer):
             TokenObtainPairWithoutPasswordSerializer, self).validate(attrs)
 
 
-class OrderSerializer(serializers.ModelSerializer):
+# class AuthSerializer(serializers.Serializer):
+#     phone = serializers.CharField(max_length=15)
+#     verification_code = serializers.CharField(max_length=4)
+#
+#     def validate(self, data):
+#         phone = data.get('phone')
+#         # verification_code = data.get('verification_code')
+#
+#         # Здесь должна быть логика отправки кода и проверки его правильности
+#         # Пропустим это для примера
+#         # ...
+#
+#         user = authenticate(request=self.context.get('request'),
+#         phone=phone)
+#
+#         if not user:
+#             raise serializers.ValidationError('Неверные учетные данные')
+#
+#         data['user'] = user
+#         return data
+
+class OrderProductSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = OrderProduct
+        fields = '__all__'
+
+
+class OrderCartSerializer(serializers.ModelSerializer):
+    products = OrderProductSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = OrderCart
+        fields = '__all__'
+
+
+class OrderListSerializer(serializers.ModelSerializer):
+    cart = OrderCartSerializer()
+
+    class Meta:
+        model = Order
+        fields = '__all__'
+
+
+class OrderCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Order
         fields = '__all__'
@@ -93,9 +137,9 @@ class TypeSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
-class TagSerializer(serializers.ModelSerializer):
+class ColorTagSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Tag
+        model = ColorTag
         fields = '__all__'
 
 
@@ -128,7 +172,7 @@ class ProductSerializer(serializers.ModelSerializer):
 
 
 class ProductBaseSerializer(serializers.ModelSerializer):
-    tags = TagSerializer(many=True, read_only=True)
+    color_tag = ColorTagSerializer(read_only=True)
     image = PictureSerializer(many=True, read_only=True)
     price = serializers.IntegerField()
     sale = serializers.IntegerField()
@@ -136,8 +180,6 @@ class ProductBaseSerializer(serializers.ModelSerializer):
         method_name='get_is_discount')
     is_favorited = serializers.SerializerMethodField(
         method_name='get_is_favorited')
-    is_in_basket = serializers.SerializerMethodField(
-        method_name='get_is_in_basket')
 
     class Meta:
         model = VariationProduct
@@ -146,23 +188,16 @@ class ProductBaseSerializer(serializers.ModelSerializer):
             'price',
             'sale',
             'size',
-            'tags',
+            'color_tag',
             'is_discount',
             'is_favorited',
-            'is_in_basket'
         )
 
     def get_request(self, obj, model):
         request = self.context.get('request')
-
-        if request and request.user.is_authenticated:
-            return model.objects.filter(user=request.user,
-                                        product=obj).exists()
-
-        return False
-
-    def get_is_in_basket(self, obj):
-        return self.get_request(obj, Basket)
+        return (request and request.user.is_authenticated
+                and model.objects.filter(user=request.user,
+                                         recipe=obj).exists())
 
     def get_is_favorited(self, obj):
         return self.get_request(obj, Favorite)

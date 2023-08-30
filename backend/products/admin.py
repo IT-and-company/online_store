@@ -1,8 +1,8 @@
 from django.contrib import admin
 from django.contrib.auth.models import Group
 
-from .models import (CartProduct, Category, Favorite, Picture, Product,
-                     ProductModel, Size, Specification, Tag, Type, UserCart,
+from .models import (Category, Favorite, Picture, Product,
+                     ProductModel, Size, Specification, ColorTag, Type,
                      VariationProduct)
 
 
@@ -37,10 +37,10 @@ class ProductModelAdmin(admin.ModelAdmin):
     prepopulated_fields = {'slug': ('name',)}
 
 
-@admin.register(Tag)
-class TagAdmin(admin.ModelAdmin):
-    list_display = ('name', 'color', 'slug')
-    search_fields = ('name', 'color', 'slug')
+@admin.register(ColorTag)
+class ColorTagAdmin(admin.ModelAdmin):
+    list_display = ('color_name', 'hex', 'slug')
+    search_fields = ('color_name', 'hex', 'slug')
     empty_value_display = '-пусто-'
 
 
@@ -93,22 +93,6 @@ class FavoriteAdmin(admin.ModelAdmin):
         'user__username',
         'user__phone',
         'product__name'
-    )
-
-
-@admin.register(UserCart)
-class UserCartAdmin(admin.ModelAdmin):
-    list_display = ('pk', 'user')
-    search_fields = (
-        'user__username',
-    )
-
-
-@admin.register(CartProduct)
-class CartProductAdmin(admin.ModelAdmin):
-    list_display = ('pk', 'cart', 'product', 'quantity')
-    search_fields = (
-        'product__name',
     )
 
 
