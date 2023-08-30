@@ -6,7 +6,7 @@ from .views import (BackCallViewSet, CartAPI, CategoryViewSet, OrderViewSet,
                     SizeViewSet, TagViewSet, TypeViewSet,
                     VariationProductViewSet, UserRegisterView,
                     activate, clear_cart, TokenObtainPairWithoutPasswordView,
-                    UserViewSet)
+                    UserViewSet, APILogin, confirm_login)
 
 app_name = 'api'
 
@@ -23,6 +23,9 @@ router.register('users', UserViewSet)
 
 urlpatterns = [
     path('', include(router.urls)),
+    path('login/', APILogin.as_view(), name='login'),
+    path('confirm_login/<uidb64>/<token>/', confirm_login,
+         name='confirm_login'),
     path('token/', TokenObtainPairWithoutPasswordView.as_view(),
          name='token_obtain_pair'),
     path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),

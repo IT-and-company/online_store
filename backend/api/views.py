@@ -12,7 +12,7 @@ from django.utils.http import urlsafe_base64_decode
 from django.template.loader import render_to_string
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import status, viewsets, generics, mixins
-from rest_framework.decorators import action
+from rest_framework.decorators import action, api_view
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -28,11 +28,10 @@ from api.serializers import (BackCallSerializer, CartSerializer,
                              ColorTagSerializer, TypeSerializer,
                              VariationProductSerializer, SignupSerializer,
                              TokenObtainPairWithoutPasswordSerializer,
-                             UserSerializer)
-from api.utils import get_cart, send_confirmation_link, TokenGenerator
-
-from client.models import BackCall, Order
-
+                             UserSerializer, LoginSerializer)
+from api.utils import (get_cart, send_confirmation_link, TokenGenerator,
+                       send_confirmation_link_for_login)
+from client.models import BackCall, Order, CartProduct, OrderCart, OrderProduct
 from products.models import (Category,
                              ColorTag,
                              Favorite,
@@ -40,27 +39,46 @@ from products.models import (Category,
                              Type,
                              VariationProduct,)
 
-from client.models import (CartProduct, OrderCart, OrderProduct,)
-from rest_framework.decorators import api_view
 
 User = get_user_model()
 
 
+class APILogin(APIView):
+    """APIView-класс для проверки email и отправки ссылки-подтверждения
+    пользователю."""
+    def post(self, request):
+        serializer = LoginSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        send_confirmation_link_for_login(request, serializer.data)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+def confirm_login(
+        request: HttpRequest, uidb64: str, token: str) -> HttpResponse:
+    """Функция обрабатывающая ссылку-подтверждение для входа на сайт."""
+    account_activation_token = TokenGenerator()
+    try:
+        uid = force_str(urlsafe_base64_decode(uidb64))
+        user = User.objects.get(pk=uid)
+    except (TypeError, ValueError, OverflowError, User.DoesNotExist):
+        user = None
+    if user is not None and account_activation_token.check_token(user, token):
+        return HttpResponse('Спасибо за подтверждение! Вы зашли на сайт!')
+    return HttpResponse(
+        'Ссылка для подтверждения входа на сайт недействительна!')
+
+
 class UserViewSet(viewsets.GenericViewSet, mixins.RetrieveModelMixin,
                   mixins.UpdateModelMixin):
+    """Вьюсет для работы с моделью User, который может получить или
+    обновить объект пользователя по его id."""
     queryset = User.objects.all()
     serializer_class = UserSerializer
 
 
-# class APISignup(APIView):
-#     def post(self, request):
-#         serializer = SignupSerializer(data=request.data)
-#         serializer.is_valid(raise_exception=True)
-#         serializer.save()
-#         return Response(serializer.data, status=HTTP_200_OK)
-
-
 class UserRegisterView(generics.CreateAPIView):
+    """Generic-класс для создания объекта модели User и отправки
+    ссылки-подтверждения на указанный email."""
     queryset = User.objects.all()
     serializer_class = SignupSerializer
 
@@ -72,6 +90,8 @@ class UserRegisterView(generics.CreateAPIView):
 
 
 def activate(request: HttpRequest, uidb64: str, token: str) -> HttpResponse:
+    """Функция, которая обрабатывает ссылку-подтверждение для активации
+    пользователя."""
     account_activation_token = TokenGenerator()
     try:
         uid = force_str(urlsafe_base64_decode(uidb64))
@@ -87,6 +107,8 @@ def activate(request: HttpRequest, uidb64: str, token: str) -> HttpResponse:
 
 
 class TokenObtainPairWithoutPasswordView(TokenViewBase):
+    """View-класс, переопределяющий дефолтный сериализатор
+    для получения токена."""
     serializer_class = TokenObtainPairWithoutPasswordSerializer
 
 

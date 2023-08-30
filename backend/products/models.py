@@ -209,7 +209,7 @@ class Specification(models.Model):
                 f'{self.manufacturer}')
 
 
-class Image(models.Model):
+class Picture(models.Model):
     image = models.ImageField(
         'Фото товара',
         upload_to='product/%Y/%m/%d',
@@ -243,7 +243,7 @@ class VariationProduct(models.Model):
         verbose_name='Товары'
     )
     image = models.ManyToManyField(
-        Image,
+        Picture,
         verbose_name='Фотографии'
     )
     price = models.IntegerField(
@@ -284,8 +284,8 @@ class VariationProduct(models.Model):
     )
 
     class Meta:
-        verbose_name = 'Статья'
-        verbose_name_plural = 'Статьи'
+        verbose_name = 'Товар'
+        verbose_name_plural = 'Товары'
 
     def __str__(self):
         return (f'{self.product.name}: '

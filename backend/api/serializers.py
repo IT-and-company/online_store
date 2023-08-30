@@ -6,39 +6,34 @@ from rest_framework.exceptions import ValidationError
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 
 from client.models import BackCall, Order, OrderCart, OrderProduct
-from products.models import (Category, Favorite, Image, Product, Size,
+from products.models import (Category, Favorite, Picture, Product, Size,
                              Specification, ColorTag, Type, VariationProduct)
 
 User = get_user_model()
 
 
 class UserSerializer(serializers.ModelSerializer):
+    """Сериализатор для работы с объектами модели User."""
     class Meta:
         model = User
         fields = '__all__'
 
 
-# class UserSerializer(serializers.ModelSerializer):
-#     name = serializers.CharField(max_length=150, required=True)
-#     phone = PhoneNumberField()
-#
-#     class Meta:
-#         fields = ('name', 'phone',)
-#         model = User
-#
-#     def validate(self, data):
-#         if data.get('name') == 'me':
-#             raise serializers.ValidationError(
-#                 'Пользователь не может иметь такое имя')
-#
-#         if User.objects.filter(phone=data.get('phone')).exists():
-#             raise serializers.ValidationError(
-#                 'Пользователь с таким телефоном уже существует')
-#
-#         return data
+class LoginSerializer(serializers.Serializer):
+    """Сериализатор для проверки и обработки email при входе на сайт."""
+    email = serializers.EmailField()
+
+    def validate_email(self, value):
+        print('pidor')
+        if not User.objects.filter(email=value, is_active=True).exists():
+            raise serializers.ValidationError(
+                f'Email "{value}" не зарегистрирован или не активирован'
+            )
+        return value
 
 
 class SignupSerializer(serializers.ModelSerializer):
+    """Сериализатор для создания нового объекта модели User."""
     class Meta:
         model = User
         fields = ('first_name', 'email')
@@ -62,7 +57,8 @@ class SignupSerializer(serializers.ModelSerializer):
 
 
 class TokenObtainPairWithoutPasswordSerializer(TokenObtainPairSerializer):
-
+    """Сериализатор, переопределяющий работу TokenObtainPairSerializer,
+    который позволяет получить JWT-токен без передачи пароля."""
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['password'].required = False
@@ -118,7 +114,6 @@ class OrderListSerializer(serializers.ModelSerializer):
 
 
 class OrderCreateSerializer(serializers.ModelSerializer):
-
     class Meta:
         model = Order
         fields = '__all__'
@@ -162,11 +157,11 @@ class SpecificationSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
-class ImageSerializer(serializers.ModelSerializer):
+class PictureSerializer(serializers.ModelSerializer):
     image = Base64ImageField()
 
     class Meta:
-        model = Image
+        model = Picture
         fields = '__all__'
 
 
@@ -178,7 +173,7 @@ class ProductSerializer(serializers.ModelSerializer):
 
 class ProductBaseSerializer(serializers.ModelSerializer):
     color_tag = ColorTagSerializer(read_only=True)
-    image = ImageSerializer(many=True, read_only=True)
+    image = PictureSerializer(many=True, read_only=True)
     price = serializers.IntegerField()
     sale = serializers.IntegerField()
     is_discount = serializers.SerializerMethodField(

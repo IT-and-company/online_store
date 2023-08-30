@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.contrib.auth.models import Group
 
-from .models import (Category, Favorite, Image, Product,
+from .models import (Category, Favorite, Picture, Product,
                      ProductModel, Size, Specification, ColorTag, Type,
                      VariationProduct)
 
@@ -57,8 +57,8 @@ class SpecificationAdmin(admin.ModelAdmin):
     search_fields = ('article_number', 'manufacturer')
 
 
-@admin.register(Image)
-class ImageAdmin(admin.ModelAdmin):
+@admin.register(Picture)
+class PictureAdmin(admin.ModelAdmin):
     list_display = ('image',)
     fields = ('image',)
 
