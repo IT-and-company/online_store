@@ -219,7 +219,7 @@ class VariationProductSerializer(ProductBaseSerializer):
 
 
 class ProductFullSerializer(serializers.ModelSerializer):
-    variations = VariationProductSerializer(many=True)
+    variations = Proпше ductBaseSerializer(many=True)
 
     class Meta:
         model = Product
