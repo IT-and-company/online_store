@@ -7,7 +7,7 @@ from .views import (APILogin, BackCallViewSet, CartAPI, CategoryViewSet,
                     TokenObtainPairWithoutPasswordView, TypeViewSet,
                     VariationProductViewSet, UserOrderViewSet,
                     UserRegisterView, UserViewSet,
-                    activate, clear_cart, confirm_login,
+                    activate, clear_cart, APIConfirmLogin,
                     )
 
 app_name = 'api'
@@ -27,7 +27,7 @@ router.register('user_orders', UserOrderViewSet, basename='Order')
 urlpatterns = [
     path('', include(router.urls)),
     path('login/', APILogin.as_view(), name='login'),
-    path('confirm_login/<uidb64>/<token>/', confirm_login,
+    path('confirm_login/<uidb64>/<token>/', APIConfirmLogin.as_view(),
          name='confirm_login'),
     path('token/', TokenObtainPairWithoutPasswordView.as_view(),
          name='token_obtain_pair'),

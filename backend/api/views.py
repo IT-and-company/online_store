@@ -1,3 +1,4 @@
+from datetime import datetime
 from distutils.util import strtobool
 
 from django.db.models import F, Q, Count
@@ -16,6 +17,7 @@ from rest_framework.decorators import action, api_view
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.views import TokenViewBase
 
 from api.filters import CategoryTypeFilter, VariationProductFilter
@@ -37,8 +39,7 @@ from products.models import (Category,
                              Favorite,
                              Size,
                              Type,
-                             VariationProduct,)
-
+                             VariationProduct, )
 
 User = get_user_model()
 
@@ -46,6 +47,7 @@ User = get_user_model()
 class APILogin(APIView):
     """APIView-класс для проверки email и отправки ссылки-подтверждения
     пользователю."""
+
     def post(self, request):
         serializer = LoginSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
@@ -53,19 +55,30 @@ class APILogin(APIView):
         return Response(status=status.HTTP_200_OK)
 
 
-def confirm_login(
-        request: HttpRequest, uidb64: str, token: str) -> HttpResponse:
-    """Функция обрабатывающая ссылку-подтверждение для входа на сайт."""
-    account_activation_token = TokenGenerator()
-    try:
-        uid = force_str(urlsafe_base64_decode(uidb64))
-        user = User.objects.get(pk=uid)
-    except (TypeError, ValueError, OverflowError, User.DoesNotExist):
-        user = None
-    if user is not None and account_activation_token.check_token(user, token):
-        return HttpResponse('Спасибо за подтверждение! Вы зашли на сайт!')
-    return HttpResponse(
-        'Ссылка для подтверждения входа на сайт недействительна!')
+class APIConfirmLogin(APIView):
+    def get(self, request: HttpRequest, uidb64: str,
+            token: str) -> HttpResponse:
+        """Функция обрабатывающая ссылку-подтверждение для входа на сайт."""
+        account_activation_token = TokenGenerator()
+        try:
+            uid = force_str(urlsafe_base64_decode(uidb64))
+            user = User.objects.get(pk=uid)
+        except (TypeError, ValueError, OverflowError, User.DoesNotExist):
+            user = None
+        if user is not None and account_activation_token.check_token(
+                user, token):
+            token_user = RefreshToken.for_user(user)
+            return Response({
+                'access': str(token_user.access_token),
+                'email': user.email,
+                'first_name': user.first_name,
+                'token_exp': datetime.fromtimestamp(
+                    token_user.payload.get('exp'))
+            },
+                status=status.HTTP_200_OK)
+        return Response(
+            'Ссылка для подтверждения входа на сайт недействительна!',
+            status=status.HTTP_400_BAD_REQUEST)
 
 
 class UserViewSet(viewsets.GenericViewSet, mixins.RetrieveModelMixin,
