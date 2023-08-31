@@ -50,7 +50,7 @@ class APILogin(APIView):
         serializer = LoginSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         send_confirmation_link_for_login(request, serializer.data)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(status=status.HTTP_200_OK)
 
 
 def confirm_login(
@@ -306,7 +306,6 @@ class VariationProductViewSet(viewsets.ModelViewSet):
 
             # Формируем Q-объект для поиска похожих товаров
             similar_filter = Q(
-                size__in=selected_product.size.all(),
                 product__category__id__in=category_ids,
                 product__type=selected_product.product.type,
                 price__lte=F('price') * 1.2
@@ -361,7 +360,7 @@ class CartAPI(APIView):
         Метод просмотра корзины.
         """
         cart = get_cart(request)
-
+        print(cart.__dict__)
         serialized_cart = list(CartSerializer(
             cart,
             many=True,

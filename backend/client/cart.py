@@ -99,9 +99,13 @@ class Cart(object):
         """
         Перебор элементов в корзине и получение продуктов из базы данных.
         """
-        product_ids = self.cart.keys()
+        product_ids = list(self.cart.keys())
         # получение объектов product и добавление их в корзину
         products = VariationProduct.objects.filter(id__in=product_ids)
+        if len(product_ids) > len(products):
+            for item in product_ids:
+                if not VariationProduct.objects.filter(id=item).exists():
+                    self.cart.pop(item)
         for product in products:
             self.cart[str(product.id)]['product'] = product
             if not product.sale:
@@ -114,6 +118,7 @@ class Cart(object):
         for item in self.cart.values():
             item['price'] = Decimal(item['price'])
             item['total_price'] = item['price'] * item['quantity']
+            print(item)
             yield item
 
     def __len__(self):

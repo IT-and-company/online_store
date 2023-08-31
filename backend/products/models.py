@@ -130,11 +130,9 @@ class Product(models.Model):
         blank=True,
         help_text='Напишите описание товара'
     )
-    category = models.ForeignKey(
+    category = models.ManyToManyField(
         Category,
-        on_delete=models.SET_NULL,
         null=True,
-        related_name='category',
         verbose_name='Категория товара'
     )
     type = models.ForeignKey(

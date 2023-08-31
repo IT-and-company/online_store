@@ -987,7 +987,25 @@ paths:
       operationId: listCartAPIs
       description: "\u041C\u0435\u0442\u043E\u0434 \u043F\u0440\u043E\u0441\u043C\u043E\
         \u0442\u0440\u0430 \u043A\u043E\u0440\u0437\u0438\u043D\u044B."
-      parameters: []
+      parameters:
+      - name: product_id
+        in: path
+        required: true
+        description: "A unique integer value identifying VariatonProduct.id"
+        schema:
+          type: integer
+      - name: quantity
+        in: path
+        required: false
+        description: "An integer value identifying quantity of VariatonProduct in cart."
+        schema:
+          type: integer
+      - name: update_quantity
+        in: path
+        required: false
+        description: "An string value. if true quantity in path replaces quantity in cart."
+        schema:
+          type: string
       responses:
         '200':
           content:
