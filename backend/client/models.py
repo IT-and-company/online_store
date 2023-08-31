@@ -61,6 +61,10 @@ class UserCart(models.Model):
         related_name='cart'
     )
 
+    class Meta:
+        verbose_name = 'Корзина пользователя'
+        verbose_name_plural = 'Корзины пользователя'
+
     def __str__(self):
         return f'Корзина {self.user.get_username()}'
 
@@ -81,6 +85,10 @@ class OrderCart(models.Model):
         verbose_name='Заказ',
         related_name='cart'
     )
+
+    class Meta:
+        verbose_name = 'Заказ из корзины'
+        verbose_name_plural = 'Заказы из корзины'
 
     def __str__(self):
         return f'Корзина {self.order}'
@@ -112,6 +120,10 @@ class CartProduct(CartProductBase):
         related_name='products'
     )
 
+    class Meta:
+        verbose_name = 'Товар в корзине'
+        verbose_name_plural = 'Товары в корзине'
+
     def __str__(self):
         return f'{self.product} в корзине {self.cart}'
 
@@ -129,6 +141,10 @@ class OrderProduct(CartProductBase):
         default=0,
         verbose_name='Цена'
     )
+
+    class Meta:
+        verbose_name = 'Продукт в заказе'
+        verbose_name_plural = 'Продукты в заказе'
 
     def __str__(self):
         return f'{self.product} в заказе {self.cart}'

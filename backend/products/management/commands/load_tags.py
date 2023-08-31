@@ -33,10 +33,10 @@ class Command(BaseCommand):
             ) as csv_file:
                 data = csv.reader(csv_file)
                 for row in data:
-                    name, color, slug = row
+                    color_name, hex, slug = row
                     ColorTag.objects.get_or_create(
-                        name=name,
-                        color=color,
+                        color_name=color_name,
+                        hex=hex,
                         slug=slug
                     )
         except FileNotFoundError:
