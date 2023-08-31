@@ -218,6 +218,7 @@ class OrderViewSet(viewsets.ModelViewSet):
 
 
 class UserOrderViewSet(viewsets.ReadOnlyModelViewSet):
+    """Вьюсет для отображения заказов текущего пользователя."""
     serializer_class = OrderListSerializer
     permission_classes = [IsAuthenticated]
     pagination_class = None
@@ -351,7 +352,7 @@ class VariationProductViewSet(viewsets.ModelViewSet):
 
 class CartAPI(APIView):
     """
-    Эндпоинт для корзины.
+    Эндпоинт корзины товаров текущего пользователя.
     """
     permission_classes = [AllowAny]
 

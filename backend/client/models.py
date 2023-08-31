@@ -87,8 +87,8 @@ class OrderCart(models.Model):
     )
 
     class Meta:
-        verbose_name = 'Заказ из корзины'
-        verbose_name_plural = 'Заказы из корзины'
+        verbose_name = 'Корзина в заказе пользователя'
+        verbose_name_plural = 'Корзины в заказе пользователя'
 
     def __str__(self):
         return f'Корзина {self.order}'
@@ -121,8 +121,8 @@ class CartProduct(CartProductBase):
     )
 
     class Meta:
-        verbose_name = 'Товар в корзине'
-        verbose_name_plural = 'Товары в корзине'
+        verbose_name = 'Продукт в корзине'
+        verbose_name_plural = 'Продукты в корзине'
 
     def __str__(self):
         return f'{self.product} в корзине {self.cart}'
