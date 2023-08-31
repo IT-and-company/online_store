@@ -218,6 +218,14 @@ class VariationProductSerializer(ProductBaseSerializer):
             'product', 'specification')
 
 
+class ProductFullSerializer(serializers.ModelSerializer):
+    variations = VariationProductSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = Product
+        fields = '__all__'
+
+
 class CartSerializer(serializers.Serializer):
     """Сериализатор для работы с корзиной."""
     product = ProductShortSerializer()

@@ -132,7 +132,6 @@ class Product(models.Model):
     )
     category = models.ManyToManyField(
         Category,
-        null=True,
         verbose_name='Категория товара'
     )
     type = models.ForeignKey(
