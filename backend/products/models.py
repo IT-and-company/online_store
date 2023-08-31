@@ -236,7 +236,7 @@ class VariationProduct(models.Model):
     product = models.ForeignKey(
         Product,
         on_delete=models.CASCADE,
-        related_name='product',
+        related_name='variations',
         verbose_name='Товары'
     )
     image = models.ManyToManyField(
