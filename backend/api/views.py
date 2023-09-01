@@ -1,6 +1,6 @@
 from distutils.util import strtobool
 
-from django.db.models import F, Q, Count
+from django.db.models import Q, Count
 from django.conf import settings
 from django.core.mail import send_mail
 from django.contrib.auth import get_user_model
@@ -231,7 +231,7 @@ class OrderViewSet(viewsets.ModelViewSet):
                         status=status.HTTP_400_BAD_REQUEST)
 
 
-class UserOrderViewSet(viewsets.ReadOnlyModelViewSet):
+class UserOrderViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
     """Вьюсет для отображения заказов текущего пользователя."""
     serializer_class = OrderListSerializer
     permission_classes = [IsAuthenticated]
@@ -340,7 +340,6 @@ class VariationProductViewSet(viewsets.ModelViewSet):
                     selected_product.size.height + 20
                 ),
                 product__type=selected_product.product.type,
-                # price__lte=F('price') * 1.2
                 price__range=(
                     selected_product.price * 0.8,
                     selected_product.price * 1.2

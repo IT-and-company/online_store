@@ -92,7 +92,7 @@ def get_cart(request):
 def send_order(
         subject: str,
         template: str,
-        to_email: list[str],
+        to_email: tuple[Any],
         order: Order,
         cart: Cart,
         cart_items: list[dict[str, Any]]
