@@ -3,9 +3,9 @@ from rest_framework.routers import DefaultRouter
 from rest_framework_simplejwt.views import TokenRefreshView
 
 from .views import (APILogin, BackCallViewSet, CartAPI, CategoryViewSet,
-                    OrderViewSet, SizeViewSet, TagViewSet,
-                    TokenObtainPairWithoutPasswordView, TypeViewSet,
-                    VariationProductViewSet, UserOrderViewSet,
+                    OrderViewSet, ProductVariationsView, SizeViewSet,
+                    TagViewSet, TokenObtainPairWithoutPasswordView,
+                    TypeViewSet, VariationProductViewSet, UserOrderViewSet,
                     UserRegisterView, UserViewSet,
                     activate, clear_cart, confirm_login,
                     )
@@ -18,7 +18,7 @@ router.register('categories', CategoryViewSet)
 router.register('type', TypeViewSet)
 router.register('tags', TagViewSet)
 router.register('size', SizeViewSet)
-router.register('product', VariationProductViewSet)
+router.register('variation', VariationProductViewSet)
 router.register('call', BackCallViewSet)
 router.register('order', OrderViewSet)
 router.register('users', UserViewSet)
@@ -36,4 +36,6 @@ urlpatterns = [
     path('activate/<uidb64>/<token>/', activate, name='activate'),
     path('cart/', CartAPI.as_view()),
     path('cart/clear/', clear_cart),
+    path('product_list/<int:pk>/variations/', ProductVariationsView.as_view(),
+         name='product-variations')
 ]

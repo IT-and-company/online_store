@@ -23,7 +23,7 @@ from api.pagination import CustomPagination
 from api.permissions import IsAdminOrReadOnly
 from api.serializers import (BackCallSerializer, CartSerializer,
                              CategorySerializer, OrderListSerializer,
-                             OrderCreateSerializer,
+                             OrderCreateSerializer, ProductFullSerializer,
                              ProductShortSerializer, SizeSerializer,
                              ColorTagSerializer, TypeSerializer,
                              VariationProductSerializer, SignupSerializer,
@@ -35,6 +35,7 @@ from client.models import BackCall, Order, CartProduct, OrderCart, OrderProduct
 from products.models import (Category,
                              ColorTag,
                              Favorite,
+                             Product,
                              Size,
                              Type,
                              VariationProduct,)
@@ -257,6 +258,12 @@ class SizeViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = SizeSerializer
     permission_classes = [AllowAny]
     pagination_class = None
+
+
+class ProductVariationsView(generics.RetrieveAPIView):
+    queryset = Product.objects.all()
+    serializer_class = ProductFullSerializer
+    lookup_field = 'pk'
 
 
 class VariationProductViewSet(viewsets.ModelViewSet):
