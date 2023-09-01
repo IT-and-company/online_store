@@ -3,9 +3,9 @@ from rest_framework.routers import DefaultRouter
 from rest_framework_simplejwt.views import TokenRefreshView
 
 from .views import (APILogin, BackCallViewSet, CartAPI, CategoryViewSet,
-                    OrderViewSet, ProductVariationsView, SizeViewSet, TagViewSet,
-                    TokenObtainPairWithoutPasswordView, TypeViewSet,
-                    VariationProductViewSet, UserOrderViewSet,
+                    OrderViewSet, ProductVariationsView, SizeViewSet,
+                    TagViewSet, TokenObtainPairWithoutPasswordView,
+                    TypeViewSet, VariationProductViewSet, UserOrderViewSet,
                     UserRegisterView, UserViewSet,
                     activate, clear_cart, confirm_login,
                     )
