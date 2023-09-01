@@ -169,18 +169,11 @@ class Specification(models.Model):
         max_length=settings.MAX_LENGTH_1,
         help_text='Введите артикул товара'
     )
-    size = models.ForeignKey(
-        Size,
-        on_delete=models.SET_NULL,
-        null=True,
-        related_name='size_in_specific',
-        verbose_name='Размер товара'
-    )
-    model = models.CharField(
-        'Тип модели',
+    feature_model = models.CharField(
+        'Особенности модели',
         blank=True,
         max_length=settings.MAX_LENGTH_1,
-        help_text='Введите тип товара'
+        help_text='Введите особенности товара'
     )
     materials = models.CharField(
         'Материалы',
@@ -200,8 +193,7 @@ class Specification(models.Model):
 
     def __str__(self):
         return (f'{self.article_number}, '
-                f'{self.size}, '
-                f'{self.model}, '
+                f'{self.feature_model}, '
                 f'{self.materials}, '
                 f'{self.manufacturer}')
 
