@@ -43,10 +43,9 @@ from products.models import (Category,
 User = get_user_model()
 
 
-class APILogin(APIView):
+class LoginAPIView(APIView):
     """APIView-класс для проверки email и отправки ссылки-подтверждения
     пользователю."""
-
     def post(self, request):
         serializer = LoginSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
@@ -54,19 +53,27 @@ class APILogin(APIView):
         return Response(status=status.HTTP_200_OK)
 
 
-def confirm_login(
-        request: HttpRequest, uidb64: str, token: str) -> HttpResponse:
-    """Функция обрабатывающая ссылку-подтверждение для входа на сайт."""
-    account_activation_token = TokenGenerator()
-    try:
-        uid = force_str(urlsafe_base64_decode(uidb64))
-        user = User.objects.get(pk=uid)
-    except (TypeError, ValueError, OverflowError, User.DoesNotExist):
-        user = None
-    if user is not None and account_activation_token.check_token(user, token):
-        return HttpResponse('Спасибо за подтверждение! Вы зашли на сайт!')
-    return HttpResponse(
-        'Ссылка для подтверждения входа на сайт недействительна!')
+class ConfirmLoginAPIView(APIView):
+    """APIView-класс, обрабатывающий ссылку-подтверждение для входа
+    на сайт."""
+    def get(self, request: HttpRequest, uidb64: str,
+            token: str) -> HttpResponse:
+        account_activation_token = TokenGenerator()
+        serializer = UserSerializer
+        try:
+            uid = force_str(urlsafe_base64_decode(uidb64))
+            user = User.objects.get(pk=uid)
+        except (TypeError, ValueError, OverflowError, User.DoesNotExist):
+            user = None
+        if user is not None and account_activation_token.check_token(
+                user, token):
+            serialized_data = serializer(user)
+            return Response(serialized_data.data, status=status.HTTP_200_OK)
+        return Response(
+            {'errors': 'Ссылка для подтверждения входа на сайт '
+                       'недействительна!'},
+            status=status.HTTP_400_BAD_REQUEST
+        )
 
 
 class UserViewSet(viewsets.GenericViewSet, mixins.RetrieveModelMixin,
@@ -90,21 +97,28 @@ class UserRegisterView(generics.CreateAPIView):
         return response
 
 
-def activate(request: HttpRequest, uidb64: str, token: str) -> HttpResponse:
-    """Функция, которая обрабатывает ссылку-подтверждение для активации
+class ActivateAPIView(APIView):
+    """APIView-класс, который обрабатывает ссылку-подтверждение для активации
     пользователя."""
-    account_activation_token = TokenGenerator()
-    try:
-        uid = force_str(urlsafe_base64_decode(uidb64))
-        user = User.objects.get(pk=uid)
-    except (TypeError, ValueError, OverflowError, User.DoesNotExist):
-        user = None
-    if user is not None and account_activation_token.check_token(user, token):
-        user.is_active = True
-        user.save()
-        return HttpResponse(
-            'Спасибо за подтверждение! Ваш аккаунт активирован!')
-    return HttpResponse('Ссылка для активации недействительна!')
+    def get(self, request: HttpRequest, uidb64: str,
+            token: str) -> HttpResponse:
+        account_activation_token = TokenGenerator()
+        serializer = UserSerializer
+        try:
+            uid = force_str(urlsafe_base64_decode(uidb64))
+            user = User.objects.get(pk=uid)
+        except (TypeError, ValueError, OverflowError, User.DoesNotExist):
+            user = None
+        if user is not None and account_activation_token.check_token(
+                user, token):
+            user.is_active = True
+            user.save()
+            serialized_data = serializer(user)
+            return Response(serialized_data.data, status=status.HTTP_200_OK)
+        return Response(
+            {'errors': 'Ссылка для активации недействительна!'},
+            status=status.HTTP_400_BAD_REQUEST
+        )
 
 
 class TokenObtainPairWithoutPasswordView(TokenViewBase):
