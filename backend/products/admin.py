@@ -81,7 +81,7 @@ class ProductAdmin(admin.ModelAdmin):
     readonly_fields = ('is_favorited',)
     # form = ProductAdminForm
 
-    @admin.display(description='Количество избраного')
+    @admin.display(description='Количество избранного')
     def is_favorited(self, obj):
         return obj.favorite.count()
 

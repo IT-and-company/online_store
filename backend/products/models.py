@@ -153,6 +153,8 @@ class Product(models.Model):
     )
 
     class Meta:
+        verbose_name = 'Товар'
+        verbose_name_plural = 'Товары'
         constraints = [models.UniqueConstraint(
             fields=['name', 'type', ],
             name='unique_type')
@@ -265,6 +267,7 @@ class VariationProduct(models.Model):
         Specification,
         null=True,
         on_delete=models.SET_NULL,
+        verbose_name='Характеристика',
         related_name='specification'
     )
     pub_date = models.DateTimeField(
@@ -273,8 +276,8 @@ class VariationProduct(models.Model):
     )
 
     class Meta:
-        verbose_name = 'Товар'
-        verbose_name_plural = 'Товары'
+        verbose_name = 'Вариация товара'
+        verbose_name_plural = 'Вариации товаров'
 
     def __str__(self):
         return (f'{self.product.name}: '
