@@ -30,7 +30,7 @@ from api.serializers import (BackCallSerializer, CartSerializer,
                              TokenObtainPairWithoutPasswordSerializer,
                              UserSerializer, LoginSerializer)
 from api.utils import (get_cart, send_confirmation_link, TokenGenerator,
-                       send_confirmation_link_for_login)
+                       send_confirmation_link_for_login, send_order)
 from client.models import BackCall, Order, CartProduct, OrderCart, OrderProduct
 from products.models import (Category,
                              ColorTag,
@@ -189,28 +189,27 @@ class OrderViewSet(viewsets.ModelViewSet):
                 product_data['total_price'] = item['total_price']
                 cart_items.append(product_data)
 
-            # Отправляем сообщение с данными заказа на почту
-            subject = 'Новая заявка на заказ'
-            html_message = render_to_string(
-                'email_templates/order.html',
-                {
-                    'order': order,
-                    'cart_items': cart_items,
-                    'total_price': cart.get_total_price(),
-                    'total_quantity': len(cart),
-                }
+            # Отправляем сообщение с данными заказа на почту магазина
+            emails = {
+                'store_email': (settings.DEFAULT_TO_EMAIL,),
+                'user_email': (order.email,)
+            }
+            send_order(
+                subject='Новая заявка на заказ',
+                template='email_templates/store_order.html',
+                to_email=emails['store_email'],
+                order=order,
+                cart=cart,
+                cart_items=cart_items
             )
-            plain_message = strip_tags(html_message)
-            from_email = settings.DEFAULT_FROM_EMAIL
-            to_email = [
-                settings.DEFAULT_TO_EMAIL
-            ]
-            send_mail(
-                subject=subject,
-                message=plain_message,
-                from_email=from_email,
-                recipient_list=to_email,
-                html_message=html_message)
+            send_order(
+                subject='Ваш заказ',
+                template='email_templates/user_order.html',
+                to_email=emails['user_email'],
+                order=order,
+                cart=cart,
+                cart_items=cart_items
+            )
             cart.clear()
 
             return Response(serializer.data, status=status.HTTP_201_CREATED)

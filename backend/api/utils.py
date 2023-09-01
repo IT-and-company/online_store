@@ -11,8 +11,10 @@ from django.template.loader import render_to_string
 from django.utils.encoding import force_bytes
 from django.utils.html import strip_tags
 from django.utils.http import urlsafe_base64_encode
+from typing import Any
 
 from client.cart import Cart
+from client.models import Order
 
 
 User = get_user_model()
@@ -85,3 +87,30 @@ def get_cart(request):
     return (Cart(request=request, from_db=True)
             if request.user.is_authenticated
             else Cart(request=request))
+
+
+def send_order(
+        subject: str,
+        template: str,
+        to_email: list[str],
+        order: Order,
+        cart: Cart,
+        cart_items: list[dict[str, Any]]
+) -> None:
+    html_message = render_to_string(
+        template,
+        {
+            'order': order,
+            'cart_items': cart_items,
+            'total_price': cart.get_total_price(),
+            'total_quantity': len(cart),
+        }
+    )
+    plain_message = strip_tags(html_message)
+    from_email = settings.DEFAULT_FROM_EMAIL
+    send_mail(
+        subject=subject,
+        message=plain_message,
+        from_email=from_email,
+        recipient_list=to_email,
+        html_message=html_message)
