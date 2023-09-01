@@ -38,8 +38,7 @@ from products.models import (Category,
                              Product,
                              Size,
                              Type,
-                             VariationProduct,)
-
+                             VariationProduct, )
 
 User = get_user_model()
 
@@ -47,6 +46,7 @@ User = get_user_model()
 class APILogin(APIView):
     """APIView-класс для проверки email и отправки ссылки-подтверждения
     пользователю."""
+
     def post(self, request):
         serializer = LoginSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
@@ -314,8 +314,24 @@ class VariationProductViewSet(viewsets.ModelViewSet):
             # Формируем Q-объект для поиска похожих товаров
             similar_filter = Q(
                 product__category__id__in=category_ids,
+                size__length__range=(
+                    selected_product.size.length - 20,
+                    selected_product.size.length + 20
+                ),
+                size__width__range=(
+                    selected_product.size.width - 20,
+                    selected_product.size.width + 20
+                ),
+                size__height__range=(
+                    selected_product.size.height - 20,
+                    selected_product.size.height + 20
+                ),
                 product__type=selected_product.product.type,
-                price__lte=F('price') * 1.2
+                # price__lte=F('price') * 1.2
+                price__range=(
+                    selected_product.price * 0.8,
+                    selected_product.price * 1.2
+                )
             )
 
             # Применяем фильтр к запросу

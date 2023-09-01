@@ -36,6 +36,6 @@ urlpatterns = [
     path('activate/<uidb64>/<token>/', activate, name='activate'),
     path('cart/', CartAPI.as_view()),
     path('cart/clear/', clear_cart),
-    path('product_list/<int:pk>/variations/', ProductVariationsView.as_view(),
+    path('product/<int:pk>/variations/', ProductVariationsView.as_view(),
          name='product-variations')
 ]
