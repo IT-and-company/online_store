@@ -1,10 +1,11 @@
 from distutils.util import strtobool
 
+from django.contrib.sites.shortcuts import get_current_site
 from django.db.models import Q, Count
 from django.conf import settings
 from django.core.mail import send_mail
 from django.contrib.auth import get_user_model
-from django.http import HttpRequest, HttpResponse
+from django.http import HttpRequest, HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404
 from django.utils.encoding import force_str
 from django.utils.html import strip_tags
