@@ -39,8 +39,7 @@ def send_confirmation_link(request: HttpRequest, user_data: dict) -> None:
     user = User.objects.get(email=user_data['email'])
     account_activation_token = TokenGenerator()
     token = account_activation_token.make_token(user)
-    title_mail = ('Ссылка для подтверждения аккаунта была отправлена на '
-                  'указанный адрес')
+    title_mail = 'Ссылка для подтверждения аккаунта'
     message = render_to_string('activate_email.html', {
         'user': user,
         'domain': current_site.domain,
@@ -65,8 +64,7 @@ def send_confirmation_link_for_login(
     user = User.objects.get(email=user_data['email'], is_active=True)
     account_activation_token = TokenGenerator()
     token = account_activation_token.make_token(user)
-    title_mail = ('Ссылка для подтверждения входа на сайт была отправлена '
-                  'на указанный адрес')
+    title_mail = 'Ссылка для подтверждения входа на сайт'
     message = render_to_string('login.html', {
         'user': user,
         'domain': current_site.domain,

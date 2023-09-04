@@ -1,5 +1,5 @@
 {% autoescape off %} 
     Добрый день, {{ user.first_name }},
     Для подтверждения входа на сайт, перейдите по следующей ссылке:
-    http://{{ domain }}{% url 'api:confirm_login' uidb64=uid token=token %}
+    https://{{ domain }}?confirm_login=1&uidb64={{ uid }}&token={{ token }}
 {% endautoescape %}
