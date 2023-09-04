@@ -29,8 +29,8 @@ from api.serializers import (BackCallSerializer, CartSerializer,
                              VariationProductSerializer, SignupSerializer,
                              TokenObtainPairWithoutPasswordSerializer,
                              UserSerializer, LoginSerializer)
-from api.utils import (get_cart, send_confirmation_link, TokenGenerator,
-                       send_confirmation_link_for_login, send_order)
+from api.utils import (TokenGenerator, get_cart, send_confirmation_link,
+                       send_order)
 from client.models import BackCall, Order, CartProduct, OrderCart, OrderProduct
 from products.models import (Category,
                              ColorTag,
@@ -46,42 +46,17 @@ User = get_user_model()
 class LoginAPIView(APIView):
     """APIView-класс для проверки email и отправки ссылки-подтверждения
     пользователю."""
+
     def post(self, request):
         serializer = LoginSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        send_confirmation_link_for_login(request, serializer.data)
-        return Response(status=status.HTTP_200_OK)
-
-
-class ConfirmLoginAPIView(APIView):
-    """APIView-класс, обрабатывающий ссылку-подтверждение для входа
-    на сайт."""
-    def get(self, request: HttpRequest, uidb64: str,
-            token: str) -> HttpResponse:
-        account_activation_token = TokenGenerator()
-        serializer = UserSerializer
-        try:
-            uid = force_str(urlsafe_base64_decode(uidb64))
-            user = User.objects.get(pk=uid)
-        except (TypeError, ValueError, OverflowError, User.DoesNotExist):
-            user = None
-        if user is not None and account_activation_token.check_token(
-                user, token):
-            serialized_data = serializer(user)
-            return Response(serialized_data.data, status=status.HTTP_200_OK)
-        return Response(
-            {'errors': 'Ссылка для подтверждения входа на сайт '
-                       'недействительна!'},
-            status=status.HTTP_400_BAD_REQUEST
+        send_confirmation_link(
+            request=request,
+            user_data=serializer.data,
+            title='Ссылка для подтверждения входа на сайт',
+            template='login.html'
         )
-
-
-class UserViewSet(viewsets.GenericViewSet, mixins.RetrieveModelMixin,
-                  mixins.UpdateModelMixin):
-    """Вьюсет для работы с моделью User, который может получить или
-    обновить объект пользователя по его id."""
-    queryset = User.objects.all()
-    serializer_class = UserSerializer
+        return Response(status=status.HTTP_200_OK)
 
 
 class UserRegisterView(generics.CreateAPIView):
@@ -93,32 +68,49 @@ class UserRegisterView(generics.CreateAPIView):
     def create(self, request, *args, **kwargs):
         response = super(UserRegisterView, self).create(
             request, *args, **kwargs)
-        send_confirmation_link(request, response.data)
+        send_confirmation_link(
+            request=request,
+            user_data=response.data,
+            title='Ссылка для подтверждения аккаунта',
+            template='activate_email.html'
+        )
         return response
 
 
-class ActivateAPIView(APIView):
-    """APIView-класс, который обрабатывает ссылку-подтверждение для активации
-    пользователя."""
+class ActivateConfirmAPIView(APIView):
+    """API-view класс, обрабатывающий ссылки-подтверждения для активации
+    и входа на сайт."""
+
     def get(self, request: HttpRequest, uidb64: str,
-            token: str) -> HttpResponse:
-        account_activation_token = TokenGenerator()
+            tokenbs64: str) -> HttpResponse:
+        activation_token = TokenGenerator()
         serializer = UserSerializer
         try:
             uid = force_str(urlsafe_base64_decode(uidb64))
-            user = User.objects.get(pk=uid)
+            token = force_str(urlsafe_base64_decode(tokenbs64))
+            user: User = User.objects.get(pk=uid)
         except (TypeError, ValueError, OverflowError, User.DoesNotExist):
             user = None
-        if user is not None and account_activation_token.check_token(
-                user, token):
-            user.is_active = True
-            user.save()
+            token = None
+        if (user is not None and token is not None
+                and activation_token.check_token(user, token)):
+            if not user.is_active:
+                user.is_active = True
+                user.save()
             serialized_data = serializer(user)
             return Response(serialized_data.data, status=status.HTTP_200_OK)
         return Response(
-            {'errors': 'Ссылка для активации недействительна!'},
+            {'errors': 'Ссылка-подтверждение недействительна!'},
             status=status.HTTP_400_BAD_REQUEST
         )
+
+
+class UserViewSet(viewsets.GenericViewSet, mixins.RetrieveModelMixin,
+                  mixins.UpdateModelMixin):
+    """Вьюсет для работы с моделью User, который может получить или
+    обновить объект пользователя по его id."""
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
 
 
 class TokenObtainPairWithoutPasswordView(TokenViewBase):

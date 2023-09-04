@@ -1,5 +1,3 @@
-import random
-
 import six
 from django.conf import settings
 from django.contrib.auth import get_user_model
@@ -27,53 +25,28 @@ class TokenGenerator(PasswordResetTokenGenerator):
                 + six.text_type(user.is_active))
 
 
-def create_confirmation_code() -> int:
-    """Функция, возвращающая случайное число от 1000 до 9999."""
-    return random.randint(1000, 9999)
-
-
-def send_confirmation_link(request: HttpRequest, user_data: dict) -> None:
-    """Функция, которая отправляет пользователю ссылку-подтверждение
-    для завершения активации."""
+def send_confirmation_link(
+        request: HttpRequest,
+        user_data: dict[str, str],
+        title: str,
+        template: str
+) -> None:
     current_site = get_current_site(request)
     user = User.objects.get(email=user_data['email'])
-    account_activation_token = TokenGenerator()
-    token = account_activation_token.make_token(user)
-    title_mail = 'Ссылка для подтверждения аккаунта'
-    message = render_to_string('activate_email.html', {
-        'user': user,
-        'domain': current_site.domain,
-        'uid': urlsafe_base64_encode(force_bytes(user.pk)),
-        'token': token,
-    })
-    plain_message = strip_tags(message)
-    send_mail(
-        title_mail,
-        plain_message,
-        from_email=settings.EMAIL_HOST_USER,
-        recipient_list=(user.email,),
-        html_message=message
+    activation_token = TokenGenerator()
+    token = activation_token.make_token(user)
+    message = render_to_string(
+        template_name=template,
+        context={
+            'user': user,
+            'domain': current_site.domain,
+            'uid': urlsafe_base64_encode(force_bytes(user.pk)),
+            'token': urlsafe_base64_encode(force_bytes(token)),
+        }
     )
-
-
-def send_confirmation_link_for_login(
-        request: HttpRequest, user_data: dict) -> None:
-    """Функция, которая отправляет пользователю ссылку-подтверждение для
-    входа на сайт."""
-    current_site = get_current_site(request)
-    user = User.objects.get(email=user_data['email'], is_active=True)
-    account_activation_token = TokenGenerator()
-    token = account_activation_token.make_token(user)
-    title_mail = 'Ссылка для подтверждения входа на сайт'
-    message = render_to_string('login.html', {
-        'user': user,
-        'domain': current_site.domain,
-        'uid': urlsafe_base64_encode(force_bytes(user.pk)),
-        'token': token,
-    })
     plain_message = strip_tags(message)
     send_mail(
-        title_mail,
+        title,
         plain_message,
         from_email=settings.EMAIL_HOST_USER,
         recipient_list=(user.email,),
