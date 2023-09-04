@@ -375,9 +375,13 @@ class CartAPI(APIView):
 
         total_price = cart.get_total_price()
         total_quantity = len(cart)
-        serialized_cart.append({'total_price': total_price})
-        serialized_cart.append({'total_quantity': total_quantity})
-        return Response({'cart': serialized_cart}, status=status.HTTP_200_OK)
+        return Response(
+            {'cart': {
+                'variations': serialized_cart,
+                'total_price': total_price,
+                'total_quantity': total_quantity
+            }}, status=status.HTTP_200_OK
+        )
 
     def post(self, request, **kwargs):
         """
