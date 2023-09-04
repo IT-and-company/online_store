@@ -177,6 +177,7 @@ class ProductBaseSerializer(serializers.ModelSerializer):
     class Meta:
         model = VariationProduct
         fields = (
+            'id',
             'image',
             'price',
             'sale',
@@ -228,7 +229,7 @@ class ProductFullSerializer(serializers.ModelSerializer):
 
 class CartSerializer(serializers.Serializer):
     """Сериализатор для работы с корзиной."""
-    product = ProductShortSerializer()
+    variation = VariationProductSerializer()
     quantity = serializers.SerializerMethodField()
     price = serializers.SerializerMethodField()
 

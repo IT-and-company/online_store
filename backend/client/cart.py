@@ -107,7 +107,7 @@ class Cart(object):
                 if not VariationProduct.objects.filter(id=item).exists():
                     self.cart.pop(item)
         for product in products:
-            self.cart[str(product.id)]['product'] = product
+            self.cart[str(product.id)]['variation'] = product
             if not product.sale:
                 self.cart[str(product.id)]['price'] = product.price
                 continue
