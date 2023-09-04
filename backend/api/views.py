@@ -395,7 +395,6 @@ class CartAPI(APIView):
         Метод просмотра корзины.
         """
         cart = get_cart(request)
-        print(cart.__dict__)
         serialized_cart = list(CartSerializer(
             cart,
             many=True,
@@ -404,26 +403,44 @@ class CartAPI(APIView):
 
         total_price = cart.get_total_price()
         total_quantity = len(cart)
-        serialized_cart.append({'total_price': total_price})
-        serialized_cart.append({'total_quantity': total_quantity})
-        return Response({'cart': serialized_cart}, status=status.HTTP_200_OK)
+        return Response(
+            {'cart': {
+                'variations': serialized_cart,
+                'total_price': total_price,
+                'total_quantity': total_quantity
+            }}, status=status.HTTP_200_OK
+        )
 
     def post(self, request, **kwargs):
         """
         Метод добавления товара в корзину.
         """
         cart = get_cart(request)
-
         product_id = request.query_params.get("product_id")
-        product = get_object_or_404(VariationProduct, id=product_id)
-        if product:
-            cart.add(
-                product=product,
-                quantity=int(request.query_params.get('quantity', 1)),
-                update_quantity=strtobool(
-                    request.query_params.get('update_quantity', 'False')
-                )
+        if not product_id:
+            return Response(
+                {
+                    'detail': 'Required query parameter product_id not found.'
+                },
+                status=status.HTTP_400_BAD_REQUEST
             )
+        try:
+            product = VariationProduct.objects.get(id=product_id)
+        except VariationProduct.DoesNotExist:
+            return Response(
+                {
+                    'detail': f'No variation with id {product_id} found'
+                },
+                status=status.HTTP_404_NOT_FOUND
+            )
+
+        cart.add(
+            product=product,
+            quantity=int(request.query_params.get('quantity', 1)),
+            update_quantity=strtobool(
+                request.query_params.get('update_quantity', 'False')
+            )
+        )
         request.data.update({'cart': cart})
         return Response(status=status.HTTP_201_CREATED)
 
