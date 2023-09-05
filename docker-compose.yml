@@ -4,6 +4,7 @@ services:
   web:
     build: .
     volumes:
+      - /etc/letsencrypt/live/mebelnyibutikmm.ru/:/etc/letsencrypt/live/mebelnyibutikmm.ru/
       - static_volume:/home/online_store/backend/backend_static
       - media_volume:/home/online_store/backend/backend_media
     env_file:
@@ -23,6 +24,8 @@ services:
   nginx:
     build: ./nginx
     volumes:
+      - /etc/letsencrypt/:/etc/letsencrypt/
+      - /etc/letsencrypt/live/mebelnyibutikmm.ru/:/etc/letsencrypt/live/mebelnyibutikmm.ru/
       - static_volume:/home/online_store/backend/backend_static
       - media_volume:/home/online_store/backend/backend_media
     ports:
