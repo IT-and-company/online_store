@@ -1,13 +1,6 @@
 #!/bin/sh
-if [ "$DATABASE" = "postgres" ]
-then
-    echo "Waiting for postgres..."
 
-    while ! nc -z $SQL_HOST $SQL_PORT; do
-      sleep 0.1
-    done
+python manage.py migrate --no-input
+python manage.py collectstatic --no-input
 
-    echo "PostgreSQL started"
-fi
-
-exec "$@"
+gunicorn myagkoe_mesto.wsgi:application --bind 0.0.0.0:8000
