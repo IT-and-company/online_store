@@ -174,10 +174,14 @@ MAX_LENGTH_3 = 15
 MIN_VALUE = 1
 
 CSRF_TRUSTED_ORIGINS = [
-    "https://*localhost:1337",
-    "http://*localhost:1337",
-    "https://*127.0.0.1:1337",
-    "http://*127.0.0.1:1337",
+    "https://*localhost:80",
+    "http://*localhost:80",
+    "https://*127.0.0.1:80",
+    "http://*127.0.0.1:80",
+    "https://*localhost:443",
+    "http://*localhost:443",
+    "https://*127.0.0.1:443",
+    "http://*127.0.0.1:443",
     f"http://*{env('DOMAIN_URL')}",
     f"https://*{env('DOMAIN_URL')}",
 ]
