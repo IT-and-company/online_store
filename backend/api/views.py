@@ -54,7 +54,7 @@ class LoginAPIView(APIView):
             request=request,
             user_data=serializer.data,
             title='Ссылка для подтверждения входа на сайт',
-            template='login.html'
+            template='email_templates/login.html'
         )
         return Response(status=status.HTTP_200_OK)
 
