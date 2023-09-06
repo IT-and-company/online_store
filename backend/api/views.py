@@ -173,9 +173,14 @@ class OrderViewSet(viewsets.ModelViewSet):
     def create(self, request, *args, **kwargs):
         serializer = OrderCreateSerializer(data=request.data)
         if serializer.is_valid():
+            cart = get_cart(request)
+            if len(cart) == 0:
+                return Response(
+                    {'detail': 'cart is empty'},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
             order_data = serializer.validated_data
             order = Order.objects.create(**order_data)
-            cart = get_cart(request)
             order_cart_data = {'order': order}
 
             if request.user.is_authenticated:
@@ -183,7 +188,6 @@ class OrderViewSet(viewsets.ModelViewSet):
 
             order_cart = OrderCart.objects.create(**order_cart_data)
             cart_items = []
-            print(cart.__dict__) #  <------------
             for item in cart:
                 product_data = {
                     'product': item['variation'],
@@ -203,26 +207,31 @@ class OrderViewSet(viewsets.ModelViewSet):
                 'store_email': (settings.DEFAULT_TO_EMAIL,),
                 'user_email': (order.email,)
             }
-            send_order(
-                subject='Новая заявка на заказ',
-                template='email_templates/store_order.html',
-                to_email=emails['store_email'],
-                order=order,
-                cart=cart,
-                cart_items=cart_items,
-                message=('Поступил новый заказ.<br>'
-                         f'Дата и время заказа: {order_time}<br>')
-            )
-            send_order(
-                subject='Ваш заказ',
-                template='email_templates/store_order.html',
-                to_email=emails['user_email'],
-                order=order,
-                cart=cart,
-                cart_items=cart_items,
-                message=('Ваш заказ в магазине Мебельный бутик<br>'
-                         f'Дата и время заказа: {order_time}<br>')
-            )
+            for mail_data in [
+                {
+                    'subject': 'Новая заявка на заказ',
+                    'to_email': emails['store_email'],
+                    'message': ('Поступил новый заказ.<br>'
+                                f'Дата и время заказа: {order_time}<br>')
+                },
+                {
+                    'subject': 'Ваш заказ',
+                    'to_email': emails['user_email'],
+                    'message': ('Ваш заказ в магазине Мебельный бутик<br>'
+                                'Наш менеджер вскоре с Вами свяжется<br>'
+                                'Для уточнения деталей заказа<br>'
+                                f'Дата и время заказа: {order_time}<br>')
+                },
+            ]:
+                send_order(
+                    subject=mail_data['subject'],
+                    template='email_templates/store_order.html',
+                    to_email=mail_data['to_email'],
+                    order=order,
+                    cart=cart,
+                    cart_items=cart_items,
+                    message=mail_data['message']
+                )
             cart.clear()
 
             return Response(serializer.data, status=status.HTTP_201_CREATED)
