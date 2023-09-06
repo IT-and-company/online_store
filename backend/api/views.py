@@ -1,6 +1,6 @@
 from distutils.util import strtobool
 
-from django.db.models import Q, Count
+from django.db.models import Count, Max, Q
 from django.conf import settings
 from django.core.mail import send_mail
 from django.contrib.auth import get_user_model
@@ -271,17 +271,12 @@ class ProductVariationsView(generics.RetrieveAPIView):
     lookup_field = 'pk'
 
 
-class VariationProductViewSet(viewsets.ModelViewSet):
-    """Вьюсет для работы с товарами."""
-    queryset = VariationProduct.objects.all()
-    serializer_class = VariationProductSerializer
-    permission_classes = [IsAdminOrReadOnly]
-    pagination_class = CustomPagination
-    filter_backends = [DjangoFilterBackend, CategoryTypeFilter]
-    filterset_class = VariationProductFilter
+class ProductAPIView(viewsets.ModelViewSet):
+    queryset = Product.objects.all()
+    serializer_class = ProductFullSerializer
 
     @action(detail=False, methods=['get'])
-    def hits_products(self, request):
+    def hits(self, request):
         all_cart_products = CartProduct.objects.values('product').annotate(
             count=Count('product')).order_by('-count')
         top_products = all_cart_products[:10]
@@ -294,29 +289,31 @@ class VariationProductViewSet(viewsets.ModelViewSet):
                 id__in=top_product_ids).order_by('?')[:remaining_count]
             top_product_ids += [product.id for product in random_products]
 
-        top_products_list = VariationProduct.objects.filter(
-            id__in=top_product_ids)
-        serializer = ProductShortSerializer(top_products_list, many=True)
+        top_products_list = Product.objects.filter(
+            variations__id__in=top_product_ids).distinct()
+        serializer = ProductFullSerializer(top_products_list, many=True)
 
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     @action(detail=False, methods=['get'])
-    def latest_products(self, request):
-        queryset = VariationProduct.objects.all().order_by('-pub_date')
-        serializer = ProductShortSerializer(queryset, many=True)
+    def latest(self, request):
+        queryset = Product.objects.annotate(
+            pub_date=Max('variations__pub_date')
+        ).order_by('pub_date')
+        serializer = ProductFullSerializer(queryset, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     @action(detail=False, methods=['get'])
-    def similar_products(self, request):
+    def similar(self, request):
         product_id = request.query_params.get('product_id')
 
         if product_id:
-            # Получаем выбранный продукт
+            # Получаем выбранную вариацию продукта
             selected_product = VariationProduct.objects.get(pk=product_id)
             category_ids = selected_product.product.category.values_list(
                 'id', flat=True)
 
-            # Формируем Q-объект для поиска похожих товаров
+            # Формируем Q-объект для поиска похожих вариаций
             similar_filter = Q(
                 product__category__id__in=category_ids,
                 size__length__range=(
@@ -339,13 +336,27 @@ class VariationProductViewSet(viewsets.ModelViewSet):
             )
 
             # Применяем фильтр к запросу
-            queryset = VariationProduct.objects.filter(similar_filter).exclude(
-                pk=selected_product.pk)
-
-            serializer = ProductShortSerializer(queryset, many=True)
+            variations = VariationProduct.objects.prefetch_related(
+                'product'
+            ).filter(similar_filter).exclude(pk=selected_product.pk)
+            queryset = [variation.product for variation in variations]
+            serializer = ProductFullSerializer(queryset, many=True)
             return Response(serializer.data, status=status.HTTP_200_OK)
 
-        return Response(status.HTTP_400_BAD_REQUEST)
+        return Response(
+            {'detail': 'Required query parameter product_id not found.'},
+            status.HTTP_400_BAD_REQUEST
+        )
+
+
+class VariationProductViewSet(viewsets.ModelViewSet):
+    """Вьюсет для работы с вариациями товаров."""
+    queryset = VariationProduct.objects.all()
+    serializer_class = VariationProductSerializer
+    permission_classes = [IsAdminOrReadOnly]
+    pagination_class = CustomPagination
+    filter_backends = [DjangoFilterBackend, CategoryTypeFilter]
+    filterset_class = VariationProductFilter
 
     @staticmethod
     def create_obj(request, pk, model, serializer):
