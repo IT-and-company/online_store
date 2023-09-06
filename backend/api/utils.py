@@ -66,7 +66,8 @@ def send_order(
         to_email: tuple[Any],
         order: Order,
         cart: Cart,
-        cart_items: list[dict[str, Any]]
+        cart_items: list[dict[str, Any]],
+        message: str
 ) -> None:
     html_message = render_to_string(
         template,
@@ -75,6 +76,7 @@ def send_order(
             'cart_items': cart_items,
             'total_price': cart.get_total_price(),
             'total_quantity': len(cart),
+            'order_message': message,
         }
     )
     plain_message = strip_tags(html_message)

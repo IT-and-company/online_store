@@ -40,7 +40,7 @@
         text-align: left;
         }
     </style>
-    <title>Новый заказ</title>
+    <title>Новый заказ на сайте Мебельный Бутик</title>
 </head>
 <body style="background-color: #E4E1DC; margin: 0; height: 40vh; font-family: Arial, Helvetica, sans-serif; text-rendering: optimizeLegibility;">
     <header style="background-color: #B8AB9B; padding: 20px; text-align: center">
@@ -59,34 +59,39 @@
     </header>
     <div></div>
     <div style="margin: auto; max-width: 60%">
-    <h1>Заказ</h1>
+    <h2>{{ order_message|safe }}</h2>
+    <!-- <h1>Заказ</h1> -->
     <p>Имя: {{ order.name }}</p>
     <p>Телефон: {{ order.phone }}</p>
     <p>Email: {{ order.email }}</p>
     <p>Адрес: {{ order.address }}</p>
     <table class="order">
-        <tr>
+        <tr class="order">
             <th class="order">Товар</th>
             <th class="order">Количество</th>
             <th class="order">Цвет</th>
             <th class="order">Размер</th>
             <th class="order">Цена</th>
             <th class="order">Общая цена</th>
-        </tr>
+        </tr class="order">
         {% for item in cart_items %}
-        <tr>
+        <tr class="order">
             <td class="order">{{ item.product.product }}</td>
             <td class="order">{{ item.quantity }}</td>
             <td class="order">{{ item.product.color_tag }}</td>
             <td class="order">{{ item.product.size }}</td>
             <td class="order">{{ item.price }}</td>
             <td class="order">{{ item.total_price }}</td>
-        </tr>
+        </tr class="order">
         {% endfor %}
-        <tfoot>
-            <tr>Общее количество: {{total_quantity}}</tr>
-            <tr>Общая цена: {{ total_price }}</tr>
-        </tfoot>
+
+            <tr>
+                <td colspan="6">Общее количество: {{total_quantity}}</td>
+            </tr>
+            <tr>
+                <td colspan="6">Общая цена: {{ total_price }}</td>
+            </tr>
+
     </table>
 </div>
 </body>

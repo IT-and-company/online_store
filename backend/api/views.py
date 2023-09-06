@@ -1,3 +1,4 @@
+import datetime
 from distutils.util import strtobool
 
 from django.db.models import Count, Max, Q
@@ -182,9 +183,10 @@ class OrderViewSet(viewsets.ModelViewSet):
 
             order_cart = OrderCart.objects.create(**order_cart_data)
             cart_items = []
+            print(cart.__dict__) #  <------------
             for item in cart:
                 product_data = {
-                    'product': item['product'],
+                    'product': item['variation'],
                     'quantity': item['quantity'],
                     'price': item['price'],
                 }
@@ -195,6 +197,7 @@ class OrderViewSet(viewsets.ModelViewSet):
                 product_data['total_price'] = item['total_price']
                 cart_items.append(product_data)
 
+            order_time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
             # Отправляем сообщение с данными заказа на почту магазина
             emails = {
                 'store_email': (settings.DEFAULT_TO_EMAIL,),
@@ -206,15 +209,19 @@ class OrderViewSet(viewsets.ModelViewSet):
                 to_email=emails['store_email'],
                 order=order,
                 cart=cart,
-                cart_items=cart_items
+                cart_items=cart_items,
+                message=('Поступил новый заказ.<br>'
+                         f'Дата и время заказа: {order_time}<br>')
             )
             send_order(
                 subject='Ваш заказ',
-                template='email_templates/user_order.html',
+                template='email_templates/store_order.html',
                 to_email=emails['user_email'],
                 order=order,
                 cart=cart,
-                cart_items=cart_items
+                cart_items=cart_items,
+                message=('Ваш заказ в магазине Мебельный бутик<br>'
+                         f'Дата и время заказа: {order_time}<br>')
             )
             cart.clear()
 
