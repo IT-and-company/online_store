@@ -72,7 +72,7 @@ class UserRegisterView(generics.CreateAPIView):
             request=request,
             user_data=response.data,
             title='Ссылка для подтверждения аккаунта',
-            template='activate_email.html'
+            template='email_templates/activate_email.html'
         )
         return response
 
