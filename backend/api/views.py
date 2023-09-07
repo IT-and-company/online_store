@@ -460,7 +460,9 @@ class CartAPI(APIView):
                 request.query_params.get('update_quantity', 'False')
             )
         )
+        request.data._mutable = True
         request.data.update({'cart': cart})
+        request.data._mutable = False
         return Response(status=status.HTTP_201_CREATED)
 
     def delete(self, request, **kwargs):
@@ -473,7 +475,9 @@ class CartAPI(APIView):
         product = get_object_or_404(VariationProduct, id=product_id)
         if product:
             cart.remove(product)
+        request.data._mutable = True
         request.data.update({'cart': cart})
+        request.data._mutable = False
         return Response(status=status.HTTP_202_ACCEPTED)
 
 
