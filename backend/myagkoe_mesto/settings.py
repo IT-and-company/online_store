@@ -174,16 +174,16 @@ MAX_LENGTH_3 = 15
 MIN_VALUE = 1
 
 CSRF_TRUSTED_ORIGINS = [
-    "http://*localhost:80",
-    "https://*localhost:443",
-    "http://*127.0.0.1:80",
-    "https://*127.0.0.1:443",
+    "http://*localhost",
+    "https://*localhost",
+    "http://*127.0.0.1",
+    "https://*127.0.0.1",
     "http://*mebelnyibutikmm.ru",
     "https://*mebelnyibutikmm.ru",
-    "http://*mebelnyibutikmm.store:80",
-    "https://*mebelnyibutikmm.store:443",
-    "http://*xn--90aakbqejefiag1en1joa.xn--p1ai:80",
-    "https://*xn--90aakbqejefiag1en1joa.xn--p1ai:443",
+    "http://*mebelnyibutikmm.store",
+    "https://*mebelnyibutikmm.store",
+    "http://*xn--90aakbqejefiag1en1joa.xn--p1ai",
+    "https://*xn--90aakbqejefiag1en1joa.xn--p1ai",
 ]
 
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
