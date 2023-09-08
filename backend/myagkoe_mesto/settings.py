@@ -72,7 +72,6 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'myagkoe_mesto.wsgi.application'
 
-
 if env("USE_SQLITE", default="True") == "True":
     DATABASES = {
         "default": {
@@ -92,7 +91,6 @@ else:
             "PORT": env("DB_PORT", default="5432"),
         },
     }
-
 
 # Password validation
 
@@ -114,7 +112,6 @@ AUTH_PASSWORD_VALIDATORS = [
                  'password_validation.NumericPasswordValidator'),
     },
 ]
-
 
 # Internationalization
 
@@ -153,7 +150,6 @@ REST_FRAMEWORK = {
                                  'PageNumberPagination'),
 }
 
-
 SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(days=3),
     'AUTH_HEADER_TYPES': ('Bearer',),
@@ -167,8 +163,10 @@ EMAIL_USE_SSL = True
 EMAIL_TIMEOUT = None  # Тайм-аут соединения
 EMAIL_HOST_USER = str(env('EMAIL_HOST_USER'))  # Ваш адрес электронной почты
 EMAIL_HOST_PASSWORD = str(env('EMAIL_HOST_PASSWORD'))  # Ваш пароль от почты
-DEFAULT_FROM_EMAIL = str(env('EMAIL_HOST_USER'))  # Адрес отправителя по умолчанию
-DEFAULT_TO_EMAIL = str(env('DEFAULT_TO_EMAIL'))  # Адрес получателя по умолчанию
+DEFAULT_FROM_EMAIL = str(
+    env('EMAIL_HOST_USER'))  # Адрес отправителя по умолчанию
+DEFAULT_TO_EMAIL = str(
+    env('DEFAULT_TO_EMAIL'))  # Адрес получателя по умолчанию
 
 MAX_LENGTH_1 = 250
 MAX_LENGTH_2 = 7
@@ -178,12 +176,24 @@ MIN_VALUE = 1
 CSRF_TRUSTED_ORIGINS = [
     "https://*localhost:80",
     "http://*localhost:80",
-    "https://*127.0.0.1:80",
-    "http://*127.0.0.1:80",
     "https://*localhost:443",
     "http://*localhost:443",
+    "https://*127.0.0.1:80",
+    "http://*127.0.0.1:80",
     "https://*127.0.0.1:443",
     "http://*127.0.0.1:443",
+    "https://*mebelnyibytikmm.ru:80",
+    "http://*mebelnyibytikmm.ru:80",
+    "https://*mebelnyibytikmm.ru:443",
+    "http://*mebelnyibytikmm.ru:443",
+    "https://*mebelnyibytikmm.store:80",
+    "http://*mebelnyibytikmm.store:80",
+    "https://*mebelnyibytikmm.store:443",
+    "http://*mebelnyibytikmm.store:443",
+    "https://*мебельныйбутик.рф:80",
+    "http://*мебельныйбутик.рф:80",
+    "https://*мебельныйбутик.рф:443",
+    "http://*мебельныйбутик.рф:443",
     f"http://*{env('DOMAIN_URL')}",
     f"https://*{env('DOMAIN_URL')}",
 ]
