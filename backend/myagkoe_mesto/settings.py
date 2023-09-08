@@ -174,28 +174,16 @@ MAX_LENGTH_3 = 15
 MIN_VALUE = 1
 
 CSRF_TRUSTED_ORIGINS = [
-    "https://*localhost:80",
     "http://*localhost:80",
     "https://*localhost:443",
-    "http://*localhost:443",
-    "https://*127.0.0.1:80",
     "http://*127.0.0.1:80",
     "https://*127.0.0.1:443",
-    "http://*127.0.0.1:443",
-    "https://*mebelnyibytikmm.ru:80",
-    "http://*mebelnyibytikmm.ru:80",
-    "https://*mebelnyibytikmm.ru:443",
-    "http://*mebelnyibytikmm.ru:443",
-    "https://*mebelnyibytikmm.store:80",
-    "http://*mebelnyibytikmm.store:80",
-    "https://*mebelnyibytikmm.store:443",
-    "http://*mebelnyibytikmm.store:443",
-    "https://*мебельныйбутикмм.рф:80",
-    "http://*мебельныйбутикмм.рф:80",
-    "https://*мебельныйбутикмм.рф:443",
-    "http://*мебельныйбутикмм.рф:443",
-    f"http://*{env('DOMAIN_URL')}",
-    f"https://*{env('DOMAIN_URL')}",
+    "http://*mebelnyibutikmm.ru:80",
+    "https://*mebelnyibutikmm.ru:443",
+    "http://*mebelnyibutikmm.store:80",
+    "https://*mebelnyibutikmm.store:443",
+    "http://*xn--90aakbqejefiag1en1joa.xn--p1ai:80",
+    "https://*xn--90aakbqejefiag1en1joa.xn--p1ai:443",
 ]
 
 CART_SESSION_ID = 'cart'
