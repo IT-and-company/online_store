@@ -7,13 +7,16 @@ from django.core.mail import send_mail
 from django.contrib.auth import get_user_model
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import get_object_or_404
+from django.template.loader import render_to_string
 from django.utils.encoding import force_str
 from django.utils.html import strip_tags
 from django.utils.http import urlsafe_base64_decode
-from django.template.loader import render_to_string
+
 from django_filters.rest_framework import DjangoFilterBackend
+
 from rest_framework import status, viewsets, generics, mixins
 from rest_framework.decorators import action, api_view
+from rest_framework.filters import SearchFilter
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -253,7 +256,7 @@ class CategoryViewSet(viewsets.ReadOnlyModelViewSet):
     """Вьюсет для работы с категориями товаров."""
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
-    permission_classes = [AllowAny]
+    permission_classes = [IsAdminOrReadOnly]
     pagination_class = None
 
 
@@ -261,7 +264,7 @@ class TypeViewSet(viewsets.ReadOnlyModelViewSet):
     """Вьюсет для работы с типами товаров."""
     queryset = Type.objects.all()
     serializer_class = TypeSerializer
-    permission_classes = [AllowAny]
+    permission_classes = [IsAdminOrReadOnly]
     pagination_class = None
 
 
@@ -269,7 +272,7 @@ class TagViewSet(viewsets.ReadOnlyModelViewSet):
     """Вьюсет для работы с цветами товаров."""
     queryset = ColorTag.objects.all()
     serializer_class = ColorTagSerializer
-    permission_classes = [AllowAny]
+    permission_classes = [IsAdminOrReadOnly]
     pagination_class = None
 
 
@@ -277,19 +280,16 @@ class SizeViewSet(viewsets.ReadOnlyModelViewSet):
     """Вьюсет для работы с размерами товаров."""
     queryset = Size.objects.all()
     serializer_class = SizeSerializer
-    permission_classes = [AllowAny]
+    permission_classes = [IsAdminOrReadOnly]
     pagination_class = None
-
-
-class ProductVariationsView(generics.RetrieveAPIView):
-    queryset = Product.objects.all()
-    serializer_class = ProductFullSerializer
-    lookup_field = 'pk'
 
 
 class ProductAPIView(viewsets.ModelViewSet):
     queryset = Product.objects.all()
     serializer_class = ProductFullSerializer
+    permission_classes = [IsAdminOrReadOnly]
+    filter_backends = (SearchFilter, )
+    search_fields = ('^name',)
 
     @action(detail=False, methods=['get'])
     def hits(self, request):
@@ -393,14 +393,16 @@ class VariationProductViewSet(viewsets.ModelViewSet):
         return Response(status=status.HTTP_204_NO_CONTENT)
 
     @action(detail=True, methods=['post'],
-            permission_classes=[AllowAny])
+            permission_classes=[IsAuthenticated])
     def favorite(self, request, pk):
-        return VariationProductViewSet.create_obj(
+        VariationProductViewSet.create_obj(
             request, pk, Favorite, ProductShortSerializer)
+        return Response(status=status.HTTP_201_CREATED)
 
     @favorite.mapping.delete
     def delete_favorite(self, request, pk):
-        return VariationProductViewSet.delete_obj(request, pk, Favorite)
+        VariationProductViewSet.delete_obj(request, pk, Favorite)
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 class CartAPI(APIView):
@@ -452,13 +454,16 @@ class CartAPI(APIView):
                 },
                 status=status.HTTP_404_NOT_FOUND
             )
-
+        try:
+            update_quantity = strtobool(
+                request.query_params.get('update_quantity', 'False')
+            )
+        except ValueError:
+            update_quantity = False
         cart.add(
             product=product,
             quantity=int(request.query_params.get('quantity', 1)),
-            update_quantity=strtobool(
-                request.query_params.get('update_quantity', 'False')
-            )
+            update_quantity=update_quantity
         )
         try:
             request.data.update({'cart': cart})

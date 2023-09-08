@@ -4,7 +4,7 @@ from rest_framework_simplejwt.views import TokenRefreshView
 
 from .views import (ActivateConfirmAPIView, BackCallViewSet, CartAPI,
                     CategoryViewSet, LoginAPIView, OrderViewSet,
-                    ProductAPIView, ProductVariationsView, SizeViewSet,
+                    ProductAPIView, SizeViewSet,
                     TagViewSet, TokenObtainPairWithoutPasswordView,
                     TypeViewSet, UserOrderViewSet, UserRegisterView,
                     UserViewSet, VariationProductViewSet, clear_cart)
@@ -37,6 +37,4 @@ urlpatterns = [
          name='activate'),
     path('cart/', CartAPI.as_view()),
     path('cart/clear/', clear_cart),
-    path('product/<int:pk>/variations/', ProductVariationsView.as_view(),
-         name='product-variations'),
 ]
