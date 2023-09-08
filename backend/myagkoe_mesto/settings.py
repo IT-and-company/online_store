@@ -186,6 +186,8 @@ CSRF_TRUSTED_ORIGINS = [
     "https://*xn--90aakbqejefiag1en1joa.xn--p1ai:443",
 ]
 
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+
 CART_SESSION_ID = 'cart'
 
 AUTHENTICATION_BACKENDS = (
