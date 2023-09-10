@@ -220,7 +220,6 @@ class VariationProductSerializer(ProductBaseSerializer):
 
 class ProductFullSerializer(serializers.ModelSerializer):
     variations = ProductBaseSerializer(many=True)
-    image = PictureSerializer(many=True, read_only=True)
 
     class Meta:
         model = Product
