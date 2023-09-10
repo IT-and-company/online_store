@@ -24,7 +24,6 @@ class LoginSerializer(serializers.Serializer):
     email = serializers.EmailField()
 
     def validate_email(self, value):
-        print('pidor')
         if not User.objects.filter(email=value, is_active=True).exists():
             raise serializers.ValidationError(
                 f'Email "{value}" не зарегистрирован или не активирован'
@@ -221,6 +220,7 @@ class VariationProductSerializer(ProductBaseSerializer):
 
 class ProductFullSerializer(serializers.ModelSerializer):
     variations = ProductBaseSerializer(many=True)
+    image = PictureSerializer(many=True, read_only=True)
 
     class Meta:
         model = Product
