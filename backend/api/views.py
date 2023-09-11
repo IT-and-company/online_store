@@ -308,7 +308,9 @@ class ProductAPIView(viewsets.ModelViewSet):
 
         top_products_list = Product.objects.filter(
             variations__id__in=top_product_ids).distinct()
-        serializer = ProductFullSerializer(top_products_list, many=True)
+        serializer = ProductFullSerializer(
+            top_products_list, many=True, context={'request': request}
+        )
 
         return Response(serializer.data, status=status.HTTP_200_OK)
 
@@ -317,7 +319,9 @@ class ProductAPIView(viewsets.ModelViewSet):
         queryset = Product.objects.annotate(
             pub_date=Max('variations__pub_date')
         ).order_by('pub_date')
-        serializer = ProductFullSerializer(queryset, many=True)
+        serializer = ProductFullSerializer(
+            queryset, many=True, context={'request': request}
+        )
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     @action(detail=False, methods=['get'])
@@ -357,7 +361,9 @@ class ProductAPIView(viewsets.ModelViewSet):
                 'product'
             ).filter(similar_filter).exclude(pk=selected_product.pk)
             queryset = [variation.product for variation in variations]
-            serializer = ProductFullSerializer(queryset, many=True)
+            serializer = ProductFullSerializer(
+                queryset, many=True, context={'request': request}
+            )
             return Response(serializer.data, status=status.HTTP_200_OK)
 
         return Response(
@@ -372,7 +378,7 @@ class VariationProductViewSet(viewsets.ModelViewSet):
     serializer_class = VariationProductSerializer
     permission_classes = [IsAdminOrReadOnly]
     pagination_class = CustomPagination
-    filter_backends = [DjangoFilterBackend,]
+    filter_backends = [DjangoFilterBackend, ]
     filterset_class = VariationProductFilter
 
     @staticmethod
