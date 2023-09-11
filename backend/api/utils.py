@@ -11,6 +11,8 @@ from django.utils.html import strip_tags
 from django.utils.http import urlsafe_base64_encode
 from typing import Any
 
+from rest_framework_simplejwt.tokens import RefreshToken
+
 from client.cart import Cart
 from client.models import Order
 
@@ -87,3 +89,11 @@ def send_order(
         from_email=from_email,
         recipient_list=to_email,
         html_message=html_message)
+
+
+def get_tokens_for_user(user):
+    refresh = RefreshToken.for_user(user)
+    return {
+        'refresh': str(refresh),
+        'access': str(refresh.access_token),
+    }
