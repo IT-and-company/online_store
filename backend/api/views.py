@@ -288,8 +288,9 @@ class ProductAPIView(viewsets.ModelViewSet):
     queryset = Product.objects.all()
     serializer_class = ProductFullSerializer
     permission_classes = [IsAdminOrReadOnly]
-    filter_backends = (SearchFilter, )
+    filter_backends = (SearchFilter, CategoryTypeFilter)
     search_fields = ('^name',)
+    filterset_fields = ['category', 'type']
 
     @action(detail=False, methods=['get'])
     def hits(self, request):
@@ -371,7 +372,7 @@ class VariationProductViewSet(viewsets.ModelViewSet):
     serializer_class = VariationProductSerializer
     permission_classes = [IsAdminOrReadOnly]
     pagination_class = CustomPagination
-    filter_backends = [DjangoFilterBackend, CategoryTypeFilter]
+    filter_backends = [DjangoFilterBackend,]
     filterset_class = VariationProductFilter
 
     @staticmethod
