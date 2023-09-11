@@ -16,6 +16,7 @@ from django_filters.rest_framework import DjangoFilterBackend
 
 from rest_framework import status, viewsets, generics, mixins
 from rest_framework.decorators import action, api_view
+from rest_framework.filters import SearchFilter
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -281,7 +282,7 @@ class ProductAPIView(viewsets.ModelViewSet):
     queryset = Product.objects.all()
     serializer_class = ProductFullSerializer
     permission_classes = [IsAdminOrReadOnly]
-    filter_backends = [DjangoFilterBackend, ]
+    filter_backends = [DjangoFilterBackend, SearchFilter]
     filterset_class = CategoryTypeFilter
     search_fields = ('^name',)
     # filterset_fields = ['category', 'type']
