@@ -161,6 +161,7 @@ class ProductBaseSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = VariationProduct
+        depth = 2
         fields = (
             'id',
             'image',
