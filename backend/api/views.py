@@ -282,6 +282,7 @@ class ProductAPIView(viewsets.ModelViewSet):
     queryset = Product.objects.all()
     serializer_class = ProductFullSerializer
     permission_classes = [IsAdminOrReadOnly]
+    pagination_class = CustomPagination
     filter_backends = [DjangoFilterBackend, SearchFilter]
     filterset_class = CategoryTypeFilter
     search_fields = ('^name',)
