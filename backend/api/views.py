@@ -20,7 +20,6 @@ from rest_framework.filters import SearchFilter
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from rest_framework_simplejwt.views import TokenViewBase
 
 from api.filters import CategoryTypeFilter, VariationProductFilter
 from api.pagination import CustomPagination
@@ -31,10 +30,9 @@ from api.serializers import (BackCallSerializer, CartSerializer,
                              ProductShortSerializer, SizeSerializer,
                              ColorTagSerializer, TypeSerializer,
                              VariationProductSerializer, SignupSerializer,
-                             TokenObtainPairWithoutPasswordSerializer,
                              UserSerializer, LoginSerializer)
 from api.utils import (TokenGenerator, get_cart, send_confirmation_link,
-                       send_order)
+                       send_order, get_tokens_for_user)
 from client.models import BackCall, Order, CartProduct, OrderCart, OrderProduct
 from products.models import (Category,
                              ColorTag,
@@ -102,7 +100,9 @@ class ActivateConfirmAPIView(APIView):
                 user.is_active = True
                 user.save()
             serialized_data = serializer(user)
-            return Response(serialized_data.data, status=status.HTTP_200_OK)
+            tokens = get_tokens_for_user(user)
+            return Response({**serialized_data.data, **tokens},
+                            status=status.HTTP_200_OK)
         return Response(
             {'errors': 'Ссылка-подтверждение недействительна!'},
             status=status.HTTP_400_BAD_REQUEST
@@ -115,12 +115,6 @@ class UserViewSet(viewsets.GenericViewSet, mixins.RetrieveModelMixin,
     обновить объект пользователя по его id."""
     queryset = User.objects.all()
     serializer_class = UserSerializer
-
-
-class TokenObtainPairWithoutPasswordView(TokenViewBase):
-    """View-класс, переопределяющий дефолтный сериализатор
-    для получения токена."""
-    serializer_class = TokenObtainPairWithoutPasswordSerializer
 
 
 class BackCallViewSet(viewsets.ModelViewSet):
