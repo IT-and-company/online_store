@@ -413,6 +413,7 @@ class CartAPI(APIView):
     Эндпоинт корзины товаров текущего пользователя.
     """
     permission_classes = [AllowAny]
+    pagination_class = CustomPagination
 
     def get(self, request):
         """
