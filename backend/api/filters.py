@@ -1,6 +1,7 @@
 from django_filters.rest_framework import FilterSet, filters
-from rest_framework.filters import BaseFilterBackend
-from products.models import ProductModel, Size, ColorTag, VariationProduct
+from products.models import (ProductModel, Size, ColorTag,
+                             VariationProduct, Product, Category,
+                             Type)
 
 
 class VariationProductFilter(FilterSet):
@@ -31,16 +32,17 @@ class VariationProductFilter(FilterSet):
         return queryset
 
 
-class CategoryTypeFilter(BaseFilterBackend):
+class CategoryTypeFilter(FilterSet):
     """Класс фильтрации, который сортирует продукты по типу и категории."""
-    def filter_queryset(self, request, queryset, view):
-        categories = request.query_params.getlist('categories')
-        types = request.query_params.getlist('types')
+    category = filters.ModelMultipleChoiceFilter(
+        field_name='category',
+        queryset=Category.objects.all()
+    )
+    type = filters.ModelChoiceFilter(
+        field_name='type',
+        queryset=Type.objects.all()
+    )
 
-        if categories:
-            queryset = queryset.filter(product__category__slug__in=categories)
-
-        if types:
-            queryset = queryset.filter(product__type__slug__in=types)
-
-        return queryset
+    class Meta:
+        model = Product
+        fields = ['category', 'type']
