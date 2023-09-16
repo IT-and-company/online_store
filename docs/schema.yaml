@@ -1601,6 +1601,9 @@ components:
           type: string
           maxLength: 50
           pattern: ^[-a-zA-Z0-9_]+$
+        image:
+          type: integer
+          nullable: true
       required:
       - name
       - slug
