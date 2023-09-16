@@ -74,6 +74,7 @@ class Type(CategoryType):
         Picture,
         on_delete=models.SET_NULL,
         null=True,
+        blank=True,
         verbose_name='Картинка типа товара'
     )
 
