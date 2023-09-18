@@ -1,7 +1,7 @@
 import datetime
 from distutils.util import strtobool
 
-from django.db.models import Count, Max, Q
+from django.db.models import Count, Max, Min, Q, F, Subquery
 from django.conf import settings
 from django.core.mail import send_mail
 from django.contrib.auth import get_user_model
@@ -16,7 +16,7 @@ from django_filters.rest_framework import DjangoFilterBackend
 
 from rest_framework import status, viewsets, generics, mixins
 from rest_framework.decorators import action, api_view
-from rest_framework.filters import SearchFilter
+from rest_framework.filters import OrderingFilter, SearchFilter
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -248,7 +248,10 @@ class UserOrderViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
 
 class CategoryViewSet(viewsets.ReadOnlyModelViewSet):
     """Вьюсет для работы с категориями товаров."""
-    queryset = Category.objects.all()
+    queryset = Category.objects.all().prefetch_related(
+        'products__type').annotate(
+        min_price=Min('products__variations__price'),
+        )
     serializer_class = CategorySerializer
     permission_classes = [IsAdminOrReadOnly]
     pagination_class = None
@@ -279,11 +282,22 @@ class SizeViewSet(viewsets.ReadOnlyModelViewSet):
 
 
 class ProductAPIView(viewsets.ModelViewSet):
-    queryset = Product.objects.all()
+    queryset = Product.objects.all().annotate(
+        max_price=Max("variations__price"),
+        min_price=Min("variations__price"),
+        min_sale=Max("variations__sale"),
+        max_sale=Max("variations__sale")
+    )
     serializer_class = ProductFullSerializer
     permission_classes = [IsAdminOrReadOnly]
     pagination_class = CustomPagination
-    filter_backends = [DjangoFilterBackend, SearchFilter]
+    filter_backends = [DjangoFilterBackend, OrderingFilter, SearchFilter]
+    ordering_fields = [
+        'max_price',
+        'min_price',
+        'min_sale',
+        'max_sale',
+        ]
     filterset_class = CategoryTypeFilter
     search_fields = ('^name',)
     # filterset_fields = ['category', 'type']

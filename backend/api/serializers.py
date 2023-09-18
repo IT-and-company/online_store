@@ -94,17 +94,27 @@ class BackCallSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
-class CategorySerializer(serializers.ModelSerializer):
-    """Сериализатор для работы с категориями товаров."""
-    class Meta:
-        model = Category
-        fields = '__all__'
-
-
 class TypeSerializer(serializers.ModelSerializer):
     """Сериализатор для работы с типами товаров."""
     class Meta:
         model = Type
+        fields = '__all__'
+
+
+class CategorySerializer(serializers.ModelSerializer):
+    """Сериализатор для работы с категориями товаров."""
+    min_price = serializers.SerializerMethodField()
+    types = serializers.SerializerMethodField()
+
+    def get_min_price(self, obj):
+        return obj.min_price
+
+    def get_types(self, obj):
+        types = Type.objects.filter(product__category=obj).distinct()
+        return TypeSerializer(types, many=True).data
+
+    class Meta:
+        model = Category
         fields = '__all__'
 
 
