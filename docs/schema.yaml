@@ -983,6 +983,12 @@ paths:
         description: type
         schema:
           type: string
+      - name: ordering
+        required: false
+        in: query
+        description: Which field to use when ordering the results.<br> Example<br> -max_price - max price descending,<br>min_price - min price ascending<br>-max_sale - max sale descending,<br>min_sale - min sale ascending
+        schema:
+          type: string
       - name: search
         required: false
         in: query
@@ -1106,6 +1112,12 @@ paths:
         description: type
         schema:
           type: string
+      - name: ordering
+        required: false
+        in: query
+        description: Which field to use when ordering the results.
+        schema:
+          type: string
       - name: search
         required: false
         in: query
@@ -1142,6 +1154,12 @@ paths:
         required: false
         in: query
         description: type
+        schema:
+          type: string
+      - name: ordering
+        required: false
+        in: query
+        description: Which field to use when ordering the results.
         schema:
           type: string
       - name: search
@@ -1193,6 +1211,12 @@ paths:
         description: type
         schema:
           type: string
+      - name: ordering
+        required: false
+        in: query
+        description: Which field to use when ordering the results.
+        schema:
+          type: string
       - name: search
         required: false
         in: query
@@ -1242,6 +1266,12 @@ paths:
         description: type
         schema:
           type: string
+      - name: ordering
+        required: false
+        in: query
+        description: Which field to use when ordering the results.
+        schema:
+          type: string
       - name: search
         required: false
         in: query
@@ -1255,7 +1285,7 @@ paths:
       - api
   /api/confirm_login/{uidb64}/{tokenbs64}/:
     get:
-      operationId: retrieveActivateConfirm
+      operationId: retrieveLoginConfirm
       description: "API-view \u043A\u043B\u0430\u0441\u0441, \u043E\u0431\u0440\u0430\
         \u0431\u0430\u0442\u044B\u0432\u0430\u044E\u0449\u0438\u0439 \u0441\u0441\u044B\
         \u043B\u043A\u0438-\u043F\u043E\u0434\u0442\u0432\u0435\u0440\u0436\u0434\u0435\
@@ -1357,7 +1387,7 @@ paths:
           description: ''
       tags:
       - api
-post:
+    post:
       operationId: createCartAPI
       description: "\u041C\u0435\u0442\u043E\u0434 \u0434\u043E\u0431\u0430\u0432\u043B\
         \u0435\u043D\u0438\u044F \u0442\u043E\u0432\u0430\u0440\u0430 \u0432 \u043A\
@@ -1578,6 +1608,12 @@ components:
         id:
           type: integer
           readOnly: true
+        min_price:
+          type: string
+          readOnly: true
+        types:
+          type: string
+          readOnly: true
         name:
           type: string
           maxLength: 250
@@ -1585,6 +1621,9 @@ components:
           type: string
           maxLength: 50
           pattern: ^[-a-zA-Z0-9_]+$
+        image:
+          type: integer
+          nullable: true
       required:
       - name
       - slug

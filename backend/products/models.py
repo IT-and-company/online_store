@@ -44,7 +44,6 @@ class CategoryType(models.Model):
         'Слаг',
         unique=True
     )
-
     class Meta:
         abstract = True
 
@@ -59,7 +58,13 @@ class Category(CategoryType):
     "Гостиные", "Прихожие", "Детская мебель".so
     Список категорий может быть расширен администратором.
     """
-
+    image = models.ForeignKey(
+        Picture,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        verbose_name='Картинка типа товара'
+    )
     class Meta:
         ordering = ('name',)
         verbose_name = 'Категория'
@@ -74,9 +79,9 @@ class Type(CategoryType):
         Picture,
         on_delete=models.SET_NULL,
         null=True,
+        blank=True,
         verbose_name='Картинка типа товара'
     )
-
     class Meta:
         ordering = ('name',)
         verbose_name = 'Тип'
@@ -164,7 +169,8 @@ class Product(models.Model):
     )
     category = models.ManyToManyField(
         Category,
-        verbose_name='Категория товара'
+        verbose_name='Категория товара',
+        related_name='products'
     )
     type = models.ForeignKey(
         Type,
