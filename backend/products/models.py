@@ -13,7 +13,6 @@ class Picture(models.Model):
     image = models.ImageField(
         'Фото товара',
         upload_to='product/%Y/%m/%d',
-        blank=True,
         null=True,
         help_text='Загрузите фото товара'
     )
@@ -63,7 +62,6 @@ class Category(CategoryType):
         Picture,
         on_delete=models.SET_NULL,
         null=True,
-        blank=True,
         verbose_name='Картинка типа товара'
     )
 
@@ -81,7 +79,6 @@ class Type(CategoryType):
         Picture,
         on_delete=models.SET_NULL,
         null=True,
-        blank=True,
         verbose_name='Картинка типа товара'
     )
 
