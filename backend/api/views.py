@@ -249,10 +249,10 @@ class UserOrderViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
 class CategoryViewSet(viewsets.ReadOnlyModelViewSet):
     """Вьюсет для работы с категориями товаров."""
     queryset = Category.objects.all().prefetch_related(
-            'products__type'
-        ).annotate(
-            min_price=Min('products__variations__price'),
-        )
+        'products__type'
+    ).annotate(
+        min_price=Min('products__variations__price'),
+    )
     serializer_class = CategorySerializer
     permission_classes = [IsAdminOrReadOnly]
     pagination_class = None
