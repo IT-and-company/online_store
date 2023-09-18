@@ -44,6 +44,7 @@ class CategoryType(models.Model):
         'Слаг',
         unique=True
     )
+
     class Meta:
         abstract = True
 
@@ -65,6 +66,7 @@ class Category(CategoryType):
         blank=True,
         verbose_name='Картинка типа товара'
     )
+
     class Meta:
         ordering = ('name',)
         verbose_name = 'Категория'
@@ -82,6 +84,7 @@ class Type(CategoryType):
         blank=True,
         verbose_name='Картинка типа товара'
     )
+
     class Meta:
         ordering = ('name',)
         verbose_name = 'Тип'
