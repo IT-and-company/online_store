@@ -14,6 +14,7 @@ class Picture(models.Model):
         'Фото товара',
         upload_to='product/%Y/%m/%d',
         null=True,
+        blank=True,
         help_text='Загрузите фото товара'
     )
 
@@ -58,13 +59,6 @@ class Category(CategoryType):
     "Гостиные", "Прихожие", "Детская мебель".so
     Список категорий может быть расширен администратором.
     """
-    image = models.ForeignKey(
-        Picture,
-        on_delete=models.SET_NULL,
-        null=True,
-        verbose_name='Картинка типа товара'
-    )
-
     class Meta:
         ordering = ('name',)
         verbose_name = 'Категория'
@@ -79,6 +73,7 @@ class Type(CategoryType):
         Picture,
         on_delete=models.SET_NULL,
         null=True,
+        blank=True,
         verbose_name='Картинка типа товара'
     )
 
