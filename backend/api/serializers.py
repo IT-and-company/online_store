@@ -104,10 +104,14 @@ class TypeSerializer(serializers.ModelSerializer):
 class CategorySerializer(serializers.ModelSerializer):
     """Сериализатор для работы с категориями товаров."""
     min_price = serializers.SerializerMethodField()
+    max_price = serializers.SerializerMethodField()
     types = serializers.SerializerMethodField()
 
     def get_min_price(self, obj):
         return obj.min_price
+
+    def get_max_price(self, obj):
+        return obj.max_price
 
     def get_types(self, obj):
         types = Type.objects.filter(product__category=obj).distinct()

@@ -252,6 +252,7 @@ class CategoryViewSet(viewsets.ReadOnlyModelViewSet):
         'products__type'
     ).annotate(
         min_price=Min('products__variations__price'),
+        max_price=Max('products__variations__price'),
     )
     serializer_class = CategorySerializer
     permission_classes = [IsAdminOrReadOnly]
