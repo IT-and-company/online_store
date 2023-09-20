@@ -94,8 +94,19 @@ class BackCallSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
+class PictureSerializer(serializers.ModelSerializer):
+    """Сериализатор для работы с изображениями товаров."""
+    image = Base64ImageField()
+
+    class Meta:
+        model = Picture
+        fields = '__all__'
+
+
 class TypeSerializer(serializers.ModelSerializer):
     """Сериализатор для работы с типами товаров."""
+    image = PictureSerializer(read_only=True)
+
     class Meta:
         model = Type
         fields = '__all__'
@@ -142,15 +153,6 @@ class SpecificationSerializer(serializers.ModelSerializer):
     """Сериализатор для работы со спецификацией товаров."""
     class Meta:
         model = Specification
-        fields = '__all__'
-
-
-class PictureSerializer(serializers.ModelSerializer):
-    """Сериализатор для работы с изображениями товаров."""
-    image = Base64ImageField()
-
-    class Meta:
-        model = Picture
         fields = '__all__'
 
 
