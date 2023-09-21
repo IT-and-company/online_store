@@ -38,10 +38,14 @@ class CategoryTypeFilter(FilterSet):
         field_name='category',
         queryset=Category.objects.all()
     )
-    type = filters.ModelChoiceFilter(
+    type = filters.ModelMultipleChoiceFilter(
         field_name='type',
         queryset=Type.objects.all()
     )
+    min_price = filters.NumberFilter(
+        field_name="variations__price", lookup_expr='gte')
+    max_price = filters.NumberFilter(
+        field_name="variations__price", lookup_expr='lte')
 
     class Meta:
         model = Product
