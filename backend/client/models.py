@@ -44,7 +44,7 @@ class Order(BackCallOrder):
         blank=True,
     )
     updated_at = models.DateTimeField(
-        auto_now_add=True,
+        auto_now=True,
         null=True,
         blank=True,
     )
