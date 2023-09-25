@@ -1,4 +1,3 @@
-import datetime
 from distutils.util import strtobool
 
 from django.db.models import Count, Max, Min, Q
@@ -177,7 +176,6 @@ class OrderViewSet(viewsets.ModelViewSet):
                     status=status.HTTP_400_BAD_REQUEST
                 )
             order_data = serializer.validated_data
-            # order_time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
             order = Order.objects.create(**order_data)
             order_time = order.created_at
             order_cart_data = {'order': order}
@@ -200,7 +198,6 @@ class OrderViewSet(viewsets.ModelViewSet):
                 product_data['total_price'] = item['total_price']
                 cart_items.append(product_data)
 
-            
             # Отправляем сообщение с данными заказа на почту магазина
             emails = {
                 'store_email': (settings.DEFAULT_TO_EMAIL,),
