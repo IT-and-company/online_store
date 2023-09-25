@@ -54,39 +54,6 @@ class SignupSerializer(serializers.ModelSerializer):
         return value
 
 
-class OrderProductSerializer(serializers.ModelSerializer):
-    """Сериализатор для работы с объектами модели OrderProduct."""
-
-    class Meta:
-        model = OrderProduct
-        fields = '__all__'
-
-
-class OrderCartSerializer(serializers.ModelSerializer):
-    """Сериализатор для работы с объектами модели OrderCart."""
-    products = OrderProductSerializer(many=True, read_only=True)
-
-    class Meta:
-        model = OrderCart
-        fields = '__all__'
-
-
-class OrderListSerializer(serializers.ModelSerializer):
-    """Сериализатор для работы со списком заказов."""
-    cart = OrderCartSerializer()
-
-    class Meta:
-        model = Order
-        fields = '__all__'
-
-
-class OrderCreateSerializer(serializers.ModelSerializer):
-    """Сериализатор для создания заказа."""
-    class Meta:
-        model = Order
-        fields = '__all__'
-
-
 class BackCallSerializer(serializers.ModelSerializer):
     """Сериализатор для работы с заявками на обратный звонок."""
     class Meta:
@@ -240,3 +207,38 @@ class CartSerializer(serializers.Serializer):
 
     def get_price(self, obj):
         return obj['price']
+
+
+class OrderProductSerializer(serializers.ModelSerializer):
+    """Сериализатор для работы с объектами модели OrderProduct."""
+    variation = ProductShortSerializer(source='product')
+
+    class Meta:
+        model = OrderProduct
+        fields = '__all__'
+
+
+class OrderCartSerializer(serializers.ModelSerializer):
+    """Сериализатор для работы с объектами модели OrderCart."""
+    products = OrderProductSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = OrderCart
+        fields = '__all__'
+
+
+class OrderListSerializer(serializers.ModelSerializer):
+    """Сериализатор для работы со списком заказов."""
+    cart = OrderCartSerializer()
+
+    class Meta:
+        model = Order
+        depth = 3
+        fields = '__all__'
+
+
+class OrderCreateSerializer(serializers.ModelSerializer):
+    """Сериализатор для создания заказа."""
+    class Meta:
+        model = Order
+        fields = 'name', 'phone', 'email', 'address'
