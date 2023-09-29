@@ -27,10 +27,12 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'django_filters',
     'rest_framework',
+    'rest_framework_simplejwt',
     'phonenumbers',
     'psycopg2',
     'djoser',
     'smart_selects',
+    'corsheaders',
 
     'api',
     'client',
@@ -42,6 +44,7 @@ MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -69,7 +72,6 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'myagkoe_mesto.wsgi.application'
 
-
 if env("USE_SQLITE", default="True") == "True":
     DATABASES = {
         "default": {
@@ -89,7 +91,6 @@ else:
             "PORT": env("DB_PORT", default="5432"),
         },
     }
-
 
 # Password validation
 
@@ -111,7 +112,6 @@ AUTH_PASSWORD_VALIDATORS = [
                  'password_validation.NumericPasswordValidator'),
     },
 ]
-
 
 # Internationalization
 
@@ -148,11 +148,12 @@ REST_FRAMEWORK = {
     ],
     'DEFAULT_PAGINATION_CLASS': ('rest_framework.pagination.'
                                  'PageNumberPagination'),
+
+    'DATETIME_FORMAT': "%Y-%m-%d %H:%M:%S %Z",
 }
 
-
 SIMPLE_JWT = {
-    'ACCESS_TOKEN_LIFETIME': timedelta(days=1),
+    'ACCESS_TOKEN_LIFETIME': timedelta(days=3),
     'AUTH_HEADER_TYPES': ('Bearer',),
 }
 
@@ -164,8 +165,10 @@ EMAIL_USE_SSL = True
 EMAIL_TIMEOUT = None  # Тайм-аут соединения
 EMAIL_HOST_USER = str(env('EMAIL_HOST_USER'))  # Ваш адрес электронной почты
 EMAIL_HOST_PASSWORD = str(env('EMAIL_HOST_PASSWORD'))  # Ваш пароль от почты
-DEFAULT_FROM_EMAIL = str(env('EMAIL_HOST_USER'))  # Адрес отправителя по умолчанию
-DEFAULT_TO_EMAIL = str(env('DEFAULT_TO_EMAIL'))  # Адрес получателя по умолчанию
+DEFAULT_FROM_EMAIL = str(
+    env('EMAIL_HOST_USER'))  # Адрес отправителя по умолчанию
+DEFAULT_TO_EMAIL = str(
+    env('DEFAULT_TO_EMAIL'))  # Адрес получателя по умолчанию
 
 MAX_LENGTH_1 = 250
 MAX_LENGTH_2 = 7
@@ -173,12 +176,25 @@ MAX_LENGTH_3 = 15
 MIN_VALUE = 1
 
 CSRF_TRUSTED_ORIGINS = [
-    "https://*localhost:1337",
-    "http://*localhost:1337",
-    "https://*127.0.0.1:1337",
-    "http://*127.0.0.1:1337",
-    f"http://*{env('DOMAIN_URL')}",
-    f"https://*{env('DOMAIN_URL')}",
+    "http://*localhost",
+    "https://*localhost",
+    "http://*127.0.0.1",
+    "https://*127.0.0.1",
+    "http://*mebelnyibutikmm.ru",
+    "https://*mebelnyibutikmm.ru",
+    "http://*mebelnyibutikmm.store",
+    "https://*mebelnyibutikmm.store",
+    "http://*xn--90aakbqejefiag1en1joa.xn--p1ai",
+    "https://*xn--90aakbqejefiag1en1joa.xn--p1ai",
 ]
 
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+
 CART_SESSION_ID = 'cart'
+
+AUTHENTICATION_BACKENDS = (
+    'django.contrib.auth.backends.ModelBackend',
+    'api.auth_backend.AuthenticationWithoutPassword',
+)
+
+CORS_ORIGIN_ALLOW_ALL = True

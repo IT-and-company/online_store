@@ -4,7 +4,8 @@ import os
 
 from django.conf import settings
 from django.core.management.base import BaseCommand, CommandError
-from product.models import Tag
+
+from products.models import ColorTag
 
 logging.basicConfig(
     level=logging.INFO,
@@ -32,10 +33,10 @@ class Command(BaseCommand):
             ) as csv_file:
                 data = csv.reader(csv_file)
                 for row in data:
-                    name, color, slug = row
-                    Tag.objects.get_or_create(
-                        name=name,
-                        color=color,
+                    color_name, hex, slug = row
+                    ColorTag.objects.get_or_create(
+                        color_name=color_name,
+                        hex=hex,
                         slug=slug
                     )
         except FileNotFoundError:

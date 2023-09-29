@@ -4,7 +4,35 @@ from django.db import models
 from django.template.defaultfilters import slugify
 from smart_selects.db_fields import ChainedForeignKey
 
+from PIL import Image
+
 User = get_user_model()
+
+
+class Picture(models.Model):
+    image = models.ImageField(
+        'Фото товара',
+        upload_to='product/%Y/%m/%d',
+        null=True,
+        blank=True,
+        help_text='Загрузите фото товара'
+    )
+
+    class Meta:
+        verbose_name = 'Изображение'
+        verbose_name_plural = 'Изображения'
+
+    def __str__(self):
+        return f'{self.image.name.split("/")[-1]}'
+
+    def save(self, *args, **kwargs):
+        super().save()
+        img = Image.open(self.image.path)
+
+        if img.height > 450 or img.width > 850:
+            output_size = (450, 850)
+            img.thumbnail(output_size)
+            img.save(self.image.path)
 
 
 class CategoryType(models.Model):
@@ -31,7 +59,6 @@ class Category(CategoryType):
     "Гостиные", "Прихожие", "Детская мебель".so
     Список категорий может быть расширен администратором.
     """
-
     class Meta:
         ordering = ('name',)
         verbose_name = 'Категория'
@@ -40,9 +67,15 @@ class Category(CategoryType):
 
 class Type(CategoryType):
     """Тип товара
-
     Товары делятся на типы: "Диваны", "Кресла" и т.д
     """
+    image = models.ForeignKey(
+        Picture,
+        on_delete=models.SET_NULL,
+        null=True,
+        verbose_name='Картинка типа товара'
+    )
+
     class Meta:
         ordering = ('name',)
         verbose_name = 'Тип'
@@ -66,35 +99,35 @@ class ProductModel(CategoryType):
         verbose_name_plural = 'Модели'
 
 
-class Tag(models.Model):
-    name = models.CharField(
-        'Название тега',
+class ColorTag(models.Model):
+    color_name = models.CharField(
+        'Название цвета',
         unique=True,
         max_length=settings.MAX_LENGTH_1,
         help_text='Введите тег'
     )
-    color = models.CharField(
-        'Цвет тега',
+    hex = models.CharField(
+        'Код цвета',
         unique=True,
         max_length=settings.MAX_LENGTH_2,
         help_text='Укажите цвет тега'
     )
     slug = models.SlugField(
-        'Слаг тега',
+        'Слаг цвета',
         unique=True,
         max_length=settings.MAX_LENGTH_1
     )
 
     class Meta:
-        verbose_name = 'Тег'
-        verbose_name_plural = 'Теги'
+        verbose_name = 'Тег цвета'
+        verbose_name_plural = 'Теги цвета'
 
     def __str__(self):
-        return self.name
+        return self.color_name
 
     def save(self, *args, **kwargs):
         if not self.slug:
-            self.slug = slugify(self.name)
+            self.slug = slugify(self.color_name)
         return super().save(*args, **kwargs)
 
 
@@ -111,7 +144,7 @@ class Size(models.Model):
 
     class Meta:
         verbose_name = 'Размер'
-        verbose_name_plural = 'размеры'
+        verbose_name_plural = 'Размеры'
 
     def __str__(self):
         return f'{self.length} х {self.width} х {self.height} см'
@@ -130,8 +163,8 @@ class Product(models.Model):
     )
     category = models.ManyToManyField(
         Category,
-        related_name='category',
-        verbose_name='Категория товара'
+        verbose_name='Категория товара',
+        related_name='products'
     )
     type = models.ForeignKey(
         Type,
@@ -152,6 +185,8 @@ class Product(models.Model):
     )
 
     class Meta:
+        verbose_name = 'Товар'
+        verbose_name_plural = 'Товары'
         constraints = [models.UniqueConstraint(
             fields=['name', 'type', ],
             name='unique_type')
@@ -168,21 +203,16 @@ class Specification(models.Model):
         max_length=settings.MAX_LENGTH_1,
         help_text='Введите артикул товара'
     )
-    size = models.ManyToManyField(
-        Size,
-        related_name='size_in_specific',
-        verbose_name='Размер товара'
-    )
-    model = models.CharField(
-        'Тип модели',
+    feature_model = models.CharField(
+        'Особенности модели',
         blank=True,
         max_length=settings.MAX_LENGTH_1,
-        help_text='Введите тип товара'  # Например угловой, модульный и т.д.
+        help_text='Введите особенности товара'
     )
     materials = models.CharField(
-        'Материлы',
+        'Материалы',
         max_length=settings.MAX_LENGTH_1,
-        help_text='Введите материлы товара'
+        help_text='Введите материалы товара'
     )
     manufacturer = models.CharField(
         'Производитель',
@@ -197,38 +227,20 @@ class Specification(models.Model):
 
     def __str__(self):
         return (f'{self.article_number}, '
-                f'{self.size}, '
-                f'{self.model}, '
+                f'{self.feature_model}, '
                 f'{self.materials}, '
                 f'{self.manufacturer}')
-
-
-class Image(models.Model):
-    image = models.ImageField(
-        'Фото товара',
-        upload_to='product/%Y/%m/%d',
-        blank=True,
-        null=True,
-        help_text='Загрузите фото товара'
-    )
-
-    class Meta:
-        verbose_name = 'Изображение'
-        verbose_name_plural = 'Изображения'
-
-    def __str__(self):
-        return f'{self.image.name.split("/")[-1]}'
 
 
 class VariationProduct(models.Model):
     product = models.ForeignKey(
         Product,
         on_delete=models.CASCADE,
-        related_name='product',
+        related_name='variations',
         verbose_name='Товары'
     )
     image = models.ManyToManyField(
-        Image,
+        Picture,
         verbose_name='Фотографии'
     )
     price = models.IntegerField(
@@ -241,22 +253,27 @@ class VariationProduct(models.Model):
         blank=True,
         default=0
     )
-    size = models.ManyToManyField(
+    size = models.ForeignKey(
         Size,
+        on_delete=models.SET_NULL,
         blank=True,
-        related_name='size',
+        null=True,
+        related_name='products',
         verbose_name='Размер товара'
     )
-    tags = models.ManyToManyField(
-        Tag,
+    color_tag = models.ForeignKey(
+        ColorTag,
+        on_delete=models.SET_NULL,
+        null=True,
         db_index=True,
         verbose_name='Цвет товара',
-        related_name='colour'
+        related_name='products'
     )
     specification = models.ForeignKey(
         Specification,
         null=True,
         on_delete=models.SET_NULL,
+        verbose_name='Характеристика',
         related_name='specification'
     )
     pub_date = models.DateTimeField(
@@ -265,8 +282,8 @@ class VariationProduct(models.Model):
     )
 
     class Meta:
-        verbose_name = 'Статья'
-        verbose_name_plural = 'Статьи'
+        verbose_name = 'Вариация товара'
+        verbose_name_plural = 'Вариации товаров'
 
     def __str__(self):
         return (f'{self.product.name}: '
@@ -304,50 +321,3 @@ class Favorite(FavoriteBasket):
         default_related_name = 'favorite'
         verbose_name = 'Избранное'
         verbose_name_plural = 'Избранное'
-
-
-class Basket(FavoriteBasket):
-    quantity = models.PositiveIntegerField(default=1)
-
-    class Meta:
-        constraints = [models.UniqueConstraint(
-            fields=['user', 'product'],
-            name='unique_basket')
-        ]
-        default_related_name = 'basket'
-        verbose_name = 'Корзина'
-        verbose_name_plural = 'Корзина'
-
-
-class UserCart(models.Model):
-    user = models.OneToOneField(
-        User,
-        on_delete=models.CASCADE,
-        verbose_name='Пользователь',
-        related_name='cart'
-    )
-
-    def __str__(self):
-        return f'Корзина {self.user.get_username()}'
-
-
-class CartProduct(models.Model):
-    quantity = models.IntegerField(
-        default=0,
-        verbose_name='Количество'
-    )
-    cart = models.ForeignKey(
-        UserCart,
-        null=True,
-        on_delete=models.CASCADE,
-        verbose_name='Корзина',
-        related_name='products'
-    )
-    product = models.ForeignKey(
-        VariationProduct,
-        on_delete=models.CASCADE,
-        verbose_name='Продукт'
-    )
-
-    def __str__(self):
-        return f'{self.product} в корзине {self.cart}'

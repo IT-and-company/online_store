@@ -1,8 +1,8 @@
 from django.contrib import admin
 from django.contrib.auth.models import Group
 
-from .models import (CartProduct, Category, Favorite, Image, Product,
-                     ProductModel, Size, Specification, Tag, Type, UserCart,
+from .models import (Category, Favorite, Picture, Product,
+                     ProductModel, Size, Specification, ColorTag, Type,
                      VariationProduct)
 
 
@@ -21,6 +21,7 @@ class TypeAdmin(admin.ModelAdmin):
     list_display = (
         'pk',
         'name',
+        'image',
         'slug'
     )
     prepopulated_fields = {'slug': ('name',)}
@@ -37,10 +38,10 @@ class ProductModelAdmin(admin.ModelAdmin):
     prepopulated_fields = {'slug': ('name',)}
 
 
-@admin.register(Tag)
-class TagAdmin(admin.ModelAdmin):
-    list_display = ('name', 'color', 'slug')
-    search_fields = ('name', 'color', 'slug')
+@admin.register(ColorTag)
+class ColorTagAdmin(admin.ModelAdmin):
+    list_display = ('color_name', 'hex', 'slug')
+    search_fields = ('color_name', 'hex', 'slug')
     empty_value_display = '-пусто-'
 
 
@@ -57,8 +58,8 @@ class SpecificationAdmin(admin.ModelAdmin):
     search_fields = ('article_number', 'manufacturer')
 
 
-@admin.register(Image)
-class ImageAdmin(admin.ModelAdmin):
+@admin.register(Picture)
+class PictureAdmin(admin.ModelAdmin):
     list_display = ('image',)
     fields = ('image',)
 
@@ -81,7 +82,7 @@ class ProductAdmin(admin.ModelAdmin):
     readonly_fields = ('is_favorited',)
     # form = ProductAdminForm
 
-    @admin.display(description='Количество избраного')
+    @admin.display(description='Количество избранного')
     def is_favorited(self, obj):
         return obj.favorite.count()
 
@@ -93,22 +94,6 @@ class FavoriteAdmin(admin.ModelAdmin):
         'user__username',
         'user__phone',
         'product__name'
-    )
-
-
-@admin.register(UserCart)
-class UserCartAdmin(admin.ModelAdmin):
-    list_display = ('pk', 'user')
-    search_fields = (
-        'user__username',
-    )
-
-
-@admin.register(CartProduct)
-class CartProductAdmin(admin.ModelAdmin):
-    list_display = ('pk', 'cart', 'product', 'quantity')
-    search_fields = (
-        'product__name',
     )
 
 

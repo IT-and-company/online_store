@@ -4,35 +4,34 @@ from drf_extra_fields.fields import Base64ImageField
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 
-from client.models import BackCall, Order
-from products.models import (Basket, Category, Favorite, Image, Product, Size,
-                             Specification, Tag, Type, VariationProduct)
-
+from client.models import BackCall, Order, OrderCart, OrderProduct
+from products.models import (Category, Favorite, Picture, Product, Size,
+                             Specification, ColorTag, Type, VariationProduct)
 
 User = get_user_model()
 
 
-# class UserSerializer(serializers.ModelSerializer):
-#     name = serializers.CharField(max_length=150, required=True)
-#     phone = PhoneNumberField()
-#
-#     class Meta:
-#         fields = ('name', 'phone',)
-#         model = User
-#
-#     def validate(self, data):
-#         if data.get('name') == 'me':
-#             raise serializers.ValidationError(
-#                 'Пользователь не может иметь такое имя')
-#
-#         if User.objects.filter(phone=data.get('phone')).exists():
-#             raise serializers.ValidationError(
-#                 'Пользователь с таким телефоном уже существует')
-#
-#         return data
+class UserSerializer(serializers.ModelSerializer):
+    """Сериализатор для работы с объектами модели User."""
+    class Meta:
+        model = User
+        fields = '__all__'
+
+
+class LoginSerializer(serializers.Serializer):
+    """Сериализатор для проверки и обработки email при входе на сайт."""
+    email = serializers.EmailField()
+
+    def validate_email(self, value):
+        if not User.objects.filter(email=value, is_active=True).exists():
+            raise serializers.ValidationError(
+                f'Email "{value}" не зарегистрирован или не активирован'
+            )
+        return value
 
 
 class SignupSerializer(serializers.ModelSerializer):
+    """Сериализатор для создания нового объекта модели User."""
     class Meta:
         model = User
         fields = ('first_name', 'email')
@@ -55,59 +54,61 @@ class SignupSerializer(serializers.ModelSerializer):
         return value
 
 
-# class AuthSerializer(serializers.Serializer):
-#     phone = serializers.CharField(max_length=15)
-#     verification_code = serializers.CharField(max_length=4)
-#
-#     def validate(self, data):
-#         phone = data.get('phone')
-#         # verification_code = data.get('verification_code')
-#
-#         # Здесь должна быть логика отправки кода и проверки его правильности
-#         # Пропустим это для примера
-#         # ...
-#
-#         user = authenticate(request=self.context.get('request'),
-#         phone=phone)
-#
-#         if not user:
-#             raise serializers.ValidationError('Неверные учетные данные')
-#
-#         data['user'] = user
-#         return data
-
-
-class OrderSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Order
-        fields = '__all__'
-
-
 class BackCallSerializer(serializers.ModelSerializer):
+    """Сериализатор для работы с заявками на обратный звонок."""
     class Meta:
         model = BackCall
         fields = '__all__'
 
 
-class CategorySerializer(serializers.ModelSerializer):
+class PictureSerializer(serializers.ModelSerializer):
+    """Сериализатор для работы с изображениями товаров."""
+    image = Base64ImageField()
+
     class Meta:
-        model = Category
+        model = Picture
         fields = '__all__'
 
 
 class TypeSerializer(serializers.ModelSerializer):
+    """Сериализатор для работы с типами товаров."""
+    image = PictureSerializer(read_only=True)
+
     class Meta:
         model = Type
         fields = '__all__'
 
 
-class TagSerializer(serializers.ModelSerializer):
+class CategorySerializer(serializers.ModelSerializer):
+    """Сериализатор для работы с категориями товаров."""
+    min_price = serializers.SerializerMethodField()
+    max_price = serializers.SerializerMethodField()
+    types = serializers.SerializerMethodField()
+
+    def get_min_price(self, obj):
+        return obj.min_price
+
+    def get_max_price(self, obj):
+        return obj.max_price
+
+    def get_types(self, obj):
+        types = Type.objects.filter(product__category=obj).distinct()
+        return TypeSerializer(types, many=True).data
+
     class Meta:
-        model = Tag
+        model = Category
+        fields = '__all__'
+
+
+class ColorTagSerializer(serializers.ModelSerializer):
+    """Сериализатор для работы с цветами товаров."""
+    class Meta:
+        model = ColorTag
         fields = '__all__'
 
 
 class SizeSerializer(serializers.ModelSerializer):
+    """Сериализатор для работы с размерами товаров."""
     class Meta:
         model = Size
         fields = ('length',
@@ -116,61 +117,50 @@ class SizeSerializer(serializers.ModelSerializer):
 
 
 class SpecificationSerializer(serializers.ModelSerializer):
+    """Сериализатор для работы со спецификацией товаров."""
     class Meta:
         model = Specification
         fields = '__all__'
 
 
-class ImageSerializer(serializers.ModelSerializer):
-    image = Base64ImageField()
-
-    class Meta:
-        model = Image
-        fields = '__all__'
-
-
 class ProductSerializer(serializers.ModelSerializer):
+    """Сериализатор для работы с товарами."""
     class Meta:
         model = Product
         fields = '__all__'
 
 
 class ProductBaseSerializer(serializers.ModelSerializer):
-    tags = TagSerializer(many=True, read_only=True)
-    image = ImageSerializer(many=True, read_only=True)
+    """Сериализатор для отображения продукта со всеми характеристиками
+    и дополнительными полями."""
+    color_tag = ColorTagSerializer(read_only=True)
+    image = PictureSerializer(many=True, read_only=True)
     price = serializers.IntegerField()
     sale = serializers.IntegerField()
     is_discount = serializers.SerializerMethodField(
         method_name='get_is_discount')
     is_favorited = serializers.SerializerMethodField(
         method_name='get_is_favorited')
-    is_in_basket = serializers.SerializerMethodField(
-        method_name='get_is_in_basket')
 
     class Meta:
         model = VariationProduct
+        depth = 2
         fields = (
+            'id',
             'image',
             'price',
             'sale',
             'size',
-            'tags',
+            'color_tag',
             'is_discount',
             'is_favorited',
-            'is_in_basket'
         )
 
     def get_request(self, obj, model):
         request = self.context.get('request')
-
-        if request and request.user.is_authenticated:
-            return model.objects.filter(user=request.user,
-                                        product=obj).exists()
-
-        return False
-
-    def get_is_in_basket(self, obj):
-        return self.get_request(obj, Basket)
+        return (request and request.user.is_authenticated
+                and model.objects.filter(user=request.user,
+                                         product=obj).exists())
 
     def get_is_favorited(self, obj):
         return self.get_request(obj, Favorite)
@@ -180,6 +170,8 @@ class ProductBaseSerializer(serializers.ModelSerializer):
 
 
 class ProductShortSerializer(ProductBaseSerializer):
+    """Сериализатор наследующийся от базового сериализатор товаров,
+    который добавляет к каждому объекту товара поле product."""
     product = serializers.CharField(source='product.name', read_only=True)
 
     class Meta(ProductBaseSerializer.Meta):
@@ -187,6 +179,7 @@ class ProductShortSerializer(ProductBaseSerializer):
 
 
 class VariationProductSerializer(ProductBaseSerializer):
+    """Сериализатор для работы с разными вариантами каждого товара."""
     product = ProductSerializer(read_only=True)
     specification = SpecificationSerializer(read_only=True)
 
@@ -195,8 +188,17 @@ class VariationProductSerializer(ProductBaseSerializer):
             'product', 'specification')
 
 
+class ProductFullSerializer(serializers.ModelSerializer):
+    variations = ProductBaseSerializer(many=True)
+
+    class Meta:
+        model = Product
+        fields = '__all__'
+
+
 class CartSerializer(serializers.Serializer):
-    product = ProductShortSerializer()
+    """Сериализатор для работы с корзиной."""
+    variation = VariationProductSerializer()
     quantity = serializers.SerializerMethodField()
     price = serializers.SerializerMethodField()
 
@@ -204,7 +206,39 @@ class CartSerializer(serializers.Serializer):
         return obj['quantity']
 
     def get_price(self, obj):
-        product = VariationProduct.objects.get(id=obj['product'].id)
-        if product.sale:
-            return (product.price * product.sale) / 100
-        return product.price
+        return obj['price']
+
+
+class OrderProductSerializer(serializers.ModelSerializer):
+    """Сериализатор для работы с объектами модели OrderProduct."""
+    variation = ProductShortSerializer(source='product')
+
+    class Meta:
+        model = OrderProduct
+        fields = '__all__'
+
+
+class OrderCartSerializer(serializers.ModelSerializer):
+    """Сериализатор для работы с объектами модели OrderCart."""
+    products = OrderProductSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = OrderCart
+        fields = '__all__'
+
+
+class OrderListSerializer(serializers.ModelSerializer):
+    """Сериализатор для работы со списком заказов."""
+    cart = OrderCartSerializer()
+
+    class Meta:
+        model = Order
+        depth = 3
+        fields = '__all__'
+
+
+class OrderCreateSerializer(serializers.ModelSerializer):
+    """Сериализатор для создания заказа."""
+    class Meta:
+        model = Order
+        fields = 'name', 'phone', 'email', 'address'

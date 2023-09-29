@@ -3,16 +3,16 @@ version: "3.8"
 services:
   web:
     build: .
-    command: gunicorn myagkoe_mesto.wsgi:application --bind 0.0.0.0:8000
     volumes:
+      - /etc/letsencrypt/live/mebelnyibutikmm.ru/:/etc/letsencrypt/live/mebelnyibutikmm.ru/
+      - /etc/letsencrypt/live/xn--90aakbqejefiag1en1joa.xn--p1ai/:/etc/letsencrypt/live/xn--90aakbqejefiag1en1joa.xn--p1ai/
+      - /etc/letsencrypt/live/mebelnyibutikmm.store/:/etc/letsencrypt/live/mebelnyibutikmm.store/
       - static_volume:/home/online_store/backend/backend_static
       - media_volume:/home/online_store/backend/backend_media
-    expose:
-      - 8000
-    ports:
-      - 8000:8000
     env_file:
       - ./.env
+    expose:
+      - 8000
     depends_on:
       - db
 
@@ -26,10 +26,12 @@ services:
   nginx:
     build: ./nginx
     volumes:
+      - /etc/letsencrypt/:/etc/letsencrypt/
       - static_volume:/home/online_store/backend/backend_static
       - media_volume:/home/online_store/backend/backend_media
     ports:
-      - 1337:80
+      - "80:80"
+      - "443:443"
     depends_on:
       - web
 

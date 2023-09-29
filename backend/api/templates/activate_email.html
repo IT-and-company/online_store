@@ -1,5 +1,0 @@
-{% autoescape off %} 
-    Добрый день, {{ user.username }}, 
-    Для завершения регистрации, перейдите по следующей ссылке: 
-    http://{{ domain }}{% url 'api:activate' uidb64=uid token=token %}
-{% endautoescape %}
