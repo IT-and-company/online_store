@@ -54,39 +54,6 @@ class SignupSerializer(serializers.ModelSerializer):
         return value
 
 
-class OrderProductSerializer(serializers.ModelSerializer):
-    """Сериализатор для работы с объектами модели OrderProduct."""
-
-    class Meta:
-        model = OrderProduct
-        fields = '__all__'
-
-
-class OrderCartSerializer(serializers.ModelSerializer):
-    """Сериализатор для работы с объектами модели OrderCart."""
-    products = OrderProductSerializer(many=True, read_only=True)
-
-    class Meta:
-        model = OrderCart
-        fields = '__all__'
-
-
-class OrderListSerializer(serializers.ModelSerializer):
-    """Сериализатор для работы со списком заказов."""
-    cart = OrderCartSerializer()
-
-    class Meta:
-        model = Order
-        fields = '__all__'
-
-
-class OrderCreateSerializer(serializers.ModelSerializer):
-    """Сериализатор для создания заказа."""
-    class Meta:
-        model = Order
-        fields = '__all__'
-
-
 class BackCallSerializer(serializers.ModelSerializer):
     """Сериализатор для работы с заявками на обратный звонок."""
     class Meta:
@@ -94,17 +61,42 @@ class BackCallSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
-class CategorySerializer(serializers.ModelSerializer):
-    """Сериализатор для работы с категориями товаров."""
+class PictureSerializer(serializers.ModelSerializer):
+    """Сериализатор для работы с изображениями товаров."""
+    image = Base64ImageField()
+
     class Meta:
-        model = Category
+        model = Picture
         fields = '__all__'
 
 
 class TypeSerializer(serializers.ModelSerializer):
     """Сериализатор для работы с типами товаров."""
+    image = PictureSerializer(read_only=True)
+
     class Meta:
         model = Type
+        fields = '__all__'
+
+
+class CategorySerializer(serializers.ModelSerializer):
+    """Сериализатор для работы с категориями товаров."""
+    min_price = serializers.SerializerMethodField()
+    max_price = serializers.SerializerMethodField()
+    types = serializers.SerializerMethodField()
+
+    def get_min_price(self, obj):
+        return obj.min_price
+
+    def get_max_price(self, obj):
+        return obj.max_price
+
+    def get_types(self, obj):
+        types = Type.objects.filter(product__category=obj).distinct()
+        return TypeSerializer(types, many=True).data
+
+    class Meta:
+        model = Category
         fields = '__all__'
 
 
@@ -131,15 +123,6 @@ class SpecificationSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
-class PictureSerializer(serializers.ModelSerializer):
-    """Сериализатор для работы с изображениями товаров."""
-    image = Base64ImageField()
-
-    class Meta:
-        model = Picture
-        fields = '__all__'
-
-
 class ProductSerializer(serializers.ModelSerializer):
     """Сериализатор для работы с товарами."""
     class Meta:
@@ -161,6 +144,7 @@ class ProductBaseSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = VariationProduct
+        depth = 2
         fields = (
             'id',
             'image',
@@ -223,3 +207,38 @@ class CartSerializer(serializers.Serializer):
 
     def get_price(self, obj):
         return obj['price']
+
+
+class OrderProductSerializer(serializers.ModelSerializer):
+    """Сериализатор для работы с объектами модели OrderProduct."""
+    variation = ProductShortSerializer(source='product')
+
+    class Meta:
+        model = OrderProduct
+        fields = '__all__'
+
+
+class OrderCartSerializer(serializers.ModelSerializer):
+    """Сериализатор для работы с объектами модели OrderCart."""
+    products = OrderProductSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = OrderCart
+        fields = '__all__'
+
+
+class OrderListSerializer(serializers.ModelSerializer):
+    """Сериализатор для работы со списком заказов."""
+    cart = OrderCartSerializer()
+
+    class Meta:
+        model = Order
+        depth = 3
+        fields = '__all__'
+
+
+class OrderCreateSerializer(serializers.ModelSerializer):
+    """Сериализатор для создания заказа."""
+    class Meta:
+        model = Order
+        fields = 'name', 'phone', 'email', 'address'

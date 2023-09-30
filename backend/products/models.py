@@ -9,6 +9,32 @@ from PIL import Image
 User = get_user_model()
 
 
+class Picture(models.Model):
+    image = models.ImageField(
+        'Фото товара',
+        upload_to='product/%Y/%m/%d',
+        null=True,
+        blank=True,
+        help_text='Загрузите фото товара'
+    )
+
+    class Meta:
+        verbose_name = 'Изображение'
+        verbose_name_plural = 'Изображения'
+
+    def __str__(self):
+        return f'{self.image.name.split("/")[-1]}'
+
+    def save(self, *args, **kwargs):
+        super().save()
+        img = Image.open(self.image.path)
+
+        if img.height > 450 or img.width > 850:
+            output_size = (450, 850)
+            img.thumbnail(output_size)
+            img.save(self.image.path)
+
+
 class CategoryType(models.Model):
     name = models.CharField(
         'Название',
@@ -33,7 +59,6 @@ class Category(CategoryType):
     "Гостиные", "Прихожие", "Детская мебель".so
     Список категорий может быть расширен администратором.
     """
-
     class Meta:
         ordering = ('name',)
         verbose_name = 'Категория'
@@ -42,9 +67,15 @@ class Category(CategoryType):
 
 class Type(CategoryType):
     """Тип товара
-
     Товары делятся на типы: "Диваны", "Кресла" и т.д
     """
+    image = models.ForeignKey(
+        Picture,
+        on_delete=models.SET_NULL,
+        null=True,
+        verbose_name='Картинка типа товара'
+    )
+
     class Meta:
         ordering = ('name',)
         verbose_name = 'Тип'
@@ -132,7 +163,8 @@ class Product(models.Model):
     )
     category = models.ManyToManyField(
         Category,
-        verbose_name='Категория товара'
+        verbose_name='Категория товара',
+        related_name='products'
     )
     type = models.ForeignKey(
         Type,
@@ -198,32 +230,6 @@ class Specification(models.Model):
                 f'{self.feature_model}, '
                 f'{self.materials}, '
                 f'{self.manufacturer}')
-
-
-class Picture(models.Model):
-    image = models.ImageField(
-        'Фото товара',
-        upload_to='product/%Y/%m/%d',
-        blank=True,
-        null=True,
-        help_text='Загрузите фото товара'
-    )
-
-    class Meta:
-        verbose_name = 'Изображение'
-        verbose_name_plural = 'Изображения'
-
-    def __str__(self):
-        return f'{self.image.name.split("/")[-1]}'
-
-    def save(self, *args, **kwargs):
-        super().save()
-        img = Image.open(self.image.path)
-
-        if img.height > 450 or img.width > 850:
-            output_size = (450, 850)
-            img.thumbnail(output_size)
-            img.save(self.image.path)
 
 
 class VariationProduct(models.Model):

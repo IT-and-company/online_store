@@ -148,6 +148,8 @@ REST_FRAMEWORK = {
     ],
     'DEFAULT_PAGINATION_CLASS': ('rest_framework.pagination.'
                                  'PageNumberPagination'),
+
+    'DATETIME_FORMAT': "%Y-%m-%d %H:%M:%S %Z",
 }
 
 SIMPLE_JWT = {

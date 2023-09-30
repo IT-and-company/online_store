@@ -1,7 +1,6 @@
-import datetime
 from distutils.util import strtobool
 
-from django.db.models import Count, Max, Q
+from django.db.models import Count, Max, Min, Q
 from django.conf import settings
 from django.core.mail import send_mail
 from django.contrib.auth import get_user_model
@@ -16,7 +15,7 @@ from django_filters.rest_framework import DjangoFilterBackend
 
 from rest_framework import status, viewsets, generics, mixins
 from rest_framework.decorators import action, api_view
-from rest_framework.filters import SearchFilter
+from rest_framework.filters import OrderingFilter, SearchFilter
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -178,6 +177,7 @@ class OrderViewSet(viewsets.ModelViewSet):
                 )
             order_data = serializer.validated_data
             order = Order.objects.create(**order_data)
+            order_time = order.created_at
             order_cart_data = {'order': order}
 
             if request.user.is_authenticated:
@@ -198,7 +198,6 @@ class OrderViewSet(viewsets.ModelViewSet):
                 product_data['total_price'] = item['total_price']
                 cart_items.append(product_data)
 
-            order_time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
             # Отправляем сообщение с данными заказа на почту магазина
             emails = {
                 'store_email': (settings.DEFAULT_TO_EMAIL,),
@@ -248,7 +247,12 @@ class UserOrderViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
 
 class CategoryViewSet(viewsets.ReadOnlyModelViewSet):
     """Вьюсет для работы с категориями товаров."""
-    queryset = Category.objects.all()
+    queryset = Category.objects.all().prefetch_related(
+        'products__type'
+    ).annotate(
+        min_price=Min('products__variations__price'),
+        max_price=Max('products__variations__price'),
+    )
     serializer_class = CategorySerializer
     permission_classes = [IsAdminOrReadOnly]
     pagination_class = None
@@ -279,12 +283,25 @@ class SizeViewSet(viewsets.ReadOnlyModelViewSet):
 
 
 class ProductAPIView(viewsets.ModelViewSet):
-    queryset = Product.objects.all()
+    queryset = Product.objects.all().annotate(
+        max_price=Max("variations__price"),
+        min_price=Min("variations__price"),
+        min_sale=Max("variations__sale"),
+        max_sale=Max("variations__sale")
+    )
     serializer_class = ProductFullSerializer
     permission_classes = [IsAdminOrReadOnly]
-    filter_backends = (SearchFilter, CategoryTypeFilter)
+    pagination_class = CustomPagination
+    filter_backends = [DjangoFilterBackend, OrderingFilter, SearchFilter]
+    ordering_fields = [
+        'max_price',
+        'min_price',
+        'min_sale',
+        'max_sale',
+    ]
+    filterset_class = CategoryTypeFilter
     search_fields = ('^name',)
-    filterset_fields = ['category', 'type']
+    # filterset_fields = ['category', 'type']
 
     @action(detail=False, methods=['get'])
     def hits(self, request):
@@ -411,6 +428,7 @@ class CartAPI(APIView):
     Эндпоинт корзины товаров текущего пользователя.
     """
     permission_classes = [AllowAny]
+    pagination_class = CustomPagination
 
     def get(self, request):
         """

@@ -21,6 +21,7 @@ class TypeAdmin(admin.ModelAdmin):
     list_display = (
         'pk',
         'name',
+        'image',
         'slug'
     )
     prepopulated_fields = {'slug': ('name',)}
