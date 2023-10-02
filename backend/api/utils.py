@@ -83,7 +83,6 @@ def send_order(
     )
     plain_message = strip_tags(html_message)
     from_email = settings.DEFAULT_FROM_EMAIL
-    print(settings.EMAIL_HOST_PASSWORD, from_email)
     send_mail(
         subject=subject,
         message=plain_message,
