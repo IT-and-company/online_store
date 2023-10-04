@@ -197,6 +197,6 @@ AUTHENTICATION_BACKENDS = (
     'api.auth_backend.AuthenticationWithoutPassword',
 )
 
-CORS_ORIGIN_ALLOW_ALL = True
+# CORS_ORIGIN_ALLOW_ALL = True
 
 DATA_UPLOAD_MAX_MEMORY_SIZE = 5242880
