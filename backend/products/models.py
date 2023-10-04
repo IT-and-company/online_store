@@ -4,7 +4,7 @@ from django.db import models
 from django.template.defaultfilters import slugify
 from smart_selects.db_fields import ChainedForeignKey
 
-from PIL import Image
+# from PIL import Image
 
 User = get_user_model()
 
