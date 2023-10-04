@@ -11,8 +11,6 @@ services:
       - media_volume:/home/online_store/backend/backend_media
     env_file:
       - ./.env
-    expose:
-      - 8000
     depends_on:
       - db
 
