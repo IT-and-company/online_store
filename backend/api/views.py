@@ -177,7 +177,7 @@ class OrderViewSet(viewsets.ModelViewSet):
                 )
             order_data = serializer.validated_data
             order = Order.objects.create(**order_data)
-            order_time = order.created_at
+            order_time = order.created_at.strftime("%d.%m.%Y %H:%M")
             order_cart_data = {'order': order}
 
             if request.user.is_authenticated:
