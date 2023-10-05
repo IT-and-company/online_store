@@ -1,5 +1,6 @@
 from distutils.util import strtobool
 
+import pytz
 from django.db.models import Count, Max, Min, Q
 from django.conf import settings
 from django.core.mail import send_mail
@@ -177,7 +178,9 @@ class OrderViewSet(viewsets.ModelViewSet):
                 )
             order_data = serializer.validated_data
             order = Order.objects.create(**order_data)
-            order_time = order.created_at.strftime("%d.%m.%Y %H:%M")
+            timezone = pytz.timezone('Europe/Moscow')
+            order_time = order.created_at.strftime(
+                "%d.%m.%Y %H:%M").astimezone(timezone)
             order_cart_data = {'order': order}
 
             if request.user.is_authenticated:
