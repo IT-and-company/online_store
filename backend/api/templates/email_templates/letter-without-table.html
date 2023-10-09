@@ -32,12 +32,14 @@
   <p style="font-weight: 500">Email: {{ order.email }}</p>
   <p style="font-weight: 500">Адрес: {{ order.address }}</p>
   <br>
+  {% for item in cart_items %}
   <p style="font-weight: 500; font-size: 14px">Наименование: {{ item.product.product }}</p>
   <p style="font-weight: 500; font-size: 14px">Кол-во: {{ item.quantity }}</p>
   <p style="font-weight: 500; font-size: 14px">Цвет: {{ item.product.color_tag }}</p>
   <p style="font-weight: 500; font-size: 14px">Размер: {{ item.product.size }}</p>
   <p style="font-weight: 500; font-size: 14px">Цена: {{ item.price }}</p>
   <p style="font-weight: 500; font-size: 14px">Итого: {{ item.total_price }}</p>
+  {% endfor %}
 </div>
 </body>
 </html>
