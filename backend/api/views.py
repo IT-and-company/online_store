@@ -224,7 +224,7 @@ class OrderViewSet(viewsets.ModelViewSet):
             ]:
                 send_order(
                     subject=mail_data['subject'],
-                    template='email_templates/store_order.html',
+                    template='email_templates/letter_without_table.html',
                     to_email=mail_data['to_email'],
                     order=order,
                     cart=cart,
