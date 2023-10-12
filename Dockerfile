@@ -18,9 +18,9 @@ RUN pip install -r requirements.txt
 # COPY ./entrypoint.sh .
 # RUN sed -i 's/\r$//g' /home/online_store/backend/entrypoint.sh
 # RUN chmod +x /home/online_store/backend/entrypoint.sh
+COPY ./backend .
 COPY ./entrypoint.sh /
 ENTRYPOINT ["sh", "/entrypoint.sh"]
-COPY ./backend .
 RUN mkdir -p /home/online_store/backend/backend_static
 RUN mkdir -p /home/online_store/backend/backend_media
 
