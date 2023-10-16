@@ -112,8 +112,8 @@ class Cart(object):
                 self.cart[str(product.id)]['price'] = product.price
                 continue
 
-            self.cart[str(product.id)]['price'] = product.price * ((
-                100 - product.sale) / 100)
+            self.cart[str(product.id)]['price'] = Decimal(str(round(
+                product.price * ((100 - product.sale) / 100))))
 
         for item in self.cart.values():
             item['price'] = Decimal(item['price'])

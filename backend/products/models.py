@@ -4,7 +4,7 @@ from django.db import models
 from django.template.defaultfilters import slugify
 from smart_selects.db_fields import ChainedForeignKey
 
-from PIL import Image
+# from PIL import Image
 
 User = get_user_model()
 
@@ -25,14 +25,14 @@ class Picture(models.Model):
     def __str__(self):
         return f'{self.image.name.split("/")[-1]}'
 
-    def save(self, *args, **kwargs):
-        super().save()
-        img = Image.open(self.image.path)
-
-        if img.height > 450 or img.width > 850:
-            output_size = (450, 850)
-            img.thumbnail(output_size)
-            img.save(self.image.path)
+    # def save(self, *args, **kwargs):
+    #     super().save()
+    #     img = Image.open(self.image.path)
+    #
+    #     if img.height > 450 or img.width > 850:
+    #         output_size = (450, 850)
+    #         img.thumbnail(output_size)
+    #         img.save(self.image.path)
 
 
 class CategoryType(models.Model):
