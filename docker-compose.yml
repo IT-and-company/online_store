@@ -2,38 +2,49 @@ version: "3.8"
 
 services:
   web:
-    build: .
+    image: softplacemm/online_store:latest
     volumes:
       - /etc/letsencrypt/live/mebelnyibutikmm.ru/:/etc/letsencrypt/live/mebelnyibutikmm.ru/
-      - /etc/letsencrypt/live/xn--90aakbqejefiag1en1joa.xn--p1ai/:/etc/letsencrypt/live/xn--90aakbqejefiag1en1joa.xn--p1ai/
-      - /etc/letsencrypt/live/mebelnyibutikmm.store/:/etc/letsencrypt/live/mebelnyibutikmm.store/
-      - static_volume:/home/online_store/backend/backend_static
-      - media_volume:/home/online_store/backend/backend_media
+      - static_value:/app/static/
+      - media_value:/app/media/
     env_file:
       - ./.env
     depends_on:
       - db
 
   db:
-    image: postgres:13.0-alpine
+    image: postgres:16.0-alpine
     volumes:
       - postgres_data:/var/lib/postgresql/data/
-    env_file:
-      - ./.env
+    environment:
+      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+
+  frontend:
+    image: softplacemm/online_store_front:latest
+    volumes:
+      - static_front_volume:/app/result_build/
+    depends_on:
+      - db
 
   nginx:
-    build: ./nginx
+    image: nginx:latest
     volumes:
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf
       - /etc/letsencrypt/:/etc/letsencrypt/
-      - static_volume:/home/online_store/backend/backend_static
-      - media_volume:/home/online_store/backend/backend_media
+      - static_value:/var/html/static/
+      - media_value:/var/html/media/
+      - static_front_volume:/app/result_build/
     ports:
       - "80:80"
       - "443:443"
     depends_on:
       - web
+    restart: always
 
 volumes:
   postgres_data:
-  static_volume:
-  media_volume:
+  static_value:
+  media_value:
+  static_front_volume:
